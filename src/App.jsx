@@ -1,567 +1,225 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-// ─── Constants ───
-const STORAGE_KEY = "ft-accounting-v2";
-const DOLLAR_RATE_KEY = "ft-dollar-rate";
-const BRAND = "Karo Group";
+/* ══════════════════════════════════════════════════
+   KARO GROUP — Complete Website + Accounting System
+   Features: Landing Page (3 languages, dark/light mode)
+   + Project-based Accounting with Login
+   + Admin Panel for managing projects
+   Secret access: 3x click on footer logo
+   ══════════════════════════════════════════════════ */
 
-const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
-const today = () => new Date().toISOString().split("T")[0];
+const PHONE = "+964 770 153 6017";
+const PHONE_RAW = "9647701536017";
+const EMAIL = "hawbirranya6@gmail.com";
+const ACC_KEY = "karo-projects-v5";
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "karo2024";
 
-const fmtIQD = (n) => new Intl.NumberFormat("en-US").format(Math.round(n || 0));
-const fmtUSD = (n) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
+const gid = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+const td = () => new Date().toISOString().split("T")[0];
+const fi = (n) => new Intl.NumberFormat("en-US").format(Math.round(n || 0));
+const fu = (n) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
 
-// ─── Storage (localStorage) ───
-function loadStore() {
-  try {
-    const r = localStorage.getItem(STORAGE_KEY);
-    if (r) return JSON.parse(r);
-  } catch (e) { console.log("Fresh start"); }
-  return { expenses: [], debts: [], slabs: [], contractor: [], invoices: [], cashIQD: 0, cashUSD: 0 };
-}
-function saveStore(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true; } catch { return false; }
-}
-function loadRate() {
-  try {
-    const r = localStorage.getItem(DOLLAR_RATE_KEY);
-    if (r) return JSON.parse(r);
-  } catch {}
-  return { rate: 1500, date: today() };
-}
-function saveRateStorage(rate) {
-  try { localStorage.setItem(DOLLAR_RATE_KEY, JSON.stringify(rate)); } catch {}
-}
+function loadAll() { try { const r = localStorage.getItem(ACC_KEY); if (r) return JSON.parse(r); } catch {} return { projects: [{ id: "shasti", name: "\u0634\u0627\u0633\u062a\u06cc", user: "shasti", pass: "shasti123" }, { id: "surosh", name: "\u0628\u06d5\u0631\u0632\u0627\u06cc\u06d5\u06a9\u0627\u0646\u06cc \u0633\u0631\u0648\u0634\u062a", user: "surosh", pass: "surosh123" }], data: {} }; }
+function saveAll(d) { try { localStorage.setItem(ACC_KEY, JSON.stringify(d)); } catch {} }
+function getPD(all, pid) { if (!all.data[pid]) all.data[pid] = { expenses: [], debts: [], slabs: [], contractor: [], invoices: [], cashIQD: 0, cashUSD: 0, rate: 1500 }; return all.data[pid]; }
 
-// ─── Print helper ───
-function printContent(htmlContent, title = "Print") {
-  const w = window.open("", "_blank", "width=800,height=600");
-  if (!w) return;
-  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>${title}</title>
-<style>
-@page{size:A4;margin:15mm}
-*{box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
-body{margin:0;padding:20px;font-size:12px;color:#1a1a1a;direction:rtl}
-table{width:100%;border-collapse:collapse;margin:10px 0}
-th,td{border:1px solid #ccc;padding:6px 10px;text-align:right;font-size:11px}
-th{background:#f0f0f0;font-weight:700}
-.header{text-align:center;margin-bottom:20px;border-bottom:2px solid #333;padding-bottom:15px}
-.header h1{margin:0;font-size:22px;letter-spacing:1px}
-.total-row{font-weight:700;background:#f8f8f8}
-.meta{display:flex;justify-content:space-between;margin:10px 0;font-size:12px}
-@media print{body{padding:0}}
-</style></head><body>${htmlContent}</body></html>`);
-  w.document.close();
-  setTimeout(() => { w.print(); }, 300);
+function printHTML(h, t) { const w = window.open("", "_blank"); if (!w) return; w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>' + t + '</title><style>@page{size:A4;margin:15mm}*{box-sizing:border-box;font-family:Tahoma,sans-serif}body{margin:0;padding:20px;font-size:12px;direction:rtl}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{border:1px solid #ccc;padding:6px 10px;text-align:right;font-size:11px}th{background:#f0f0f0;font-weight:700}.header{text-align:center;margin-bottom:20px;border-bottom:2px solid #333;padding-bottom:15px}.header h1{margin:0;font-size:22px}.total-row{font-weight:700;background:#f8f8f8}.meta{display:flex;justify-content:space-between;margin:10px 0}@media print{body{padding:0}}</style></head><body>' + h + '</body></html>'); w.document.close(); setTimeout(() => w.print(), 300); }
+
+const accent = "#e8983e";
+const dk = { bg: "#050608", bg2: "#0a0c12", card: "rgba(255,255,255,0.02)", bdr: "rgba(255,255,255,0.06)", text: "#eef1f6", dim: "#6b7280", inBg: "rgba(255,255,255,0.03)", inBdr: "rgba(255,255,255,0.08)" };
+const lt = { bg: "#fafafa", bg2: "#fff", card: "rgba(0,0,0,0.02)", bdr: "rgba(0,0,0,0.08)", text: "#1a1a1a", dim: "#6b7280", inBg: "rgba(0,0,0,0.03)", inBdr: "rgba(0,0,0,0.1)" };
+
+function KaroLogo({ size = 40, isDark = true }) {
+  const c1 = isDark ? "#e8e8e8" : "#1a1a1a"; const c2 = "#e8983e";
+  return (<svg width={size * 2.6} height={size} viewBox="0 0 260 100" fill="none">
+    <rect x="5" y="35" width="22" height="58" rx="2" fill={c2}/>{[42,52,62,72].map(y => [8,17].map(x => <rect key={x+""+y} x={x} y={y} width="4.5" height="4.5" rx="1" fill={isDark?"#0a0a0a":"#fff"} opacity=".6"/>)).flat()}
+    <rect x="30" y="20" width="28" height="73" rx="2" fill={c1}/><rect x="30" y="17" width="28" height="4" rx="1" fill={c2}/>{[27,37,47,57,67].map(y => [33,41,49].map(x => <rect key={x+""+y} x={x} y={y} width="4.5" height="4.5" rx="1" fill={c2} opacity=".5"/>)).flat()}
+    <text x="72" y="63" fontFamily="'Poppins',sans-serif" fontSize="48" fontWeight="900" fill={c1} letterSpacing="2">KARO</text>
+    <text x="75" y="80" fontFamily="'Poppins',sans-serif" fontSize="14" fontWeight="600" fill={c2} letterSpacing="10">GROUP</text>
+  </svg>);
+}
+function LIcon({ size = 40, isDark = true }) {
+  return (<svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+    <rect width="100" height="100" rx="22" fill={isDark?"#0c0e14":"#f5f5f5"}/><rect x="15" y="40" width="18" height="42" rx="2" fill="#e8983e"/>
+    {[46,54,62].map(y=>[18,25].map(x=><rect key={x+""+y} x={x} y={y} width="4" height="4" rx="1" fill={isDark?"#0c0e14":"#f5f5f5"} opacity=".6"/>)).flat()}
+    <rect x="37" y="25" width="22" height="57" rx="2" fill={isDark?"#e0e0e0":"#333"}/><rect x="37" y="22" width="22" height="4" rx="1" fill="#e8983e"/>
+    {[30,38,46,54].map(y=>[40,48].map(x=><rect key={x+""+y} x={x} y={y} width="4" height="4" rx="1" fill="#e8983e" opacity=".5"/>)).flat()}
+    <text x="66" y="62" fontFamily="sans-serif" fontSize="28" fontWeight="900" fill={isDark?"#e0e0e0":"#333"}>K</text>
+  </svg>);
 }
 
-// ─── Theme ───
-const T = {
-  bg: "#0c1117",
-  card: "rgba(22,27,34,0.95)",
-  border: "rgba(48,54,61,0.8)",
-  text: "#e6edf3",
-  textDim: "#7d8590",
-  accent: "#e8983e",
-  red: "#f85149",
-  green: "#3fb950",
-  blue: "#58a6ff",
-  purple: "#bc8cff",
-  input: "rgba(13,17,23,0.8)",
-  inputBorder: "rgba(48,54,61,0.6)",
+const CSS = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{overflow-x:hidden}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(232,152,62,0.3);border-radius:3px}button{font-family:inherit;cursor:pointer;transition:all .25s}input,select,textarea{font-family:inherit}input:focus,select:focus,textarea:focus{outline:none;border-color:#e8983e!important;box-shadow:0 0 0 3px rgba(232,152,62,0.12)}@keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}@keyframes glow{0%,100%{opacity:.3}50%{opacity:1}}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}.fu{animation:fadeUp .7s ease both}.fu1{animation:fadeUp .7s ease .1s both}.fu2{animation:fadeUp .7s ease .2s both}.fu3{animation:fadeUp .7s ease .3s both}.fu4{animation:fadeUp .7s ease .4s both}.fl{animation:float 5s ease-in-out infinite}tr:hover td{background:rgba(232,152,62,0.03)}`;
+
+const TR = {
+  ku: { dir:"rtl", ff:"'Noto Sans Arabic','Poppins',sans-serif", nav:["\u0633\u06d5\u0631\u06d5\u062a\u0627","\u062e\u0632\u0645\u06d5\u062a\u06af\u0648\u0632\u0627\u0631\u06cc","\u062f\u06d5\u0631\u0628\u0627\u0631\u06d5","\u067e\u06d5\u06cc\u0648\u06d5\u0646\u062f\u06cc"], badge:"\u2605 \u0628\u06cc\u0646\u0627\u0633\u0627\u0632\u06cc \u0648 \u062a\u0639\u0645\u06cc\u0631 \u2605", h1:"\u0628\u06cc\u0646\u0627\u0633\u0627\u0632\u06cc", h2:"\u0633\u06d5\u0631\u062f\u06d5\u0645\u06cc\u0627\u0646\u06d5", hp:"\u0626\u06ce\u0645\u06d5 \u062e\u06d5\u0648\u0646\u06d5\u06a9\u0627\u0646\u062a \u062f\u06d5\u06af\u06c6\u0695\u06cc\u0646\u06d5 \u0628\u06d5 \u0695\u0627\u0633\u062a\u06cc\u06cc\u06d5\u0648\u06d5. \u06a9\u0648\u0627\u0644\u06cc\u062a\u06cc \u0628\u06d5\u0631\u0632\u060c \u062f\u06cc\u0632\u0627\u06cc\u0646\u06cc \u0645\u06c6\u062f\u06ce\u0631\u0646\u060c \u0648 \u0626\u06cc\u0634\u06a9\u0631\u062f\u0646\u06cc \u067e\u0695\u06c6\u0641\u06cc\u0634\u0646\u0627\u06b5.", c1:"\u067e\u06d5\u06cc\u0648\u06d5\u0646\u062f\u06cc\u0645\u0627\u0646 \u067e\u06ce\u0648\u06d5 \u0628\u06a9\u06d5", c2:"\u067e\u0695\u06c6\u0698\u06d5\u06a9\u0627\u0646\u0645\u0627\u0646", st:["\u067e\u0695\u06c6\u0698\u06d5\u06cc \u062a\u06d5\u0648\u0627\u0648\u06a9\u0631\u0627\u0648","\u0633\u0627\u06b5 \u0634\u0627\u0631\u06d5\u0632\u0627\u06cc\u06cc","\u06a9\u0644\u0627\u06cc\u06d5\u0646\u062a\u06cc \u062f\u06b5\u062e\u06c6\u0634","\u062a\u06cc\u0645\u06cc \u0634\u0627\u0631\u06d5\u0632\u0627"], svT:"\u062e\u0632\u0645\u06d5\u062a\u06af\u0648\u0632\u0627\u0631\u06cc\u06cc\u06d5\u06a9\u0627\u0646\u0645\u0627\u0646", svS:"\u0628\u0627\u0634\u062a\u0631\u06cc\u0646 \u062e\u0632\u0645\u06d5\u062a\u06af\u0648\u0632\u0627\u0631\u06cc \u0628\u06cc\u0646\u0627\u0633\u0627\u0632\u06cc", s:[{i:"\ud83c\udfe0",t:"\u0628\u06cc\u0646\u0627\u0633\u0627\u0632\u06cc \u0646\u06cc\u0634\u062a\u06d5\u062c\u06ce\u0628\u0648\u0648\u0646",d:"\u062f\u0631\u0648\u0633\u062a\u06a9\u0631\u062f\u0646\u06cc \u0645\u0627\u06b5 \u0648 \u0626\u0627\u067e\u0627\u0631\u062a\u0645\u0627\u0646 \u0628\u06d5 \u06a9\u0648\u0627\u0644\u06cc\u062a\u06cc \u0628\u06d5\u0631\u0632"},{i:"\ud83c\udfe2",t:"\u0628\u06cc\u0646\u0627\u0633\u0627\u0632\u06cc \u0628\u0627\u0632\u0631\u06af\u0627\u0646\u06cc",d:"\u062f\u0631\u0648\u0633\u062a\u06a9\u0631\u062f\u0646\u06cc \u0628\u0627\u0632\u0627\u0695 \u0648 \u0646\u0648\u0648\u0633\u06cc\u0646\u06af\u06d5"},{i:"\ud83d\udd27",t:"\u0646\u06c6\u0698\u06d5\u0646\u06a9\u0631\u062f\u0646\u06d5\u0648\u06d5",d:"\u0646\u06c6\u0698\u06d5\u0646\u06a9\u0631\u062f\u0646\u06d5\u0648\u06d5\u06cc \u0628\u06cc\u0646\u0627 \u0628\u06d5 \u0633\u062a\u0627\u0646\u062f\u0627\u0631\u062f\u06cc \u0646\u0648\u06ce"},{i:"\ud83c\udfa8",t:"\u062f\u06cc\u0632\u0627\u06cc\u0646\u06cc \u0646\u0627\u0648\u062e\u06c6",d:"\u062f\u06cc\u0632\u0627\u06cc\u0646\u06cc \u0646\u0627\u0648\u06d5\u0648\u06d5 \u0628\u06d5 \u0633\u062a\u0627\u06cc\u0644\u06cc \u0645\u06c6\u062f\u06ce\u0631\u0646"},{i:"\ud83d\udcd0",t:"\u0648\u06ce\u0646\u06d5\u0633\u0627\u0632\u06cc",d:"\u067e\u0644\u0627\u0646\u06cc \u0628\u06cc\u0646\u0627 \u0628\u06d5 \u062a\u06d5\u06a9\u0646\u06d5\u0644\u06c6\u0698\u06cc\u0627\u06cc \u0646\u0648\u06ce"},{i:"\ud83c\udfd7\ufe0f",t:"\u06a9\u06c6\u0646\u06a9\u0631\u06cc\u062a",d:"\u0626\u06cc\u0634\u06cc \u06a9\u06c6\u0646\u06a9\u0631\u06cc\u062a \u0648 \u0626\u0627\u0633\u0646 \u0628\u06d5 \u06a9\u0648\u0627\u0644\u06cc\u062a\u06cc \u0628\u06d5\u0631\u0632"}], abT:"\u062f\u06d5\u0631\u0628\u0627\u0631\u06d5\u06cc \u0626\u06ce\u0645\u06d5", abP:"Karo Group \u06a9\u06c6\u0645\u067e\u0627\u0646\u06cc\u0627\u06cc\u06d5\u06a9\u06cc \u0628\u06cc\u0646\u0627\u0633\u0627\u0632\u06cc\u06cc\u06d5 \u0644\u06d5 \u0647\u06d5\u0631\u06ce\u0645\u06cc \u06a9\u0648\u0631\u062f\u0633\u062a\u0627\u0646. \u0628\u06d5 \u062a\u06cc\u0645\u06ce\u06a9\u06cc \u0634\u0627\u0631\u06d5\u0632\u0627 \u0628\u0627\u0634\u062a\u0631\u06cc\u0646 \u062e\u0632\u0645\u06d5\u062a\u06af\u0648\u0632\u0627\u0631\u06cc \u062f\u0627\u0628\u06cc\u0646 \u062f\u06d5\u06a9\u06d5\u06cc\u0646.", coT:"\u067e\u06d5\u06cc\u0648\u06d5\u0646\u062f\u06cc\u0645\u0627\u0646 \u067e\u06ce\u0648\u06d5 \u0628\u06a9\u06d5", coP:"\u0626\u0627\u0645\u0627\u062f\u06d5\u06cc\u0646 \u0628\u06c6 \u0647\u06d5\u0631 \u067e\u0695\u06c6\u0698\u06d5\u06cc\u06d5\u06a9", ph:"\u0645\u06c6\u0628\u0627\u06cc\u0644", em:"\u0626\u06cc\u0645\u06d5\u06cc\u06b5", wa:"\u0648\u0627\u062a\u0633\u0626\u0627\u067e", vb:"\u06a4\u0627\u06cc\u0628\u06d5\u0631", nm:"\u0646\u0627\u0648", mg:"\u0646\u0627\u0645\u06d5", sn:"\u0646\u0627\u0631\u062f\u0646", ft:"\u0647\u06d5\u0645\u0648\u0648 \u0645\u0627\u0641\u06d5\u06a9\u0627\u0646 \u067e\u0627\u0631\u06ce\u0632\u0631\u0627\u0648\u0646" },
+  en: { dir:"ltr", ff:"'Poppins',sans-serif", nav:["Home","Services","About","Contact"], badge:"\u2605 CONSTRUCTION & BUILDING \u2605", h1:"Modern", h2:"Construction", hp:"We turn your dreams into reality. High quality, modern design, and professional execution.", c1:"Contact Us", c2:"Our Projects", st:["Projects Done","Years Experience","Happy Clients","Expert Team"], svT:"Our Services", svS:"Best construction services in Kurdistan", s:[{i:"\ud83c\udfe0",t:"Residential",d:"Building modern homes with high quality"},{i:"\ud83c\udfe2",t:"Commercial",d:"Markets, offices and commercial buildings"},{i:"\ud83d\udd27",t:"Renovation",d:"Renovating to modern standards"},{i:"\ud83c\udfa8",t:"Interior Design",d:"Modern interior design"},{i:"\ud83d\udcd0",t:"Architecture",d:"Planning with latest technology"},{i:"\ud83c\udfd7\ufe0f",t:"Concrete",d:"High quality concrete and steel"}], abT:"About Us", abP:"Karo Group is a construction company in Kurdistan Region. Our expert team delivers the highest quality service.", coT:"Contact Us", coP:"Ready for any project", ph:"Phone", em:"Email", wa:"WhatsApp", vb:"Viber", nm:"Name", mg:"Message", sn:"Send", ft:"All rights reserved" },
+  ar: { dir:"rtl", ff:"'Noto Sans Arabic','Poppins',sans-serif", nav:["\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629","\u0627\u0644\u062e\u062f\u0645\u0627\u062a","\u062d\u0648\u0644","\u0627\u062a\u0635\u0644"], badge:"\u2605 \u0628\u0646\u0627\u0621 \u0648\u062a\u0639\u0645\u064a\u0631 \u2605", h1:"\u0628\u0646\u0627\u0621", h2:"\u0639\u0635\u0631\u064a", hp:"\u0646\u062d\u0648\u0644 \u0623\u062d\u0644\u0627\u0645\u0643 \u0625\u0644\u0649 \u0648\u0627\u0642\u0639. \u062c\u0648\u062f\u0629 \u0639\u0627\u0644\u064a\u0629 \u0648\u062a\u0635\u0645\u064a\u0645 \u0639\u0635\u0631\u064a.", c1:"\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627", c2:"\u0645\u0634\u0627\u0631\u064a\u0639\u0646\u0627", st:["\u0645\u0634\u0631\u0648\u0639 \u0645\u0646\u062c\u0632","\u0633\u0646\u0648\u0627\u062a \u062e\u0628\u0631\u0629","\u0639\u0645\u064a\u0644 \u0633\u0639\u064a\u062f","\u0641\u0631\u064a\u0642 \u062e\u0628\u064a\u0631"], svT:"\u062e\u062f\u0645\u0627\u062a\u0646\u0627", svS:"\u0623\u0641\u0636\u0644 \u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0628\u0646\u0627\u0621", s:[{i:"\ud83c\udfe0",t:"\u0633\u0643\u0646\u064a",d:"\u0628\u0646\u0627\u0621 \u0645\u0646\u0627\u0632\u0644 \u0628\u062c\u0648\u062f\u0629 \u0639\u0627\u0644\u064a\u0629"},{i:"\ud83c\udfe2",t:"\u062a\u062c\u0627\u0631\u064a",d:"\u0623\u0633\u0648\u0627\u0642 \u0648\u0645\u06a9\u0627\u062a\u0628"},{i:"\ud83d\udd27",t:"\u062a\u062c\u062f\u064a\u062f",d:"\u062a\u062c\u062f\u064a\u062f \u0628\u0645\u0639\u0627\u064a\u064a\u0631 \u062d\u062f\u064a\u062b\u0629"},{i:"\ud83c\udfa8",t:"\u062a\u0635\u0645\u064a\u0645 \u062f\u0627\u062e\u0644\u064a",d:"\u062a\u0635\u0645\u064a\u0645 \u0639\u0635\u0631\u064a"},{i:"\ud83d\udcd0",t:"\u0647\u0646\u062f\u0633\u0629",d:"\u062a\u062e\u0637\u064a\u0637 \u0628\u0623\u062d\u062f\u062b \u0627\u0644\u062a\u0642\u0646\u064a\u0627\u062a"},{i:"\ud83c\udfd7\ufe0f",t:"\u062e\u0631\u0633\u0627\u0646\u0629",d:"\u0623\u0639\u0645\u0627\u0644 \u062e\u0631\u0633\u0627\u0646\u064a\u0629 \u0628\u062c\u0648\u062f\u0629"}], abT:"\u0639\u0646 \u0627\u0644\u0634\u0631\u06a9\u0629", abP:"\u06a9\u0627\u0631\u0648 \u06af\u0631\u0648\u067e \u0634\u0631\u06a9\u0629 \u0625\u0646\u0634\u0627\u0621\u0627\u062a \u0641\u064a \u0625\u0642\u0644\u064a\u0645 \u06a9\u0648\u0631\u062f\u0633\u062a\u0627\u0646.", coT:"\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627", coP:"\u0645\u0633\u062a\u0639\u062f\u0648\u0646 \u0644\u0623\u064a \u0645\u0634\u0631\u0648\u0639", ph:"\u0627\u0644\u0647\u0627\u062a\u0641", em:"\u0627\u0644\u0628\u0631\u064a\u062f", wa:"\u0648\u0627\u062a\u0633\u0627\u0628", vb:"\u0641\u0627\u064a\u0628\u0631", nm:"\u0627\u0644\u0627\u0633\u0645", mg:"\u0627\u0644\u0631\u0633\u0627\u0644\u0629", sn:"\u0625\u0631\u0633\u0627\u0644", ft:"\u062c\u0645\u064a\u0639 \u0627\u0644\u062d\u0642\u0648\u0642 \u0645\u062d\u0641\u0648\u0638\u0629" }
 };
 
-const globalCSS = `
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-:root{color-scheme:dark}
-html,body,#root{height:100%;width:100%}
-body{background:${T.bg};color:${T.text};font-family:'IBM Plex Sans Arabic',sans-serif}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:${T.border};border-radius:3px}
-input,select,textarea{font-family:inherit}
-input:focus,select:focus,textarea:focus{outline:none;border-color:${T.accent}!important;box-shadow:0 0 0 2px rgba(232,152,62,0.15)}
-button{font-family:inherit;cursor:pointer;transition:all .15s}
-button:hover{opacity:.88}
-tr:hover td{background:rgba(48,54,61,0.2)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-.animate-in{animation:fadeIn .25s ease}
-`;
-
-// ─── Shared Components ───
-const Input = ({ label, required, style: extraStyle, ...props }) => (
-  <div style={{ marginBottom: 12 }}>
-    {label && <label style={{ display: "block", fontSize: 11, color: T.textDim, marginBottom: 4, fontWeight: 600 }}>{label}{required && " *"}</label>}
-    <input {...props} style={{
-      width: "100%", padding: "9px 12px", background: T.input, border: `1px solid ${T.inputBorder}`,
-      borderRadius: 8, color: T.text, fontSize: 13, direction: props.type === "date" || props.type === "number" ? "ltr" : "rtl",
-      textAlign: props.type === "date" || props.type === "number" ? "left" : "right", ...extraStyle
-    }} />
-  </div>
-);
-
-const Select = ({ label, options, ...props }) => (
-  <div style={{ marginBottom: 12 }}>
-    {label && <label style={{ display: "block", fontSize: 11, color: T.textDim, marginBottom: 4, fontWeight: 600 }}>{label}</label>}
-    <select {...props} style={{
-      width: "100%", padding: "9px 12px", background: T.input, border: `1px solid ${T.inputBorder}`,
-      borderRadius: 8, color: T.text, fontSize: 13, direction: "rtl"
-    }}>
-      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-    </select>
-  </div>
-);
-
-const Btn = ({ variant = "primary", children, style: extraStyle, ...props }) => {
-  const vs = {
-    primary: { background: `linear-gradient(135deg,${T.accent},#d4782e)`, color: "#fff", fontWeight: 700, border: "none" },
-    danger: { background: "rgba(248,81,73,0.12)", color: T.red, border: `1px solid rgba(248,81,73,0.25)` },
-    ghost: { background: "rgba(125,133,144,0.1)", color: T.textDim, border: `1px solid ${T.inputBorder}` },
-    success: { background: `linear-gradient(135deg,${T.green},#2ea043)`, color: "#fff", fontWeight: 700, border: "none" },
-    blue: { background: `linear-gradient(135deg,${T.blue},#388bfd)`, color: "#fff", fontWeight: 700, border: "none" },
-  };
-  return <button {...props} style={{ ...vs[variant], borderRadius: 8, padding: "8px 16px", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6, ...extraStyle }}>{children}</button>;
-};
-
-const Card = ({ children, style }) => (
-  <div className="animate-in" style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 18, marginBottom: 14, ...style }}>{children}</div>
-);
-
-const Modal = ({ show, onClose, title, children, wide }) => {
-  if (!show) return null;
-  return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, backdropFilter: "blur(4px)" }} onClick={onClose}>
-      <div className="animate-in" onClick={e => e.stopPropagation()} style={{
-        background: "#161b22", border: `1px solid ${T.border}`, borderRadius: 16, padding: 24,
-        width: "92%", maxWidth: wide ? 700 : 480, maxHeight: "88vh", overflowY: "auto", direction: "rtl"
-      }}>
-        <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 18, color: T.text }}>{title}</div>
-        {children}
-      </div>
-    </div>
-  );
-};
-
-const Row = ({ children }) => <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>{children}</div>;
-
-const StatCard = ({ label, value, color, sub }) => (
-  <div style={{ background: `${color}08`, border: `1px solid ${color}25`, borderRadius: 12, padding: "16px 18px", flex: 1, minWidth: 140 }}>
-    <div style={{ fontSize: 24, fontWeight: 800, color, letterSpacing: -0.5 }}>{value}</div>
-    <div style={{ fontSize: 11, color: T.textDim, marginTop: 3 }}>{label}</div>
-    {sub && <div style={{ fontSize: 10, color: T.textDim, marginTop: 2 }}>{sub}</div>}
-  </div>
-);
-
-const Empty = ({ icon, text }) => (
-  <div style={{ textAlign: "center", padding: "40px 20px", color: T.textDim }}>
-    <div style={{ fontSize: 36, marginBottom: 10 }}>{icon}</div>
-    <div style={{ fontSize: 14, fontWeight: 500 }}>{text}</div>
-  </div>
-);
-
-const Badge = ({ color, children }) => (
-  <span style={{ background: `${color}18`, color, padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{children}</span>
-);
-
-const Th = ({ children, style }) => (
-  <th style={{ textAlign: "right", padding: "10px 12px", fontSize: 10, color: T.textDim, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, borderBottom: `1px solid ${T.border}`, whiteSpace: "nowrap", ...style }}>{children}</th>
-);
-const Td = ({ children, style }) => (
-  <td style={{ padding: "10px 12px", borderBottom: `1px solid rgba(48,54,61,0.3)`, fontSize: 12, ...style }}>{children}</td>
-);
-
-function ImageViewer({ src, onClose }) {
-  if (!src) return null;
-  return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, cursor: "pointer" }} onClick={onClose}>
-      <img src={src} style={{ maxWidth: "90%", maxHeight: "90%", borderRadius: 8, boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }} alt="" />
-    </div>
-  );
-}
-
-const getMonths = (items) => {
-  const set = new Set();
-  items.forEach(i => { if (i.date) set.add(i.date.substring(0, 7)); });
-  return [...set].sort().reverse();
-};
-
-// ─── EXPENSES PAGE ───
-function ExpensesPage({ data, onSave }) {
-  const [showModal, setShowModal] = useState(false);
-  const [editItem, setEditItem] = useState(null);
-  const [search, setSearch] = useState("");
-  const [monthFilter, setMonthFilter] = useState("");
-  const [markedIds, setMarkedIds] = useState(new Set());
-  const [viewImg, setViewImg] = useState(null);
-  const [form, setForm] = useState({ date: today(), receiptNo: "", receiptImg: "", amountIQD: "", amountUSD: "", note: "" });
-
-  const months = useMemo(() => getMonths(data.expenses), [data.expenses]);
-  const filtered = useMemo(() => {
-    let items = [...data.expenses].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-    if (monthFilter) items = items.filter(e => e.date?.startsWith(monthFilter));
-    if (search) {
-      const s = search.toLowerCase();
-      items = items.filter(e => (e.receiptNo || "").toLowerCase().includes(s) || (e.note || "").toLowerCase().includes(s) || String(e.amountIQD || "").includes(s) || String(e.amountUSD || "").includes(s));
-    }
-    return items;
-  }, [data.expenses, monthFilter, search]);
-
-  const totalIQD = filtered.reduce((s, e) => s + (Number(e.amountIQD) || 0), 0);
-  const totalUSD = filtered.reduce((s, e) => s + (Number(e.amountUSD) || 0), 0);
-
-  const openAdd = () => { setEditItem(null); setForm({ date: today(), receiptNo: "", receiptImg: "", amountIQD: "", amountUSD: "", note: "" }); setShowModal(true); };
-  const openEdit = (e) => { setEditItem(e); setForm({ date: e.date, receiptNo: e.receiptNo || "", receiptImg: e.receiptImg || "", amountIQD: e.amountIQD || "", amountUSD: e.amountUSD || "", note: e.note || "" }); setShowModal(true); };
-
-  const handleSave = () => {
-    if (!form.amountIQD && !form.amountUSD) return;
-    const entry = { ...form, amountIQD: Number(form.amountIQD) || 0, amountUSD: Number(form.amountUSD) || 0 };
-    if (editItem) {
-      onSave({ ...data, expenses: data.expenses.map(e => e.id === editItem.id ? { ...e, ...entry } : e) });
-    } else {
-      onSave({ ...data, expenses: [...data.expenses, { id: generateId(), ...entry }] });
-    }
-    setShowModal(false);
-  };
-
-  const handleDelete = (id) => onSave({ ...data, expenses: data.expenses.filter(e => e.id !== id) });
-  const toggleMark = (id) => { const s = new Set(markedIds); s.has(id) ? s.delete(id) : s.add(id); setMarkedIds(s); };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setForm(f => ({ ...f, receiptImg: ev.target.result }));
-    reader.readAsDataURL(file);
-  };
-
-  const generatePrintHTML = () => {
-    const rows = filtered.map(e => `<tr${markedIds.has(e.id) ? ' style="background:#fff3cd"' : ""}><td>${e.date || ""}</td><td>${e.receiptNo || ""}</td><td style="text-align:left">${fmtIQD(e.amountIQD)}</td><td style="text-align:left">${fmtUSD(e.amountUSD)}</td><td>${e.note || ""}</td></tr>`).join("");
-    return `<div class="header"><h1>${BRAND}</h1><p>کشفی خەرجییەکان</p></div><div class="meta"><span>بەروار: ${today()}</span><span>${monthFilter ? "مانگ: " + monthFilter : "هەموو"}</span></div><table><thead><tr><th>بەروار</th><th>ژ.وەسڵ</th><th>دینار</th><th>دۆلار</th><th>تێبینی</th></tr></thead><tbody>${rows}</tbody><tfoot><tr class="total-row"><td colspan="2">کۆی گشتی</td><td style="text-align:left">${fmtIQD(totalIQD)}</td><td style="text-align:left">$${fmtUSD(totalUSD)}</td><td></td></tr></tfoot></table>`;
-  };
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800 }}>خەرجییەکان (مەسارف)</h2>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <Btn variant="ghost" onClick={() => printContent(generatePrintHTML(), "Expenses")}>🖨️ پرینت</Btn>
-          <Btn onClick={openAdd}>+ خەرجی نوێ</Btn>
-        </div>
-      </div>
-      <Card style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", padding: 14 }}>
-        <input placeholder="گەڕان..." value={search} onChange={e => setSearch(e.target.value)} style={{ flex: 1, minWidth: 150, padding: "8px 12px", background: T.input, border: `1px solid ${T.inputBorder}`, borderRadius: 8, color: T.text, fontSize: 13, direction: "rtl" }} />
-        <select value={monthFilter} onChange={e => setMonthFilter(e.target.value)} style={{ padding: "8px 12px", background: T.input, border: `1px solid ${T.inputBorder}`, borderRadius: 8, color: T.text, fontSize: 13, direction: "rtl", minWidth: 140 }}>
-          <option value="">هەموو مانگەکان</option>
-          {months.map(m => <option key={m} value={m}>{m}</option>)}
-        </select>
-      </Card>
-      <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-        <StatCard label="کۆی دینار" value={fmtIQD(totalIQD)} color={T.red} sub={`${filtered.length} تۆمار`} />
-        <StatCard label="کۆی دۆلار" value={`$${fmtUSD(totalUSD)}`} color={T.blue} />
-      </div>
-      {filtered.length === 0 ? <Card><Empty icon="📋" text="هیچ خەرجییەک نییە" /></Card> : (
-        <Card style={{ overflowX: "auto", padding: 0 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead><tr><Th style={{ width: 30 }}>✓</Th><Th>بەروار</Th><Th>ژ.وەسڵ</Th><Th>وێنە</Th><Th>دینار</Th><Th>دۆلار</Th><Th>تێبینی</Th><Th>کردار</Th></tr></thead>
-            <tbody>
-              {filtered.map(e => (
-                <tr key={e.id} style={{ background: markedIds.has(e.id) ? "rgba(232,152,62,0.08)" : "transparent" }}>
-                  <Td><input type="checkbox" checked={markedIds.has(e.id)} onChange={() => toggleMark(e.id)} style={{ accentColor: T.accent }} /></Td>
-                  <Td style={{ fontSize: 11, color: T.textDim, direction: "ltr", textAlign: "right" }}>{e.date}</Td>
-                  <Td>{e.receiptNo || "—"}</Td>
-                  <Td>{e.receiptImg ? (<div onClick={() => setViewImg(e.receiptImg)} style={{ width: 32, height: 32, borderRadius: 6, overflow: "hidden", cursor: "pointer", border: `1px solid ${T.border}` }}><img src={e.receiptImg} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" /></div>) : <span style={{ color: T.textDim }}>—</span>}</Td>
-                  <Td style={{ color: T.red, fontWeight: 700, direction: "ltr", textAlign: "right" }}>{e.amountIQD ? fmtIQD(e.amountIQD) : "—"}</Td>
-                  <Td style={{ color: T.blue, fontWeight: 700, direction: "ltr", textAlign: "right" }}>{e.amountUSD ? `$${fmtUSD(e.amountUSD)}` : "—"}</Td>
-                  <Td style={{ maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.note || "—"}</Td>
-                  <Td><div style={{ display: "flex", gap: 4 }}><Btn variant="ghost" style={{ padding: "4px 8px" }} onClick={() => openEdit(e)}>✏️</Btn><Btn variant="danger" style={{ padding: "4px 8px" }} onClick={() => handleDelete(e.id)}>🗑</Btn></div></Td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      )}
-      <ImageViewer src={viewImg} onClose={() => setViewImg(null)} />
-      <Modal show={showModal} onClose={() => setShowModal(false)} title={editItem ? "دەستکاری خەرجی" : "خەرجی نوێ"}>
-        <Row><Input label="بەروار" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} /><Input label="ژمارەی وەسڵ" value={form.receiptNo} onChange={e => setForm({ ...form, receiptNo: e.target.value })} placeholder="001" /></Row>
-        <div style={{ marginBottom: 12 }}>
-          <label style={{ display: "block", fontSize: 11, color: T.textDim, marginBottom: 4, fontWeight: 600 }}>وێنەی وەسڵ</label>
-          <input type="file" accept="image/*" onChange={handleImageUpload} style={{ width: "100%", padding: 8, background: T.input, border: `1px solid ${T.inputBorder}`, borderRadius: 8, color: T.text, fontSize: 12 }} />
-          {form.receiptImg && <img src={form.receiptImg} style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 6, marginTop: 6, border: `1px solid ${T.border}` }} alt="" />}
-        </div>
-        <Row><Input label="بڕی پارە (دینار)" type="number" value={form.amountIQD} onChange={e => setForm({ ...form, amountIQD: e.target.value })} placeholder="0" /><Input label="بڕی پارە (دۆلار)" type="number" value={form.amountUSD} onChange={e => setForm({ ...form, amountUSD: e.target.value })} placeholder="0.00" /></Row>
-        <Input label="تێبینی" value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} placeholder="تێبینی..." />
-        <div style={{ display: "flex", gap: 10, marginTop: 16 }}><Btn onClick={handleSave}>✓ پاشەکەوت</Btn><Btn variant="ghost" onClick={() => setShowModal(false)}>پاشگەزبوونەوە</Btn></div>
-      </Modal>
-    </div>
-  );
-}
-
-// ─── DEBTS PAGE ───
-function DebtsPage({ data, onSave }) {
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ date: today(), type: "borrow", person: "", amountIQD: "", amountUSD: "", note: "" });
-  const sorted = useMemo(() => [...data.debts].sort((a, b) => (b.date || "").localeCompare(a.date || "")), [data.debts]);
-  const totalBorrowIQD = sorted.filter(d => d.type === "borrow").reduce((s, d) => s + (Number(d.amountIQD) || 0), 0);
-  const totalBorrowUSD = sorted.filter(d => d.type === "borrow").reduce((s, d) => s + (Number(d.amountUSD) || 0), 0);
-  const totalLendIQD = sorted.filter(d => d.type === "lend").reduce((s, d) => s + (Number(d.amountIQD) || 0), 0);
-  const totalLendUSD = sorted.filter(d => d.type === "lend").reduce((s, d) => s + (Number(d.amountUSD) || 0), 0);
-  const handleSave = () => { if (!form.person) return; onSave({ ...data, debts: [...data.debts, { id: generateId(), ...form, amountIQD: Number(form.amountIQD) || 0, amountUSD: Number(form.amountUSD) || 0 }] }); setShowModal(false); };
-  const handleDelete = (id) => onSave({ ...data, debts: data.debts.filter(d => d.id !== id) });
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}><h2 style={{ fontSize: 22, fontWeight: 800 }}>قەرزەکان</h2><Btn onClick={() => { setForm({ date: today(), type: "borrow", person: "", amountIQD: "", amountUSD: "", note: "" }); setShowModal(true); }}>+ قەرزی نوێ</Btn></div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap" }}><StatCard label="قەرزی وەرگرتوو (دینار)" value={fmtIQD(totalBorrowIQD)} color={T.red} /><StatCard label="قەرزی وەرگرتوو ($)" value={`$${fmtUSD(totalBorrowUSD)}`} color={T.red} /><StatCard label="قەرزی دراو (دینار)" value={fmtIQD(totalLendIQD)} color={T.green} /><StatCard label="قەرزی دراو ($)" value={`$${fmtUSD(totalLendUSD)}`} color={T.green} /></div>
-      <Card style={{ overflowX: "auto", padding: 0 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead><tr><Th>بەروار</Th><Th>جۆر</Th><Th>کەس</Th><Th>دینار</Th><Th>دۆلار</Th><Th>تێبینی</Th><Th>کردار</Th></tr></thead>
-          <tbody>{sorted.length === 0 ? <tr><td colSpan={7}><Empty icon="🤝" text="هیچ قەرزێک نییە" /></td></tr> : sorted.map(d => (<tr key={d.id}><Td style={{ fontSize: 11, color: T.textDim }}>{d.date}</Td><Td><Badge color={d.type === "borrow" ? T.red : T.green}>{d.type === "borrow" ? "وەرگرتن" : "دان"}</Badge></Td><Td style={{ fontWeight: 600 }}>{d.person}</Td><Td style={{ direction: "ltr", textAlign: "right", fontWeight: 700 }}>{d.amountIQD ? fmtIQD(d.amountIQD) : "—"}</Td><Td style={{ direction: "ltr", textAlign: "right", fontWeight: 700 }}>{d.amountUSD ? `$${fmtUSD(d.amountUSD)}` : "—"}</Td><Td>{d.note || "—"}</Td><Td><Btn variant="danger" style={{ padding: "4px 8px" }} onClick={() => handleDelete(d.id)}>🗑</Btn></Td></tr>))}</tbody>
-        </table>
-      </Card>
-      <Modal show={showModal} onClose={() => setShowModal(false)} title="قەرزی نوێ">
-        <Row><Input label="بەروار" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} /><Select label="جۆر" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} options={[{ value: "borrow", label: "قەرز وەرگرتن" }, { value: "lend", label: "قەرز دان" }]} /></Row>
-        <Input label="ناوی کەس" required value={form.person} onChange={e => setForm({ ...form, person: e.target.value })} placeholder="ناو" />
-        <Row><Input label="دینار" type="number" value={form.amountIQD} onChange={e => setForm({ ...form, amountIQD: e.target.value })} placeholder="0" /><Input label="دۆلار" type="number" value={form.amountUSD} onChange={e => setForm({ ...form, amountUSD: e.target.value })} placeholder="0" /></Row>
-        <Input label="تێبینی" value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} placeholder="تێبینی..." />
-        <div style={{ display: "flex", gap: 10, marginTop: 16 }}><Btn onClick={handleSave}>✓ پاشەکەوت</Btn><Btn variant="ghost" onClick={() => setShowModal(false)}>پاشگەزبوونەوە</Btn></div>
-      </Modal>
-    </div>
-  );
-}
-
-// ─── SLABS PAGE ───
-function SlabsPage({ data, onSave }) {
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ date: today(), meters: "", pricePerMeter: "", deposit: "", note: "" });
-  const sorted = useMemo(() => [...data.slabs].sort((a, b) => (b.date || "").localeCompare(a.date || "")), [data.slabs]);
-  const calcTotal = (m, p) => (Number(m) || 0) * (Number(p) || 0);
-  const handleSave = () => { const total = calcTotal(form.meters, form.pricePerMeter); onSave({ ...data, slabs: [...data.slabs, { id: generateId(), ...form, meters: Number(form.meters) || 0, pricePerMeter: Number(form.pricePerMeter) || 0, totalPrice: total, deposit: Number(form.deposit) || 0, netReceive: total - (Number(form.deposit) || 0) }] }); setShowModal(false); };
-  const handleDelete = (id) => onSave({ ...data, slabs: data.slabs.filter(s => s.id !== id) });
-  const totalMeters = sorted.reduce((s, sl) => s + (Number(sl.meters) || 0), 0);
-  const totalAmount = sorted.reduce((s, sl) => s + (Number(sl.totalPrice) || 0), 0);
-  const totalDeposit = sorted.reduce((s, sl) => s + (Number(sl.deposit) || 0), 0);
-  const totalNet = sorted.reduce((s, sl) => s + (Number(sl.netReceive) || 0), 0);
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}><h2 style={{ fontSize: 22, fontWeight: 800 }}>سلفەکان (کۆنکریت)</h2><Btn onClick={() => { setForm({ date: today(), meters: "", pricePerMeter: "", deposit: "", note: "" }); setShowModal(true); }}>+ سلفەی نوێ</Btn></div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap" }}><StatCard label="کۆی مەتر" value={fmtIQD(totalMeters)} color={T.accent} /><StatCard label="کۆی پارە" value={fmtIQD(totalAmount)} color={T.blue} /><StatCard label="کۆی تەئمین" value={fmtIQD(totalDeposit)} color={T.red} /><StatCard label="کۆی وەرگرتن" value={fmtIQD(totalNet)} color={T.green} /></div>
-      <Card style={{ overflowX: "auto", padding: 0 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead><tr><Th>بەروار</Th><Th>مەتر</Th><Th>نرخ/مەتر</Th><Th>کۆی پارە</Th><Th>تەئمین</Th><Th>وەرگرتن</Th><Th>تێبینی</Th><Th>کردار</Th></tr></thead>
-          <tbody>{sorted.length === 0 ? <tr><td colSpan={8}><Empty icon="🏗️" text="هیچ سلفەیەک نییە" /></td></tr> : sorted.map(s => (<tr key={s.id}><Td style={{ fontSize: 11, color: T.textDim }}>{s.date}</Td><Td style={{ fontWeight: 700 }}>{fmtIQD(s.meters)}</Td><Td>{fmtIQD(s.pricePerMeter)}</Td><Td style={{ fontWeight: 700, color: T.blue }}>{fmtIQD(s.totalPrice)}</Td><Td style={{ color: T.red }}>{fmtIQD(s.deposit)}</Td><Td style={{ color: T.green, fontWeight: 700 }}>{fmtIQD(s.netReceive)}</Td><Td>{s.note || "—"}</Td><Td><Btn variant="danger" style={{ padding: "4px 8px" }} onClick={() => handleDelete(s.id)}>🗑</Btn></Td></tr>))}</tbody>
-        </table>
-      </Card>
-      <Modal show={showModal} onClose={() => setShowModal(false)} title="سلفەی نوێ">
-        <Input label="بەروار" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
-        <Row><Input label="بڕی مەتر" type="number" value={form.meters} onChange={e => setForm({ ...form, meters: e.target.value })} placeholder="0" /><Input label="نرخی هەر مەترێک" type="number" value={form.pricePerMeter} onChange={e => setForm({ ...form, pricePerMeter: e.target.value })} placeholder="0" /></Row>
-        <div style={{ background: `${T.blue}10`, border: `1px solid ${T.blue}25`, borderRadius: 8, padding: 12, marginBottom: 12, textAlign: "center" }}><span style={{ color: T.textDim, fontSize: 12 }}>کۆی پارەی سلفە: </span><span style={{ color: T.blue, fontSize: 18, fontWeight: 800 }}>{fmtIQD(calcTotal(form.meters, form.pricePerMeter))}</span></div>
-        <Input label="تەئمین (بارمتە)" type="number" value={form.deposit} onChange={e => setForm({ ...form, deposit: e.target.value })} placeholder="0" />
-        <div style={{ background: `${T.green}10`, border: `1px solid ${T.green}25`, borderRadius: 8, padding: 12, marginBottom: 12, textAlign: "center" }}><span style={{ color: T.textDim, fontSize: 12 }}>بڕی وەرگرتن: </span><span style={{ color: T.green, fontSize: 18, fontWeight: 800 }}>{fmtIQD(calcTotal(form.meters, form.pricePerMeter) - (Number(form.deposit) || 0))}</span></div>
-        <Input label="تێبینی" value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} placeholder="تێبینی..." />
-        <div style={{ display: "flex", gap: 10, marginTop: 16 }}><Btn onClick={handleSave}>✓ پاشەکەوت</Btn><Btn variant="ghost" onClick={() => setShowModal(false)}>پاشگەزبوونەوە</Btn></div>
-      </Modal>
-    </div>
-  );
-}
-
-// ─── CONTRACTOR PAGE ───
-function ContractorPage({ data, onSave }) {
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ date: today(), type: "withdraw", amountIQD: "", amountUSD: "", note: "" });
-  const sorted = useMemo(() => [...data.contractor].sort((a, b) => (b.date || "").localeCompare(a.date || "")), [data.contractor]);
-  const balanceIQD = sorted.reduce((s, c) => s + (c.type === "add" ? 1 : -1) * (Number(c.amountIQD) || 0), 0);
-  const balanceUSD = sorted.reduce((s, c) => s + (c.type === "add" ? 1 : -1) * (Number(c.amountUSD) || 0), 0);
-  const handleSave = () => { onSave({ ...data, contractor: [...data.contractor, { id: generateId(), ...form, amountIQD: Number(form.amountIQD) || 0, amountUSD: Number(form.amountUSD) || 0 }] }); setShowModal(false); };
-  const handleDelete = (id) => onSave({ ...data, contractor: data.contractor.filter(c => c.id !== id) });
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}><h2 style={{ fontSize: 22, fontWeight: 800 }}>حیسابی مقاول</h2><Btn onClick={() => { setForm({ date: today(), type: "withdraw", amountIQD: "", amountUSD: "", note: "" }); setShowModal(true); }}>+ تۆمار</Btn></div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 14 }}><StatCard label="باڵانسی دینار" value={fmtIQD(Math.abs(balanceIQD))} color={balanceIQD >= 0 ? T.green : T.red} sub={balanceIQD >= 0 ? "+" : "−"} /><StatCard label="باڵانسی دۆلار" value={`$${fmtUSD(Math.abs(balanceUSD))}`} color={balanceUSD >= 0 ? T.green : T.red} sub={balanceUSD >= 0 ? "+" : "−"} /></div>
-      <Card style={{ overflowX: "auto", padding: 0 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead><tr><Th>بەروار</Th><Th>جۆر</Th><Th>دینار</Th><Th>دۆلار</Th><Th>تێبینی</Th><Th>کردار</Th></tr></thead>
-          <tbody>{sorted.length === 0 ? <tr><td colSpan={6}><Empty icon="👷" text="هیچ تۆمارێک نییە" /></td></tr> : sorted.map(c => (<tr key={c.id}><Td style={{ fontSize: 11, color: T.textDim }}>{c.date}</Td><Td><Badge color={c.type === "add" ? T.green : T.red}>{c.type === "add" ? "زیادکردن" : "ڕاکێشان"}</Badge></Td><Td style={{ direction: "ltr", textAlign: "right", fontWeight: 700 }}>{c.amountIQD ? fmtIQD(c.amountIQD) : "—"}</Td><Td style={{ direction: "ltr", textAlign: "right", fontWeight: 700 }}>{c.amountUSD ? `$${fmtUSD(c.amountUSD)}` : "—"}</Td><Td>{c.note || "—"}</Td><Td><Btn variant="danger" style={{ padding: "4px 8px" }} onClick={() => handleDelete(c.id)}>🗑</Btn></Td></tr>))}</tbody>
-        </table>
-      </Card>
-      <Modal show={showModal} onClose={() => setShowModal(false)} title="تۆماری نوێ">
-        <Row><Input label="بەروار" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} /><Select label="جۆر" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} options={[{ value: "withdraw", label: "ڕاکێشانی پارە" }, { value: "add", label: "زیادکردنی پارە" }]} /></Row>
-        <Row><Input label="دینار" type="number" value={form.amountIQD} onChange={e => setForm({ ...form, amountIQD: e.target.value })} placeholder="0" /><Input label="دۆلار" type="number" value={form.amountUSD} onChange={e => setForm({ ...form, amountUSD: e.target.value })} placeholder="0" /></Row>
-        <Input label="تێبینی" value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} />
-        <div style={{ display: "flex", gap: 10, marginTop: 16 }}><Btn onClick={handleSave}>✓ پاشەکەوت</Btn><Btn variant="ghost" onClick={() => setShowModal(false)}>پاشگەزبوونەوە</Btn></div>
-      </Modal>
-    </div>
-  );
-}
-
-// ─── CASH PAGE ───
-function CashPage({ data, onSave, dollarRate }) {
-  const [editIQD, setEditIQD] = useState(false);
-  const [editUSD, setEditUSD] = useState(false);
-  const [valIQD, setValIQD] = useState(String(data.cashIQD || 0));
-  const [valUSD, setValUSD] = useState(String(data.cashUSD || 0));
-  const rate = dollarRate?.rate || 1500;
-  return (
-    <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 20 }}>قاسە</h2>
-      <div style={{ display: "flex", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
-        <Card style={{ flex: 1, minWidth: 250, textAlign: "center", padding: 28 }}>
-          <div style={{ fontSize: 12, color: T.textDim, marginBottom: 8 }}>پارەی دینار لە قاسە</div>
-          {editIQD ? (<div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center" }}><input type="number" value={valIQD} onChange={e => setValIQD(e.target.value)} style={{ width: 160, padding: "8px 12px", background: T.input, border: `1px solid ${T.accent}`, borderRadius: 8, color: T.text, fontSize: 18, textAlign: "center", direction: "ltr" }} autoFocus /><Btn onClick={() => { onSave({ ...data, cashIQD: Number(valIQD) || 0 }); setEditIQD(false); }}>✓</Btn></div>
-          ) : (<div onClick={() => { setValIQD(String(data.cashIQD || 0)); setEditIQD(true); }} style={{ cursor: "pointer" }}><div style={{ fontSize: 36, fontWeight: 800, color: T.accent }}>{fmtIQD(data.cashIQD || 0)}</div><div style={{ fontSize: 10, color: T.textDim, marginTop: 4 }}>کلیک بکە بۆ گۆڕین</div></div>)}
-        </Card>
-        <Card style={{ flex: 1, minWidth: 250, textAlign: "center", padding: 28 }}>
-          <div style={{ fontSize: 12, color: T.textDim, marginBottom: 8 }}>پارەی دۆلار لە قاسە</div>
-          {editUSD ? (<div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center" }}><input type="number" value={valUSD} onChange={e => setValUSD(e.target.value)} style={{ width: 160, padding: "8px 12px", background: T.input, border: `1px solid ${T.accent}`, borderRadius: 8, color: T.text, fontSize: 18, textAlign: "center", direction: "ltr" }} autoFocus /><Btn onClick={() => { onSave({ ...data, cashUSD: Number(valUSD) || 0 }); setEditUSD(false); }}>✓</Btn></div>
-          ) : (<div onClick={() => { setValUSD(String(data.cashUSD || 0)); setEditUSD(true); }} style={{ cursor: "pointer" }}><div style={{ fontSize: 36, fontWeight: 800, color: T.green }}>$ {fmtUSD(data.cashUSD || 0)}</div><div style={{ fontSize: 10, color: T.textDim, marginTop: 4 }}>کلیک بکە بۆ گۆڕین</div></div>)}
-        </Card>
-      </div>
-      <Card style={{ textAlign: "center", padding: 24 }}><div style={{ fontSize: 12, color: T.textDim, marginBottom: 6 }}>کۆی گشتی بە دینار (نرخ: {fmtIQD(rate)})</div><div style={{ fontSize: 32, fontWeight: 800, color: T.blue }}>{fmtIQD((data.cashIQD || 0) + (data.cashUSD || 0) * rate)}<span style={{ fontSize: 14, color: T.textDim, marginRight: 8 }}> IQD</span></div></Card>
-    </div>
-  );
-}
-
-// ─── EXCHANGE PAGE ───
-function ExchangePage({ dollarRate, setDollarRate }) {
-  const [fromCurrency, setFromCurrency] = useState("USD");
-  const [amount, setAmount] = useState("");
-  const [rateInput, setRateInput] = useState(String(dollarRate?.rate || 1500));
-  const rate = Number(rateInput) || 1500;
-  const converted = fromCurrency === "USD" ? (Number(amount) || 0) * rate : (Number(amount) || 0) / rate;
-  return (
-    <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 20 }}>ئالوگۆری دراو</h2>
-      <Card style={{ maxWidth: 450 }}>
-        <div style={{ marginBottom: 16 }}><label style={{ display: "block", fontSize: 11, color: T.textDim, marginBottom: 4, fontWeight: 600 }}>نرخی دۆلار بە دینار</label><div style={{ display: "flex", gap: 8 }}><input type="number" value={rateInput} onChange={e => setRateInput(e.target.value)} style={{ flex: 1, padding: "10px 14px", background: T.input, border: `1px solid ${T.inputBorder}`, borderRadius: 8, color: T.text, fontSize: 16, direction: "ltr", textAlign: "center" }} /><Btn variant="success" onClick={() => { const r = { rate, date: today() }; setDollarRate(r); saveRateStorage(r); }}>پاشەکەوت</Btn></div></div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><Btn variant={fromCurrency === "USD" ? "primary" : "ghost"} onClick={() => setFromCurrency("USD")} style={{ flex: 1, justifyContent: "center" }}>$ → IQD</Btn><Btn variant={fromCurrency === "IQD" ? "primary" : "ghost"} onClick={() => setFromCurrency("IQD")} style={{ flex: 1, justifyContent: "center" }}>IQD → $</Btn></div>
-        <Input label={fromCurrency === "USD" ? "بڕی دۆلار" : "بڕی دینار"} type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0" />
-        <div style={{ background: `${T.accent}12`, border: `1px solid ${T.accent}30`, borderRadius: 10, padding: 20, textAlign: "center" }}><div style={{ fontSize: 12, color: T.textDim, marginBottom: 6 }}>{fromCurrency === "USD" ? "بڕی دینار" : "بڕی دۆلار"}</div><div style={{ fontSize: 28, fontWeight: 800, color: T.accent }}>{fromCurrency === "USD" ? fmtIQD(converted) : `$ ${fmtUSD(converted)}`}</div></div>
-      </Card>
-    </div>
-  );
-}
-
-// ─── INVOICE PAGE ───
-function InvoicePage({ data, onSave }) {
-  const [showModal, setShowModal] = useState(false);
-  const [viewInvoice, setViewInvoice] = useState(null);
-  const [form, setForm] = useState({ date: today(), invoiceNo: "", items: [{ name: "", qty: "", price: "", note: "" }] });
-  const sorted = useMemo(() => [...data.invoices].sort((a, b) => (b.date || "").localeCompare(a.date || "")), [data.invoices]);
-  const addItem = () => setForm(f => ({ ...f, items: [...f.items, { name: "", qty: "", price: "", note: "" }] }));
-  const removeItem = (i) => setForm(f => ({ ...f, items: f.items.filter((_, idx) => idx !== i) }));
-  const updateItem = (i, field, val) => setForm(f => ({ ...f, items: f.items.map((item, idx) => idx === i ? { ...item, [field]: val } : item) }));
-  const getTotal = (items) => items.reduce((s, it) => s + (Number(it.qty) || 0) * (Number(it.price) || 0), 0);
-  const handleSave = () => { if (!form.invoiceNo) return; onSave({ ...data, invoices: [...data.invoices, { id: generateId(), ...form, total: getTotal(form.items) }] }); setShowModal(false); };
-  const handleDelete = (id) => onSave({ ...data, invoices: data.invoices.filter(i => i.id !== id) });
-  const printInvoice = (inv) => {
-    const rows = inv.items.map((it, i) => `<tr><td>${i + 1}</td><td>${it.name || ""}</td><td>${it.qty || 0}</td><td style="text-align:left">${fmtIQD(it.price)}</td><td style="text-align:left">${fmtIQD((Number(it.qty) || 0) * (Number(it.price) || 0))}</td><td>${it.note || ""}</td></tr>`).join("");
-    printContent(`<div class="header"><h1 style="font-size:28px;letter-spacing:2px">${BRAND}</h1><p style="margin:4px 0;color:#666">INVOICE</p></div><div class="meta"><span><strong>Date:</strong> ${inv.date}</span><span><strong>Invoice #:</strong> ${inv.invoiceNo}</span></div><table><thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th>Note</th></tr></thead><tbody>${rows}</tbody><tfoot><tr class="total-row"><td colspan="4" style="text-align:left;font-size:14px">TOTAL:</td><td style="text-align:left;font-size:14px">${fmtIQD(inv.total || getTotal(inv.items))}</td><td></td></tr></tfoot></table>`, `Invoice-${inv.invoiceNo}`);
-  };
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}><h2 style={{ fontSize: 22, fontWeight: 800 }}>ئینڤۆیسەکان</h2><Btn onClick={() => { setForm({ date: today(), invoiceNo: String(sorted.length + 1).padStart(3, "0"), items: [{ name: "", qty: "", price: "", note: "" }] }); setShowModal(true); }}>+ ئینڤۆیسی نوێ</Btn></div>
-      {sorted.length === 0 ? <Card><Empty icon="🧾" text="هیچ ئینڤۆیسێک نییە" /></Card> : (
-        <Card style={{ overflowX: "auto", padding: 0 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead><tr><Th>بەروار</Th><Th>ژمارە</Th><Th>ئایتم</Th><Th>تۆتاڵ</Th><Th>کردار</Th></tr></thead>
-            <tbody>{sorted.map(inv => (<tr key={inv.id}><Td style={{ fontSize: 11, color: T.textDim }}>{inv.date}</Td><Td style={{ fontWeight: 700 }}>{inv.invoiceNo}</Td><Td>{inv.items?.length || 0}</Td><Td style={{ fontWeight: 700, color: T.accent }}>{fmtIQD(inv.total || getTotal(inv.items || []))}</Td><Td><div style={{ display: "flex", gap: 4 }}><Btn variant="blue" style={{ padding: "4px 8px", fontSize: 11 }} onClick={() => printInvoice(inv)}>🖨️</Btn><Btn variant="ghost" style={{ padding: "4px 8px" }} onClick={() => setViewInvoice(inv)}>👁</Btn><Btn variant="danger" style={{ padding: "4px 8px" }} onClick={() => handleDelete(inv.id)}>🗑</Btn></div></Td></tr>))}</tbody>
-          </table>
-        </Card>
-      )}
-      <Modal show={!!viewInvoice} onClose={() => setViewInvoice(null)} title={`Invoice #${viewInvoice?.invoiceNo}`} wide>
-        {viewInvoice && (<div><div style={{ textAlign: "center", marginBottom: 16 }}><div style={{ fontSize: 24, fontWeight: 800, letterSpacing: 2, color: T.accent }}>{BRAND}</div><div style={{ fontSize: 11, color: T.textDim }}>Date: {viewInvoice.date} | Invoice #: {viewInvoice.invoiceNo}</div></div><table style={{ width: "100%", borderCollapse: "collapse" }}><thead><tr><Th>#</Th><Th>Item</Th><Th>Qty</Th><Th>Price</Th><Th>Total</Th><Th>Note</Th></tr></thead><tbody>{viewInvoice.items?.map((it, i) => (<tr key={i}><Td>{i + 1}</Td><Td>{it.name}</Td><Td>{it.qty}</Td><Td style={{ direction: "ltr", textAlign: "right" }}>{fmtIQD(it.price)}</Td><Td style={{ direction: "ltr", textAlign: "right", fontWeight: 700 }}>{fmtIQD((Number(it.qty) || 0) * (Number(it.price) || 0))}</Td><Td>{it.note || "—"}</Td></tr>))}</tbody></table><div style={{ textAlign: "left", marginTop: 14, fontSize: 18, fontWeight: 800, color: T.accent }}>TOTAL: {fmtIQD(viewInvoice.total || getTotal(viewInvoice.items || []))}</div><Btn variant="blue" onClick={() => printInvoice(viewInvoice)} style={{ marginTop: 12 }}>🖨️ Print / PDF</Btn></div>)}
-      </Modal>
-      <Modal show={showModal} onClose={() => setShowModal(false)} title="ئینڤۆیسی نوێ" wide>
-        <Row><Input label="Date" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} /><Input label="Invoice Number" value={form.invoiceNo} onChange={e => setForm({ ...form, invoiceNo: e.target.value })} /></Row>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><label style={{ fontSize: 13, fontWeight: 700, color: T.text }}>ئایتمەکان</label><Btn variant="ghost" onClick={addItem} style={{ padding: "4px 12px", fontSize: 11 }}>+ ئایتم</Btn></div>
-          {form.items.map((it, i) => (<div key={i} style={{ background: T.input, border: `1px solid ${T.inputBorder}`, borderRadius: 10, padding: 12, marginBottom: 8 }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}><span style={{ fontSize: 11, color: T.textDim }}>#{i + 1}</span>{form.items.length > 1 && <Btn variant="danger" onClick={() => removeItem(i)} style={{ padding: "2px 8px", fontSize: 10 }}>✕</Btn>}</div><Row><Input label="ناوی کاڵا" value={it.name} onChange={e => updateItem(i, "name", e.target.value)} placeholder="Item" /><Input label="حەدەد" type="number" value={it.qty} onChange={e => updateItem(i, "qty", e.target.value)} placeholder="0" /></Row><Row><Input label="نرخی حەدەد" type="number" value={it.price} onChange={e => updateItem(i, "price", e.target.value)} placeholder="0" /><Input label="تێبینی" value={it.note} onChange={e => updateItem(i, "note", e.target.value)} placeholder="..." /></Row><div style={{ textAlign: "left", fontSize: 12, color: T.accent, fontWeight: 700 }}>Subtotal: {fmtIQD((Number(it.qty) || 0) * (Number(it.price) || 0))}</div></div>))}
-        </div>
-        <div style={{ background: `${T.accent}12`, border: `1px solid ${T.accent}30`, borderRadius: 10, padding: 16, textAlign: "center", marginBottom: 14 }}><span style={{ color: T.textDim, fontSize: 13 }}>TOTAL: </span><span style={{ fontSize: 24, fontWeight: 800, color: T.accent }}>{fmtIQD(getTotal(form.items))}</span></div>
-        <div style={{ display: "flex", gap: 10 }}><Btn onClick={handleSave}>✓ پاشەکەوت</Btn><Btn variant="ghost" onClick={() => setShowModal(false)}>پاشگەزبوونەوە</Btn></div>
-      </Modal>
-    </div>
-  );
-}
-
-// ─── MAIN APP ───
-export default function App() {
-  const [data, setData] = useState(() => loadStore());
-  const [dollarRate, setDollarRate] = useState(() => loadRate());
-  const [page, setPage] = useState("expenses");
-  const [saved, setSaved] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleSave = useCallback((newData) => {
-    setData(newData);
-    saveStore(newData);
-    setSaved("ok");
-    setTimeout(() => setSaved(""), 1500);
-  }, []);
-
-  const nav = [
-    { id: "expenses", label: "خەرجی", icon: "💰" },
-    { id: "debts", label: "قەرز", icon: "🤝" },
-    { id: "slabs", label: "سلفە", icon: "🏗️" },
-    { id: "contractor", label: "مقاول", icon: "👷" },
-    { id: "cash", label: "قاسە", icon: "🏦" },
-    { id: "exchange", label: "ئالوگۆر", icon: "💱" },
-    { id: "invoice", label: "ئینڤۆیس", icon: "🧾" },
-  ];
-
-  return (
-    <div style={{ background: T.bg, minHeight: "100vh", display: "flex", direction: "rtl", fontFamily: "'IBM Plex Sans Arabic',sans-serif" }}>
-      <style>{globalCSS}</style>
-
-      {/* Mobile menu button */}
-      <button onClick={() => setMenuOpen(!menuOpen)} style={{
-        display: "none", position: "fixed", top: 12, right: 12, zIndex: 1001, background: T.accent, color: "#fff",
-        border: "none", borderRadius: 8, padding: "8px 12px", fontSize: 18,
-        ...(window.innerWidth <= 768 ? { display: "block" } : {})
-      }}>☰</button>
-
-      {/* Sidebar */}
-      <div style={{
-        width: 200, minWidth: 200, background: "rgba(13,17,23,0.97)", borderLeft: `1px solid ${T.border}`,
-        padding: "20px 0", display: "flex", flexDirection: "column",
-        ...(window.innerWidth <= 768 ? {
-          position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 1000,
-          transform: menuOpen ? "translateX(0)" : "translateX(100%)", transition: "transform .2s"
-        } : {})
-      }}>
-        <div style={{ padding: "0 18px 18px", borderBottom: `1px solid ${T.border}`, marginBottom: 6 }}>
-          <div style={{ fontSize: 20, fontWeight: 800, background: `linear-gradient(135deg,${T.accent},${T.red})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{BRAND}</div>
-          <div style={{ fontSize: 10, color: T.textDim, marginTop: 3 }}>karo-group.com</div>
-        </div>
-        {nav.map(n => (
-          <div key={n.id} onClick={() => { setPage(n.id); setMenuOpen(false); }} style={{
-            display: "flex", alignItems: "center", gap: 10, padding: "10px 18px", cursor: "pointer",
-            background: page === n.id ? `${T.accent}15` : "transparent",
-            color: page === n.id ? T.accent : T.textDim,
-            borderLeft: page === n.id ? `3px solid ${T.accent}` : "3px solid transparent",
-            fontSize: 13, fontWeight: page === n.id ? 700 : 400, transition: "all .15s"
-          }}>
-            <span>{n.icon}</span><span>{n.label}</span>
+// ══ LANDING ══
+function Landing({ onSecret, theme, setTheme, lang, setLang }) {
+  const [scr, setScr] = useState(false); const [sc, setSc] = useState(0);
+  const c = theme==="dark"?dk:lt; const L = TR[lang]; const ids=["home","services","about","contact"];
+  useEffect(()=>{const h=()=>setScr(window.scrollY>60);window.addEventListener("scroll",h);return()=>window.removeEventListener("scroll",h)},[]);
+  const hsc=()=>{const n=sc+1;setSc(n);if(n>=3){onSecret();setSc(0)}setTimeout(()=>setSc(0),2000)};
+  return(<div style={{background:c.bg,color:c.text,direction:L.dir,fontFamily:L.ff,minHeight:"100vh"}}>
+    <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:100,background:scr?(theme==="dark"?"rgba(5,6,8,0.92)":"rgba(255,255,255,0.92)"):"transparent",backdropFilter:scr?"blur(20px)":"none",borderBottom:scr?`1px solid ${c.bdr}`:"none",transition:"all .4s",padding:"12px 0"}}>
+      <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <KaroLogo size={26} isDark={theme==="dark"}/>
+        <div style={{display:"flex",gap:16,alignItems:"center",flexWrap:"wrap"}}>
+          {L.nav.map((n,i)=><a key={i} href={"#"+ids[i]} style={{color:c.dim,textDecoration:"none",fontSize:13,fontWeight:500,display:window.innerWidth<640?"none":"block"}} onMouseEnter={e=>e.target.style.color=accent} onMouseLeave={e=>e.target.style.color=c.dim}>{n}</a>)}
+          <div style={{display:"flex",gap:3,background:c.card,borderRadius:8,padding:2,border:`1px solid ${c.bdr}`}}>
+            {["ku","en","ar"].map(l=><button key={l} onClick={()=>setLang(l)} style={{background:lang===l?accent:"transparent",color:lang===l?"#000":c.dim,border:"none",borderRadius:6,padding:"4px 10px",fontSize:10,fontWeight:700}}>{l.toUpperCase()}</button>)}
           </div>
-        ))}
-        <div style={{ marginTop: "auto", padding: "14px 18px", borderTop: `1px solid ${T.border}`, fontSize: 10, color: T.textDim }}>$ = {fmtIQD(dollarRate.rate)} IQD</div>
+          <button onClick={()=>setTheme(theme==="dark"?"light":"dark")} style={{background:c.card,border:`1px solid ${c.bdr}`,borderRadius:8,padding:"6px 10px",fontSize:16,color:c.text}}>{theme==="dark"?"\u2600\ufe0f":"\ud83c\udf19"}</button>
+        </div>
       </div>
-
-      {/* Overlay for mobile menu */}
-      {menuOpen && <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 999 }} />}
-
-      {/* Main */}
-      <div style={{ flex: 1, padding: "24px 28px", overflowY: "auto", maxHeight: "100vh" }}>
-        {page === "expenses" && <ExpensesPage data={data} onSave={handleSave} />}
-        {page === "debts" && <DebtsPage data={data} onSave={handleSave} />}
-        {page === "slabs" && <SlabsPage data={data} onSave={handleSave} />}
-        {page === "contractor" && <ContractorPage data={data} onSave={handleSave} />}
-        {page === "cash" && <CashPage data={data} onSave={handleSave} dollarRate={dollarRate} />}
-        {page === "exchange" && <ExchangePage dollarRate={dollarRate} setDollarRate={setDollarRate} />}
-        {page === "invoice" && <InvoicePage data={data} onSave={handleSave} />}
+    </nav>
+    <section id="home" style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden",textAlign:"center"}}>
+      <div style={{position:"absolute",inset:0,pointerEvents:"none"}}>
+        <div style={{position:"absolute",top:"8%",left:"8%",width:500,height:500,borderRadius:"50%",background:`radial-gradient(circle,${accent}08 0%,transparent 70%)`,animation:"float 8s ease-in-out infinite"}}/>
+        <div style={{position:"absolute",bottom:"10%",right:"10%",width:350,height:350,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,0.05) 0%,transparent 70%)",animation:"float 6s ease-in-out infinite 2s"}}/>
+        <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:900,height:900,borderRadius:"50%",border:`1px solid ${c.bdr}`}}/>
+        {[...Array(7)].map((_,i)=><div key={i} style={{position:"absolute",top:0,bottom:0,left:`${(i+1)*14.28}%`,width:1,background:theme==="dark"?"rgba(255,255,255,0.012)":"rgba(0,0,0,0.02)"}}/>)}
       </div>
+      <div style={{position:"relative",zIndex:2,padding:"0 24px",maxWidth:800}}>
+        <div className="fu" style={{marginBottom:28}}><LIcon size={70} isDark={theme==="dark"}/></div>
+        <div className="fu1" style={{display:"inline-block",background:`${accent}12`,border:`1px solid ${accent}25`,borderRadius:30,padding:"7px 22px",marginBottom:28}}><span style={{color:accent,fontSize:11,fontWeight:700,letterSpacing:1.5}}>{L.badge}</span></div>
+        <h1 className="fu2" style={{fontSize:"clamp(40px,8vw,80px)",fontWeight:900,lineHeight:1.05,marginBottom:22,letterSpacing:-2}}><span style={{color:accent}}>{L.h1}</span>{" "}<span>{L.h2}</span></h1>
+        <p className="fu3" style={{fontSize:"clamp(15px,2.2vw,20px)",color:c.dim,maxWidth:550,margin:"0 auto 44px",lineHeight:1.9}}>{L.hp}</p>
+        <div className="fu4" style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
+          <a href="#contact" style={{background:`linear-gradient(135deg,${accent},#d4782e)`,color:"#000",padding:"15px 40px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none",boxShadow:`0 6px 35px ${accent}40`}}>{L.c1}</a>
+          <a href="#services" style={{background:c.card,color:accent,padding:"15px 40px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none",border:`1px solid ${accent}30`}}>{L.c2}</a>
+        </div>
+      </div>
+    </section>
+    <section style={{padding:"55px 24px",background:`${accent}04`,borderTop:`1px solid ${accent}10`,borderBottom:`1px solid ${accent}10`}}>
+      <div style={{maxWidth:1000,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:24,textAlign:"center"}}>
+        {[150,12,200,35].map((n,i)=><div key={i}><div style={{fontSize:44,fontWeight:900,color:accent,fontFamily:"'Poppins',sans-serif"}}>{n}+</div><div style={{fontSize:12,color:c.dim,marginTop:4}}>{L.st[i]}</div></div>)}
+      </div>
+    </section>
+    <section id="services" style={{padding:"100px 24px"}}><div style={{maxWidth:1100,margin:"0 auto"}}>
+      <div style={{textAlign:"center",marginBottom:60}}><span style={{color:accent,fontSize:11,fontWeight:700,letterSpacing:2}}>{"— "+L.svT+" —"}</span><h2 style={{fontSize:"clamp(28px,4vw,46px)",fontWeight:800,marginTop:10}}>{L.svT}</h2><p style={{color:c.dim,fontSize:14,marginTop:10}}>{L.svS}</p></div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:18}}>
+        {L.s.map((s,i)=><div key={i} style={{background:c.card,border:`1px solid ${c.bdr}`,borderRadius:18,padding:26,transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=`${accent}40`;e.currentTarget.style.transform="translateY(-6px)";e.currentTarget.style.boxShadow=`0 12px 40px ${accent}08`}} onMouseLeave={e=>{e.currentTarget.style.borderColor=c.bdr;e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}><div style={{fontSize:38,marginBottom:14}}>{s.i}</div><h3 style={{fontSize:16,fontWeight:700,marginBottom:8}}>{s.t}</h3><p style={{fontSize:12.5,color:c.dim,lineHeight:1.9}}>{s.d}</p></div>)}
+      </div>
+    </div></section>
+    <section id="about" style={{padding:"100px 24px",background:c.bg2}}><div style={{maxWidth:900,margin:"0 auto",display:"flex",flexWrap:"wrap",gap:50,alignItems:"center"}}>
+      <div style={{flex:"1 1 350px"}}><span style={{color:accent,fontSize:11,fontWeight:700,letterSpacing:2}}>{"— "+L.abT+" —"}</span><h2 style={{fontSize:"clamp(26px,3.5vw,42px)",fontWeight:800,marginTop:10,marginBottom:20,lineHeight:1.3}}>{L.abT}</h2><p style={{fontSize:14.5,color:c.dim,lineHeight:2.1}}>{L.abP}</p></div>
+      <div style={{flex:"0 0 auto",display:"flex",justifyContent:"center"}}><div style={{width:260,height:300,borderRadius:22,background:`linear-gradient(135deg,${accent}10,rgba(59,130,246,0.05))`,border:`1px solid ${accent}18`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:18}}><LIcon size={80} isDark={theme==="dark"}/><div style={{fontSize:26,fontWeight:900,fontFamily:"'Poppins',sans-serif"}}>KARO</div><div style={{fontSize:11,color:accent,letterSpacing:8,fontWeight:600}}>GROUP</div></div></div>
+    </div></section>
+    <section id="contact" style={{padding:"100px 24px"}}><div style={{maxWidth:950,margin:"0 auto"}}>
+      <div style={{textAlign:"center",marginBottom:50}}><span style={{color:accent,fontSize:11,fontWeight:700,letterSpacing:2}}>{"— "+L.coT+" —"}</span><h2 style={{fontSize:"clamp(26px,3.5vw,42px)",fontWeight:800,marginTop:10}}>{L.coT}</h2><p style={{color:c.dim,fontSize:13,marginTop:8}}>{L.coP}</p></div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:24}}>
+        <div style={{flex:"1 1 300px",display:"flex",flexDirection:"column",gap:14}}>
+          {[{hr:`tel:${PHONE_RAW}`,ic:"\ud83d\udcde",lb:L.ph,vl:PHONE,cl:accent},{hr:`mailto:${EMAIL}`,ic:"\u2709\ufe0f",lb:L.em,vl:EMAIL,cl:"#3b82f6"},{hr:`https://wa.me/${PHONE_RAW}`,ic:"\ud83d\udcac",lb:L.wa,vl:"WhatsApp",cl:"#22c55e"},{hr:`viber://chat?number=%2B${PHONE_RAW}`,ic:"\ud83d\udcf1",lb:L.vb,vl:"Viber",cl:"#7c3aed"}].map((x,i)=><a key={i} href={x.hr} target={x.hr.startsWith("http")?"_blank":undefined} rel="noreferrer" style={{display:"flex",alignItems:"center",gap:14,padding:18,background:c.card,border:`1px solid ${c.bdr}`,borderRadius:14,textDecoration:"none",color:c.text,transition:"all .25s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=`${x.cl}40`;e.currentTarget.style.transform="translateY(-2px)"}} onMouseLeave={e=>{e.currentTarget.style.borderColor=c.bdr;e.currentTarget.style.transform="translateY(0)"}}><div style={{width:46,height:46,borderRadius:12,background:`${x.cl}10`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{x.ic}</div><div><div style={{fontSize:10,color:c.dim}}>{x.lb}</div><div style={{fontSize:14,fontWeight:600,direction:"ltr"}}>{x.vl}</div></div></a>)}
+        </div>
+        <div style={{flex:"1 1 300px",background:c.card,border:`1px solid ${c.bdr}`,borderRadius:18,padding:26}}>
+          {[{l:L.nm,t:"text"},{l:L.em,t:"email"}].map((x,i)=><div key={i} style={{marginBottom:16}}><label style={{fontSize:11,color:c.dim,display:"block",marginBottom:4,fontWeight:600}}>{x.l}</label><input type={x.t} style={{width:"100%",padding:"12px 16px",background:c.inBg,border:`1px solid ${c.inBdr}`,borderRadius:10,color:c.text,fontSize:14}}/></div>)}
+          <div style={{marginBottom:16}}><label style={{fontSize:11,color:c.dim,display:"block",marginBottom:4,fontWeight:600}}>{L.mg}</label><textarea rows={4} style={{width:"100%",padding:"12px 16px",background:c.inBg,border:`1px solid ${c.inBdr}`,borderRadius:10,color:c.text,fontSize:14,resize:"vertical"}}/></div>
+          <button style={{width:"100%",padding:14,background:`linear-gradient(135deg,${accent},#d4782e)`,color:"#000",border:"none",borderRadius:10,fontSize:15,fontWeight:700}}>{L.sn}</button>
+        </div>
+      </div>
+    </div></section>
+    <footer style={{padding:"36px 24px",borderTop:`1px solid ${c.bdr}`,textAlign:"center"}}><div onClick={hsc} style={{cursor:"default",display:"inline-block"}}><KaroLogo size={20} isDark={theme==="dark"}/></div><p style={{fontSize:11,color:c.dim,marginTop:12}}>{"\u00a9 "+new Date().getFullYear()+" Karo Group. "+L.ft}</p></footer>
+    <a href={`https://wa.me/${PHONE_RAW}`} target="_blank" rel="noreferrer" style={{position:"fixed",bottom:22,right:22,width:54,height:54,borderRadius:"50%",background:"#22c55e",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,boxShadow:"0 4px 22px rgba(34,197,94,0.4)",zIndex:99,textDecoration:"none",animation:"pulse 2.5s ease infinite"}}>{"\ud83d\udcac"}</a>
+  </div>);
+}
 
-      {saved && (<div style={{ position: "fixed", bottom: 20, left: 20, background: T.green, color: "#fff", padding: "8px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700, zIndex: 1000, animation: "fadeIn .2s ease" }}>پاشەکەوت کرا ✓</div>)}
+// ══ LOGIN ══
+function LoginPage({ onLogin, onBack, theme }) {
+  const [u, su]=useState(""); const [p, sp]=useState(""); const [e, se]=useState("");
+  const c=theme==="dark"?dk:lt;
+  const go=()=>{const all=loadAll();if(u===ADMIN_USER&&p===ADMIN_PASS){onLogin({type:"admin"});return}const pr=all.projects.find(x=>x.user===u&&x.pass===p);if(pr){onLogin({type:"project",project:pr});return}se("\u06cc\u0648\u0632\u06d5\u0631\u0646\u06d5\u06cc\u0645 \u06cc\u0627\u0646 \u067e\u0627\u0633\u06c6\u0631\u062f \u0647\u06d5\u06b5\u06d5\u06cc\u06d5")};
+  return(<div style={{minHeight:"100vh",background:c.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Noto Sans Arabic','Poppins',sans-serif",direction:"rtl"}}><div style={{width:"90%",maxWidth:400,background:c.card,border:`1px solid ${c.bdr}`,borderRadius:20,padding:36,textAlign:"center"}}><LIcon size={60} isDark={theme==="dark"}/><h2 style={{fontSize:22,fontWeight:800,marginTop:16,marginBottom:6,color:c.text}}>{"\u0633\u06cc\u0633\u062a\u06d5\u0645\u06cc \u062d\u06cc\u0633\u0627\u0628\u0627\u062a"}</h2><p style={{fontSize:12,color:c.dim,marginBottom:28}}>{"\u062f\u0627\u062e\u06b5 \u0628\u06d5"}</p>{e&&<div style={{background:"#ef444415",border:"1px solid #ef444430",borderRadius:10,padding:"10px 16px",marginBottom:16,color:"#ef4444",fontSize:13}}>{e}</div>}<div style={{marginBottom:16}}><input placeholder="Username" value={u} onChange={e=>su(e.target.value)} style={{width:"100%",padding:"13px 16px",background:c.inBg,border:`1px solid ${c.inBdr}`,borderRadius:10,color:c.text,fontSize:14,direction:"ltr",textAlign:"center"}}/></div><div style={{marginBottom:24}}><input type="password" placeholder="Password" value={p} onChange={e=>sp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} style={{width:"100%",padding:"13px 16px",background:c.inBg,border:`1px solid ${c.inBdr}`,borderRadius:10,color:c.text,fontSize:14,direction:"ltr",textAlign:"center"}}/></div><button onClick={go} style={{width:"100%",padding:14,background:`linear-gradient(135deg,${accent},#d4782e)`,color:"#000",border:"none",borderRadius:10,fontSize:15,fontWeight:700,marginBottom:12}}>{"\u062f\u0627\u062e\u06b5\u0628\u0648\u0648\u0646"}</button><button onClick={onBack} style={{background:"none",border:"none",color:c.dim,fontSize:13}}>{"\u2190 \u06af\u06d5\u0695\u0627\u0646\u06d5\u0648\u06d5"}</button></div></div>);
+}
+
+// ══ ADMIN ══
+function AdminPanel({ onLogout, theme }) {
+  const [all,setAll]=useState(loadAll); const [sa,setSa]=useState(false); const [f,sf]=useState({name:"",user:"",pass:""});
+  const c=theme==="dark"?dk:lt; const sv=d=>{setAll(d);saveAll(d)};
+  return(<div style={{minHeight:"100vh",background:c.bg,fontFamily:"'Noto Sans Arabic','Poppins',sans-serif",direction:"rtl",padding:24}}><div style={{maxWidth:700,margin:"0 auto"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:30}}><div><h1 style={{fontSize:24,fontWeight:800,color:c.text}}>{"\u0628\u06d5\u0695\u06ce\u0648\u06d5\u0628\u06d5\u0631"}</h1><p style={{fontSize:12,color:c.dim}}>{"\u0632\u06cc\u0627\u062f\u06a9\u0631\u062f\u0646\u06cc \u067e\u0695\u06c6\u0698\u06d5"}</p></div><div style={{display:"flex",gap:8}}><button onClick={()=>setSa(true)} style={{background:`linear-gradient(135deg,${accent},#d4782e)`,color:"#000",border:"none",borderRadius:10,padding:"10px 20px",fontSize:13,fontWeight:700}}>+ {"\u067e\u0695\u06c6\u0698\u06d5\u06cc \u0646\u0648\u06ce"}</button><button onClick={onLogout} style={{background:c.card,border:`1px solid ${c.bdr}`,borderRadius:10,padding:"10px 16px",fontSize:13,color:c.dim}}>{"\u062f\u06d5\u0631\u0686\u0648\u0648\u0646"}</button></div></div>
+    {all.projects.length===0?<div style={{textAlign:"center",padding:60,color:c.dim}}><div style={{fontSize:48,marginBottom:12}}>{"\ud83d\udcc2"}</div><div style={{fontSize:16,fontWeight:600}}>{"\u067e\u0695\u06c6\u0698\u06d5 \u0646\u06cc\u06cc\u06d5"}</div></div>:
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>{all.projects.map(p=><div key={p.id} style={{background:c.card,border:`1px solid ${c.bdr}`,borderRadius:14,padding:20,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:16,fontWeight:700,color:c.text}}>{p.name}</div><div style={{fontSize:12,color:c.dim,marginTop:4,direction:"ltr"}}>User: {p.user} | Pass: {p.pass}</div></div><button onClick={()=>{const n={...all,projects:all.projects.filter(x=>x.id!==p.id)};delete n.data[p.id];sv(n)}} style={{background:"#ef444412",color:"#ef4444",border:"1px solid #ef444425",borderRadius:8,padding:"6px 14px",fontSize:12}}>{"\u0633\u0695\u06cc\u0646\u06d5\u0648\u06d5"}</button></div>)}</div>}
+    {sa&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,backdropFilter:"blur(4px)"}} onClick={()=>setSa(false)}><div onClick={e=>e.stopPropagation()} style={{background:theme==="dark"?"#111318":"#fff",border:`1px solid ${c.bdr}`,borderRadius:18,padding:28,width:"90%",maxWidth:400,direction:"rtl"}}><h3 style={{fontSize:18,fontWeight:700,marginBottom:20,color:c.text}}>{"\u067e\u0695\u06c6\u0698\u06d5\u06cc \u0646\u0648\u06ce"}</h3>
+      {[{l:"\u0646\u0627\u0648\u06cc \u067e\u0695\u06c6\u0698\u06d5",k:"name"},{l:"\u06cc\u0648\u0632\u06d5\u0631\u0646\u06d5\u06cc\u0645",k:"user"},{l:"\u067e\u0627\u0633\u06c6\u0631\u062f",k:"pass"}].map(x=><div key={x.k} style={{marginBottom:14}}><label style={{fontSize:11,color:c.dim,display:"block",marginBottom:4,fontWeight:600}}>{x.l}</label><input value={f[x.k]} onChange={e=>sf({...f,[x.k]:e.target.value})} style={{width:"100%",padding:"10px 14px",background:c.inBg,border:`1px solid ${c.inBdr}`,borderRadius:8,color:c.text,fontSize:13,direction:x.k==="name"?"rtl":"ltr"}}/></div>)}
+      <div style={{display:"flex",gap:10,marginTop:18}}><button onClick={()=>{if(!f.name||!f.user||!f.pass)return;sv({...all,projects:[...all.projects,{id:gid(),...f}]});sf({name:"",user:"",pass:""});setSa(false)}} style={{flex:1,padding:12,background:`linear-gradient(135deg,${accent},#d4782e)`,color:"#000",border:"none",borderRadius:10,fontSize:14,fontWeight:700}}>{"\u2713"}</button><button onClick={()=>setSa(false)} style={{padding:"12px 20px",background:c.card,border:`1px solid ${c.bdr}`,borderRadius:10,color:c.dim,fontSize:13}}>{"\u067e\u0627\u0634\u06af\u06d5\u0632\u0628\u0648\u0648\u0646\u06d5\u0648\u06d5"}</button></div>
+    </div></div>}
+  </div></div>);
+}
+
+// ══ ACCOUNTING (simplified inline components) ══
+const Inp=({label,...p})=><div style={{marginBottom:12}}>{label&&<label style={{display:"block",fontSize:11,color:"#6b7280",marginBottom:4,fontWeight:600}}>{label}</label>}<input {...p} style={{width:"100%",padding:"9px 12px",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#eee",fontSize:13,direction:p.type==="date"||p.type==="number"?"ltr":"rtl",...p.style}}/></div>;
+const Sel=({label,options,...p})=><div style={{marginBottom:12}}>{label&&<label style={{display:"block",fontSize:11,color:"#6b7280",marginBottom:4,fontWeight:600}}>{label}</label>}<select {...p} style={{width:"100%",padding:"9px 12px",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#eee",fontSize:13,direction:"rtl"}}>{options.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></div>;
+const Btn=({v="primary",children,...p})=>{const s={primary:{background:`linear-gradient(135deg,${accent},#d4782e)`,color:"#000",fontWeight:700,border:"none"},danger:{background:"#ef444412",color:"#ef4444",border:"1px solid #ef444425"},ghost:{background:"rgba(255,255,255,0.04)",color:"#888",border:"1px solid rgba(255,255,255,0.08)"},blue:{background:"linear-gradient(135deg,#3b82f6,#2563eb)",color:"#fff",fontWeight:700,border:"none"}};return<button {...p} style={{...s[v],borderRadius:8,padding:"8px 16px",fontSize:12,display:"inline-flex",alignItems:"center",gap:6,...p.style}}>{children}</button>};
+const Crd=({children,style})=><div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:12,padding:18,marginBottom:14,...style}}>{children}</div>;
+const Mdl=({show,onClose,title,children,wide})=>{if(!show)return null;return<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,backdropFilter:"blur(4px)"}} onClick={onClose}><div onClick={e=>e.stopPropagation()} style={{background:"#111318",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,width:"92%",maxWidth:wide?700:480,maxHeight:"88vh",overflowY:"auto",direction:"rtl"}}><div style={{fontSize:17,fontWeight:700,marginBottom:18}}>{title}</div>{children}</div></div>};
+const Rw=({children})=><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{children}</div>;
+const Stat=({label,value,color})=><div style={{background:`${color}08`,border:`1px solid ${color}25`,borderRadius:12,padding:"14px 16px",flex:1,minWidth:130}}><div style={{fontSize:22,fontWeight:800,color}}>{value}</div><div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{label}</div></div>;
+const Emp=({icon,text})=><div style={{textAlign:"center",padding:"36px 20px",color:"#555"}}><div style={{fontSize:34,marginBottom:8}}>{icon}</div><div style={{fontSize:13}}>{text}</div></div>;
+const Bdg=({color,children})=><span style={{background:`${color}18`,color,padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{children}</span>;
+
+function AccSys({project,onLogout}){
+  const[all,setAll]=useState(loadAll);const[pg,setPg]=useState("expenses");const[sv,sSv]=useState("");const[mo,sMo]=useState(false);
+  const pd=getPD(all,project.id);
+  const doSave=nd=>{const n={...all,data:{...all.data,[project.id]:nd}};setAll(n);saveAll(n);sSv("\u2713");setTimeout(()=>sSv(""),1200)};
+  const nav=[{id:"expenses",l:"\u062e\u06d5\u0631\u062c\u06cc",i:"\ud83d\udcb0"},{id:"debts",l:"\u0642\u06d5\u0631\u0632",i:"\ud83e\udd1d"},{id:"slabs",l:"\u0633\u0644\u0641\u06d5",i:"\ud83c\udfd7\ufe0f"},{id:"contractor",l:"\u0645\u0642\u0627\u0648\u0644",i:"\ud83d\udc77"},{id:"cash",l:"\u0642\u0627\u0633\u06d5",i:"\ud83c\udfe6"},{id:"exchange",l:"\u0626\u0627\u0644\u0648\u06af\u06c6\u0631",i:"\ud83d\udcb1"},{id:"invoice",l:"\u0626\u06cc\u0646\u06a4\u06c6\u06cc\u0633",i:"\ud83e\uddfe"}];
+  return(<div style={{background:"#050608",minHeight:"100vh",display:"flex",direction:"rtl",fontFamily:"'Noto Sans Arabic','Poppins',sans-serif",color:"#eee"}}>
+    <button onClick={()=>sMo(!mo)} style={{display:window.innerWidth<=768?"block":"none",position:"fixed",top:10,right:10,zIndex:1001,background:accent,color:"#000",border:"none",borderRadius:8,padding:"8px 12px",fontSize:18}}>{"\u2630"}</button>
+    <div style={{width:190,minWidth:190,background:"rgba(8,10,16,0.98)",borderLeft:"1px solid rgba(255,255,255,0.05)",padding:"18px 0",display:"flex",flexDirection:"column",...(window.innerWidth<=768?{position:"fixed",top:0,right:0,bottom:0,zIndex:1000,transform:mo?"translateX(0)":"translateX(100%)",transition:"transform .2s"}:{})}}>
+      <div style={{padding:"0 16px 16px",borderBottom:"1px solid rgba(255,255,255,0.05)",marginBottom:6}}><div style={{fontSize:14,fontWeight:800,color:accent}}>{project.name}</div><div style={{fontSize:10,color:"#555",marginTop:3}}>Karo Group</div></div>
+      {nav.map(n=><div key={n.id} onClick={()=>{setPg(n.id);sMo(false)}} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 16px",cursor:"pointer",background:pg===n.id?`${accent}12`:"transparent",color:pg===n.id?accent:"#666",borderLeft:pg===n.id?`3px solid ${accent}`:"3px solid transparent",fontSize:12.5,fontWeight:pg===n.id?700:400,transition:"all .15s"}}><span>{n.i}</span><span>{n.l}</span></div>)}
+      <div style={{marginTop:"auto",padding:"12px 16px",borderTop:"1px solid rgba(255,255,255,0.05)"}}><button onClick={onLogout} style={{background:"none",border:"none",color:"#555",fontSize:11,cursor:"pointer"}}>{"\u2190 \u062f\u06d5\u0631\u0686\u0648\u0648\u0646"}</button></div>
     </div>
-  );
+    {mo&&<div onClick={()=>sMo(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:999}}/>}
+    <div style={{flex:1,padding:"22px 26px",overflowY:"auto",maxHeight:"100vh"}}>
+      {pg==="expenses"&&<ExpPg d={pd} onSave={doSave} pn={project.name}/>}
+      {pg==="debts"&&<DebtPg d={pd} onSave={doSave}/>}
+      {pg==="slabs"&&<SlabPg d={pd} onSave={doSave}/>}
+      {pg==="contractor"&&<ConPg d={pd} onSave={doSave}/>}
+      {pg==="cash"&&<CashPg d={pd} onSave={doSave}/>}
+      {pg==="exchange"&&<ExPg d={pd} onSave={doSave}/>}
+      {pg==="invoice"&&<InvPg d={pd} onSave={doSave} pn={project.name}/>}
+    </div>
+    {sv&&<div style={{position:"fixed",bottom:20,left:20,background:"#22c55e",color:"#fff",padding:"8px 18px",borderRadius:8,fontSize:12,fontWeight:700,zIndex:1000,animation:"fadeIn .2s"}}>{"\u067e\u0627\u0634\u06d5\u06a9\u06d5\u0648\u062a \u06a9\u0631\u0627 \u2713"}</div>}
+  </div>);
+}
+
+// ─ Expenses ─
+function ExpPg({d,onSave,pn}){const[sh,sSh]=useState(false);const[ed,sEd]=useState(null);const[sr,sSr]=useState("");const[mf,sMf]=useState("");const[mk,sMk]=useState(new Set());const[im,sIm]=useState(null);const[f,sf]=useState({date:td(),receiptNo:"",receiptImg:"",amountIQD:"",amountUSD:"",note:""});const ms=useMemo(()=>{const s=new Set();d.expenses.forEach(e=>{if(e.date)s.add(e.date.substring(0,7))});return[...s].sort().reverse()},[d.expenses]);const fl=useMemo(()=>{let i=[...d.expenses].sort((a,b)=>(b.date||"").localeCompare(a.date||""));if(mf)i=i.filter(e=>e.date?.startsWith(mf));if(sr){const s=sr.toLowerCase();i=i.filter(e=>(e.receiptNo||"").toLowerCase().includes(s)||(e.note||"").toLowerCase().includes(s)||String(e.amountIQD||"").includes(s))}return i},[d.expenses,mf,sr]);const tI=fl.reduce((s,e)=>s+(Number(e.amountIQD)||0),0);const tU=fl.reduce((s,e)=>s+(Number(e.amountUSD)||0),0);const doS=()=>{if(!f.amountIQD&&!f.amountUSD)return;const en={...f,amountIQD:Number(f.amountIQD)||0,amountUSD:Number(f.amountUSD)||0};if(ed)onSave({...d,expenses:d.expenses.map(e=>e.id===ed.id?{...e,...en}:e)});else onSave({...d,expenses:[...d.expenses,{id:gid(),...en}]});sSh(false)};const hI=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>sf(f=>({...f,receiptImg:ev.target.result}));r.readAsDataURL(file)};
+return(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18,flexWrap:"wrap",gap:8}}><h2 style={{fontSize:20,fontWeight:800}}>{"\u062e\u06d5\u0631\u062c\u06cc\u06cc\u06d5\u06a9\u0627\u0646"}</h2><div style={{display:"flex",gap:8}}><Btn v="ghost" onClick={()=>printHTML('<div class="header"><h1>Karo Group \u2014 '+pn+'</h1></div><table><thead><tr><th>\u0628\u06d5\u0631\u0648\u0627\u0631</th><th>\u0698.\u0648\u06d5\u0633\u06b5</th><th>\u062f\u06cc\u0646\u0627\u0631</th><th>\u062f\u06c6\u06b5\u0627\u0631</th><th>\u062a\u06ce\u0628\u06cc\u0646\u06cc</th></tr></thead><tbody>'+fl.map(e=>'<tr><td>'+e.date+'</td><td>'+(e.receiptNo||"")+'</td><td>'+fi(e.amountIQD)+'</td><td>$'+fu(e.amountUSD)+'</td><td>'+(e.note||"")+'</td></tr>').join("")+'</tbody><tfoot><tr class="total-row"><td colspan="2">\u06a9\u06c6</td><td>'+fi(tI)+'</td><td>$'+fu(tU)+'</td><td></td></tr></tfoot></table>','Expenses')}>{"\ud83d\udda8\ufe0f"}</Btn><Btn onClick={()=>{sEd(null);sf({date:td(),receiptNo:"",receiptImg:"",amountIQD:"",amountUSD:"",note:""});sSh(true)}}>+ {"\u0646\u0648\u06ce"}</Btn></div></div>
+<Crd style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap",padding:12}}><input placeholder="\u06af\u06d5\u0695\u0627\u0646..." value={sr} onChange={e=>sSr(e.target.value)} style={{flex:1,minWidth:130,padding:"8px 12px",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#eee",fontSize:13,direction:"rtl"}}/><select value={mf} onChange={e=>sMf(e.target.value)} style={{padding:"8px 12px",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#eee",fontSize:13,minWidth:120}}><option value="">{"\u0647\u06d5\u0645\u0648\u0648"}</option>{ms.map(m=><option key={m} value={m}>{m}</option>)}</select></Crd>
+<div style={{display:"flex",gap:10,marginBottom:12}}><Stat label={"\u062f\u06cc\u0646\u0627\u0631"} value={fi(tI)} color="#ef4444"/><Stat label={"\u062f\u06c6\u06b5\u0627\u0631"} value={"$"+fu(tU)} color="#3b82f6"/></div>
+{fl.length===0?<Crd><Emp icon="\ud83d\udccb" text={"\u0646\u06cc\u06cc\u06d5"}/></Crd>:<Crd style={{overflowX:"auto",padding:0}}><table style={{width:"100%",borderCollapse:"collapse"}}><thead><tr>{["\u2713","\u0628\u06d5\u0631\u0648\u0627\u0631","\u0698.\u0648\u06d5\u0633\u06b5","\u0648\u06ce\u0646\u06d5","\u062f\u06cc\u0646\u0627\u0631","\u062f\u06c6\u06b5\u0627\u0631","\u062a\u06ce\u0628\u06cc\u0646\u06cc",""].map((h,i)=><th key={i} style={{textAlign:"right",padding:"9px 10px",fontSize:10,color:"#555",fontWeight:700,borderBottom:"1px solid rgba(255,255,255,0.05)",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead><tbody>{fl.map(e=><tr key={e.id} style={{background:mk.has(e.id)?`${accent}06`:"transparent"}}><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><input type="checkbox" checked={mk.has(e.id)} onChange={()=>{const s=new Set(mk);s.has(e.id)?s.delete(e.id):s.add(e.id);sMk(s)}} style={{accentColor:accent}}/></td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,color:"#777",direction:"ltr",textAlign:"right"}}>{e.date}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{e.receiptNo||"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}>{e.receiptImg?<div onClick={()=>sIm(e.receiptImg)} style={{width:28,height:28,borderRadius:5,overflow:"hidden",cursor:"pointer",border:"1px solid rgba(255,255,255,0.08)"}}><img src={e.receiptImg} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/></div>:"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",color:"#ef4444",fontWeight:700,direction:"ltr",textAlign:"right",fontSize:12}}>{e.amountIQD?fi(e.amountIQD):"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",color:"#3b82f6",fontWeight:700,direction:"ltr",textAlign:"right",fontSize:12}}>{e.amountUSD?"$"+fu(e.amountUSD):"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12,maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note||"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><div style={{display:"flex",gap:4}}><Btn v="ghost" style={{padding:"3px 7px"}} onClick={()=>{sEd(e);sf({date:e.date,receiptNo:e.receiptNo||"",receiptImg:e.receiptImg||"",amountIQD:e.amountIQD||"",amountUSD:e.amountUSD||"",note:e.note||""});sSh(true)}}>{"\u270f\ufe0f"}</Btn><Btn v="danger" style={{padding:"3px 7px"}} onClick={()=>onSave({...d,expenses:d.expenses.filter(x=>x.id!==e.id)})}>{"\ud83d\uddd1"}</Btn></div></td></tr>)}</tbody></table></Crd>}
+{im&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,cursor:"pointer"}} onClick={()=>sIm(null)}><img src={im} style={{maxWidth:"90%",maxHeight:"90%",borderRadius:8}} alt=""/></div>}
+<Mdl show={sh} onClose={()=>sSh(false)} title={ed?"\u062f\u06d5\u0633\u062a\u06a9\u0627\u0631\u06cc":"\u0646\u0648\u06ce"}><Rw><Inp label={"\u0628\u06d5\u0631\u0648\u0627\u0631"} type="date" value={f.date} onChange={e=>sf({...f,date:e.target.value})}/><Inp label={"\u0698.\u0648\u06d5\u0633\u06b5"} value={f.receiptNo} onChange={e=>sf({...f,receiptNo:e.target.value})}/></Rw><div style={{marginBottom:12}}><label style={{display:"block",fontSize:11,color:"#6b7280",marginBottom:4,fontWeight:600}}>{"\u0648\u06ce\u0646\u06d5"}</label><input type="file" accept="image/*" onChange={hI} style={{width:"100%",padding:8,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#eee",fontSize:12}}/>{f.receiptImg&&<img src={f.receiptImg} style={{width:50,height:50,objectFit:"cover",borderRadius:6,marginTop:6}} alt=""/>}</div><Rw><Inp label={"\u062f\u06cc\u0646\u0627\u0631"} type="number" value={f.amountIQD} onChange={e=>sf({...f,amountIQD:e.target.value})}/><Inp label={"\u062f\u06c6\u06b5\u0627\u0631"} type="number" value={f.amountUSD} onChange={e=>sf({...f,amountUSD:e.target.value})}/></Rw><Inp label={"\u062a\u06ce\u0628\u06cc\u0646\u06cc"} value={f.note} onChange={e=>sf({...f,note:e.target.value})}/><div style={{display:"flex",gap:10,marginTop:16}}><Btn onClick={doS}>{"\u2713"}</Btn><Btn v="ghost" onClick={()=>sSh(false)}>{"\u067e\u0627\u0634\u06af\u06d5\u0632\u0628\u0648\u0648\u0646\u06d5\u0648\u06d5"}</Btn></div></Mdl></div>)}
+
+// Placeholder pages for other sections
+function DebtPg({d,onSave}){const[sh,sSh]=useState(false);const[f,sf]=useState({date:td(),type:"borrow",person:"",amountIQD:"",amountUSD:"",note:""});const s=[...d.debts].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}><h2 style={{fontSize:20,fontWeight:800}}>{"\u0642\u06d5\u0631\u0632\u06d5\u06a9\u0627\u0646"}</h2><Btn onClick={()=>{sf({date:td(),type:"borrow",person:"",amountIQD:"",amountUSD:"",note:""});sSh(true)}}>+</Btn></div><div style={{display:"flex",gap:10,marginBottom:12,flexWrap:"wrap"}}><Stat label={"\u0648\u06d5\u0631\u06af\u0631\u062a\u0648\u0648"} value={fi(s.filter(x=>x.type==="borrow").reduce((t,x)=>t+(Number(x.amountIQD)||0),0))} color="#ef4444"/><Stat label={"\u062f\u0631\u0627\u0648"} value={fi(s.filter(x=>x.type==="lend").reduce((t,x)=>t+(Number(x.amountIQD)||0),0))} color="#22c55e"/></div><Crd style={{overflowX:"auto",padding:0}}><table style={{width:"100%",borderCollapse:"collapse"}}><thead><tr>{["\u0628\u06d5\u0631\u0648\u0627\u0631","\u062c\u06c6\u0631","\u06a9\u06d5\u0633","\u062f\u06cc\u0646\u0627\u0631","\u062f\u06c6\u06b5\u0627\u0631","\u062a\u06ce\u0628\u06cc\u0646\u06cc",""].map((h,i)=><th key={i} style={{textAlign:"right",padding:"9px 10px",fontSize:10,color:"#555",fontWeight:700,borderBottom:"1px solid rgba(255,255,255,0.05)"}}>{h}</th>)}</tr></thead><tbody>{s.length===0?<tr><td colSpan={7}><Emp icon={"\ud83e\udd1d"} text={"\u0646\u06cc\u06cc\u06d5"}/></td></tr>:s.map(x=><tr key={x.id}><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,color:"#777"}}>{x.date}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><Bdg color={x.type==="borrow"?"#ef4444":"#22c55e"}>{x.type==="borrow"?"\u0648\u06d5\u0631\u06af\u0631\u062a\u0646":"\u062f\u0627\u0646"}</Bdg></td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:600,fontSize:12}}>{x.person}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,direction:"ltr",textAlign:"right",fontSize:12}}>{x.amountIQD?fi(x.amountIQD):"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,direction:"ltr",textAlign:"right",fontSize:12}}>{x.amountUSD?"$"+fu(x.amountUSD):"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{x.note||"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><Btn v="danger" style={{padding:"3px 7px"}} onClick={()=>onSave({...d,debts:d.debts.filter(y=>y.id!==x.id)})}>{"\ud83d\uddd1"}</Btn></td></tr>)}</tbody></table></Crd><Mdl show={sh} onClose={()=>sSh(false)} title={"\u0642\u06d5\u0631\u0632\u06cc \u0646\u0648\u06ce"}><Rw><Inp label={"\u0628\u06d5\u0631\u0648\u0627\u0631"} type="date" value={f.date} onChange={e=>sf({...f,date:e.target.value})}/><Sel label={"\u062c\u06c6\u0631"} value={f.type} onChange={e=>sf({...f,type:e.target.value})} options={[{v:"borrow",l:"\u0648\u06d5\u0631\u06af\u0631\u062a\u0646"},{v:"lend",l:"\u062f\u0627\u0646"}]}/></Rw><Inp label={"\u06a9\u06d5\u0633"} value={f.person} onChange={e=>sf({...f,person:e.target.value})}/><Rw><Inp label={"\u062f\u06cc\u0646\u0627\u0631"} type="number" value={f.amountIQD} onChange={e=>sf({...f,amountIQD:e.target.value})}/><Inp label={"\u062f\u06c6\u06b5\u0627\u0631"} type="number" value={f.amountUSD} onChange={e=>sf({...f,amountUSD:e.target.value})}/></Rw><Inp label={"\u062a\u06ce\u0628\u06cc\u0646\u06cc"} value={f.note} onChange={e=>sf({...f,note:e.target.value})}/><Btn onClick={()=>{if(!f.person)return;onSave({...d,debts:[...d.debts,{id:gid(),...f,amountIQD:Number(f.amountIQD)||0,amountUSD:Number(f.amountUSD)||0}]});sSh(false)}}>{"\u2713"}</Btn></Mdl></div>)}
+
+function SlabPg({d,onSave}){const[sh,sSh]=useState(false);const[f,sf]=useState({date:td(),meters:"",pricePerMeter:"",deposit:"",note:""});const s=[...d.slabs].sort((a,b)=>(b.date||"").localeCompare(a.date||""));const calc=(m,p)=>(Number(m)||0)*(Number(p)||0);return(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}><h2 style={{fontSize:20,fontWeight:800}}>{"\u0633\u0644\u0641\u06d5\u06a9\u0627\u0646"}</h2><Btn onClick={()=>{sf({date:td(),meters:"",pricePerMeter:"",deposit:"",note:""});sSh(true)}}>+</Btn></div><div style={{display:"flex",gap:10,marginBottom:12,flexWrap:"wrap"}}><Stat label={"\u0645\u06d5\u062a\u0631"} value={fi(s.reduce((t,x)=>t+(Number(x.meters)||0),0))} color={accent}/><Stat label={"\u06a9\u06c6"} value={fi(s.reduce((t,x)=>t+(Number(x.totalPrice)||0),0))} color="#3b82f6"/><Stat label={"\u062a\u06d5\u0626\u0645\u06cc\u0646"} value={fi(s.reduce((t,x)=>t+(Number(x.deposit)||0),0))} color="#ef4444"/><Stat label={"\u0648\u06d5\u0631\u06af\u0631\u062a\u0646"} value={fi(s.reduce((t,x)=>t+(Number(x.netReceive)||0),0))} color="#22c55e"/></div><Crd style={{overflowX:"auto",padding:0}}><table style={{width:"100%",borderCollapse:"collapse"}}><thead><tr>{["\u0628\u06d5\u0631\u0648\u0627\u0631","\u0645\u06d5\u062a\u0631","\u0646\u0631\u062e","\u06a9\u06c6","\u062a\u06d5\u0626\u0645\u06cc\u0646","\u0648\u06d5\u0631\u06af\u0631\u062a\u0646","\u062a\u06ce\u0628\u06cc\u0646\u06cc",""].map((h,i)=><th key={i} style={{textAlign:"right",padding:"9px 10px",fontSize:10,color:"#555",fontWeight:700,borderBottom:"1px solid rgba(255,255,255,0.05)"}}>{h}</th>)}</tr></thead><tbody>{s.length===0?<tr><td colSpan={8}><Emp icon={"\ud83c\udfd7\ufe0f"} text={"\u0646\u06cc\u06cc\u06d5"}/></td></tr>:s.map(x=><tr key={x.id}><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,color:"#777"}}>{x.date}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,fontSize:12}}>{fi(x.meters)}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{fi(x.pricePerMeter)}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,color:"#3b82f6",fontSize:12}}>{fi(x.totalPrice)}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",color:"#ef4444",fontSize:12}}>{fi(x.deposit)}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",color:"#22c55e",fontWeight:700,fontSize:12}}>{fi(x.netReceive)}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{x.note||"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><Btn v="danger" style={{padding:"3px 7px"}} onClick={()=>onSave({...d,slabs:d.slabs.filter(y=>y.id!==x.id)})}>{"\ud83d\uddd1"}</Btn></td></tr>)}</tbody></table></Crd><Mdl show={sh} onClose={()=>sSh(false)} title={"\u0633\u0644\u0641\u06d5\u06cc \u0646\u0648\u06ce"}><Inp label={"\u0628\u06d5\u0631\u0648\u0627\u0631"} type="date" value={f.date} onChange={e=>sf({...f,date:e.target.value})}/><Rw><Inp label={"\u0645\u06d5\u062a\u0631"} type="number" value={f.meters} onChange={e=>sf({...f,meters:e.target.value})}/><Inp label={"\u0646\u0631\u062e/\u0645\u06d5\u062a\u0631"} type="number" value={f.pricePerMeter} onChange={e=>sf({...f,pricePerMeter:e.target.value})}/></Rw><div style={{background:"#3b82f610",border:"1px solid #3b82f625",borderRadius:8,padding:12,marginBottom:12,textAlign:"center"}}><span style={{color:"#3b82f6",fontSize:18,fontWeight:800}}>{fi(calc(f.meters,f.pricePerMeter))}</span></div><Inp label={"\u062a\u06d5\u0626\u0645\u06cc\u0646"} type="number" value={f.deposit} onChange={e=>sf({...f,deposit:e.target.value})}/><div style={{background:"#22c55e10",border:"1px solid #22c55e25",borderRadius:8,padding:12,marginBottom:12,textAlign:"center"}}><span style={{color:"#22c55e",fontSize:18,fontWeight:800}}>{fi(calc(f.meters,f.pricePerMeter)-(Number(f.deposit)||0))}</span></div><Inp label={"\u062a\u06ce\u0628\u06cc\u0646\u06cc"} value={f.note} onChange={e=>sf({...f,note:e.target.value})}/><Btn onClick={()=>{const t=calc(f.meters,f.pricePerMeter);onSave({...d,slabs:[...d.slabs,{id:gid(),...f,meters:Number(f.meters)||0,pricePerMeter:Number(f.pricePerMeter)||0,totalPrice:t,deposit:Number(f.deposit)||0,netReceive:t-(Number(f.deposit)||0)}]});sSh(false)}}>{"\u2713"}</Btn></Mdl></div>)}
+
+function ConPg({d,onSave}){const[sh,sSh]=useState(false);const[f,sf]=useState({date:td(),type:"withdraw",amountIQD:"",amountUSD:"",note:""});const s=[...d.contractor].sort((a,b)=>(b.date||"").localeCompare(a.date||""));const bI=s.reduce((t,c)=>t+(c.type==="add"?1:-1)*(Number(c.amountIQD)||0),0);const bU=s.reduce((t,c)=>t+(c.type==="add"?1:-1)*(Number(c.amountUSD)||0),0);return(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}><h2 style={{fontSize:20,fontWeight:800}}>{"\u062d\u06cc\u0633\u0627\u0628\u06cc \u0645\u0642\u0627\u0648\u0644"}</h2><Btn onClick={()=>{sf({date:td(),type:"withdraw",amountIQD:"",amountUSD:"",note:""});sSh(true)}}>+</Btn></div><div style={{display:"flex",gap:10,marginBottom:12}}><Stat label="IQD" value={fi(Math.abs(bI))} color={bI>=0?"#22c55e":"#ef4444"}/><Stat label="$" value={"$"+fu(Math.abs(bU))} color={bU>=0?"#22c55e":"#ef4444"}/></div><Crd style={{overflowX:"auto",padding:0}}><table style={{width:"100%",borderCollapse:"collapse"}}><thead><tr>{["\u0628\u06d5\u0631\u0648\u0627\u0631","\u062c\u06c6\u0631","IQD","$","\u062a\u06ce\u0628\u06cc\u0646\u06cc",""].map((h,i)=><th key={i} style={{textAlign:"right",padding:"9px 10px",fontSize:10,color:"#555",fontWeight:700,borderBottom:"1px solid rgba(255,255,255,0.05)"}}>{h}</th>)}</tr></thead><tbody>{s.length===0?<tr><td colSpan={6}><Emp icon={"\ud83d\udc77"} text={"\u0646\u06cc\u06cc\u06d5"}/></td></tr>:s.map(x=><tr key={x.id}><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,color:"#777"}}>{x.date}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><Bdg color={x.type==="add"?"#22c55e":"#ef4444"}>{x.type==="add"?"\u0632\u06cc\u0627\u062f":"\u0695\u0627\u06a9\u06ce\u0634\u0627\u0646"}</Bdg></td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,direction:"ltr",textAlign:"right",fontSize:12}}>{x.amountIQD?fi(x.amountIQD):"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,direction:"ltr",textAlign:"right",fontSize:12}}>{x.amountUSD?"$"+fu(x.amountUSD):"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{x.note||"\u2014"}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><Btn v="danger" style={{padding:"3px 7px"}} onClick={()=>onSave({...d,contractor:d.contractor.filter(y=>y.id!==x.id)})}>{"\ud83d\uddd1"}</Btn></td></tr>)}</tbody></table></Crd><Mdl show={sh} onClose={()=>sSh(false)} title={"\u062a\u06c6\u0645\u0627\u0631"}><Rw><Inp label={"\u0628\u06d5\u0631\u0648\u0627\u0631"} type="date" value={f.date} onChange={e=>sf({...f,date:e.target.value})}/><Sel label={"\u062c\u06c6\u0631"} value={f.type} onChange={e=>sf({...f,type:e.target.value})} options={[{v:"withdraw",l:"\u0695\u0627\u06a9\u06ce\u0634\u0627\u0646"},{v:"add",l:"\u0632\u06cc\u0627\u062f\u06a9\u0631\u062f\u0646"}]}/></Rw><Rw><Inp label="IQD" type="number" value={f.amountIQD} onChange={e=>sf({...f,amountIQD:e.target.value})}/><Inp label="$" type="number" value={f.amountUSD} onChange={e=>sf({...f,amountUSD:e.target.value})}/></Rw><Inp label={"\u062a\u06ce\u0628\u06cc\u0646\u06cc"} value={f.note} onChange={e=>sf({...f,note:e.target.value})}/><Btn onClick={()=>{onSave({...d,contractor:[...d.contractor,{id:gid(),...f,amountIQD:Number(f.amountIQD)||0,amountUSD:Number(f.amountUSD)||0}]});sSh(false)}}>{"\u2713"}</Btn></Mdl></div>)}
+
+function CashPg({d,onSave}){const[eI,seI]=useState(false);const[eU,seU]=useState(false);const[vI,svI]=useState(String(d.cashIQD||0));const[vU,svU]=useState(String(d.cashUSD||0));return(<div><h2 style={{fontSize:20,fontWeight:800,marginBottom:18}}>{"\u0642\u0627\u0633\u06d5"}</h2><div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:16}}><Crd style={{flex:1,minWidth:220,textAlign:"center",padding:26}}><div style={{fontSize:12,color:"#6b7280",marginBottom:8}}>{"\u062f\u06cc\u0646\u0627\u0631"}</div>{eI?<div style={{display:"flex",gap:8,justifyContent:"center"}}><input type="number" value={vI} onChange={e=>svI(e.target.value)} style={{width:140,padding:8,background:"rgba(255,255,255,0.03)",border:`1px solid ${accent}`,borderRadius:8,color:"#eee",fontSize:18,textAlign:"center",direction:"ltr"}} autoFocus/><Btn onClick={()=>{onSave({...d,cashIQD:Number(vI)||0});seI(false)}}>{"\u2713"}</Btn></div>:<div onClick={()=>{svI(String(d.cashIQD||0));seI(true)}} style={{cursor:"pointer"}}><div style={{fontSize:34,fontWeight:800,color:accent}}>{fi(d.cashIQD||0)}</div></div>}</Crd><Crd style={{flex:1,minWidth:220,textAlign:"center",padding:26}}><div style={{fontSize:12,color:"#6b7280",marginBottom:8}}>{"\u062f\u06c6\u06b5\u0627\u0631"}</div>{eU?<div style={{display:"flex",gap:8,justifyContent:"center"}}><input type="number" value={vU} onChange={e=>svU(e.target.value)} style={{width:140,padding:8,background:"rgba(255,255,255,0.03)",border:`1px solid ${accent}`,borderRadius:8,color:"#eee",fontSize:18,textAlign:"center",direction:"ltr"}} autoFocus/><Btn onClick={()=>{onSave({...d,cashUSD:Number(vU)||0});seU(false)}}>{"\u2713"}</Btn></div>:<div onClick={()=>{svU(String(d.cashUSD||0));seU(true)}} style={{cursor:"pointer"}}><div style={{fontSize:34,fontWeight:800,color:"#22c55e"}}>$ {fu(d.cashUSD||0)}</div></div>}</Crd></div><Crd style={{textAlign:"center",padding:22}}><div style={{fontSize:12,color:"#6b7280",marginBottom:6}}>{"\u06a9\u06c6\u06cc \u06af\u0634\u062a\u06cc (\u0646\u0631\u062e: "+fi(d.rate||1500)+")"}</div><div style={{fontSize:30,fontWeight:800,color:"#3b82f6"}}>{fi((d.cashIQD||0)+(d.cashUSD||0)*(d.rate||1500))} IQD</div></Crd></div>)}
+
+function ExPg({d,onSave}){const[fr,sFr]=useState("USD");const[am,sAm]=useState("");const[ri,sRi]=useState(String(d.rate||1500));const rate=Number(ri)||1500;const cv=fr==="USD"?(Number(am)||0)*rate:(Number(am)||0)/rate;return(<div><h2 style={{fontSize:20,fontWeight:800,marginBottom:18}}>{"\u0626\u0627\u0644\u0648\u06af\u06c6\u0631"}</h2><Crd style={{maxWidth:420}}><div style={{marginBottom:14}}><label style={{fontSize:11,color:"#6b7280",display:"block",marginBottom:4,fontWeight:600}}>{"\u0646\u0631\u062e\u06cc \u062f\u06c6\u06b5\u0627\u0631"}</label><div style={{display:"flex",gap:8}}><input type="number" value={ri} onChange={e=>sRi(e.target.value)} style={{flex:1,padding:10,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#eee",fontSize:16,direction:"ltr",textAlign:"center"}}/><Btn v="ghost" onClick={()=>onSave({...d,rate})}>{"\ud83d\udcbe"}</Btn></div></div><div style={{display:"flex",gap:8,marginBottom:14}}><Btn v={fr==="USD"?"primary":"ghost"} onClick={()=>sFr("USD")} style={{flex:1,justifyContent:"center"}}>$ → IQD</Btn><Btn v={fr==="IQD"?"primary":"ghost"} onClick={()=>sFr("IQD")} style={{flex:1,justifyContent:"center"}}>IQD → $</Btn></div><Inp label={fr==="USD"?"\u062f\u06c6\u06b5\u0627\u0631":"\u062f\u06cc\u0646\u0627\u0631"} type="number" value={am} onChange={e=>sAm(e.target.value)}/><div style={{background:`${accent}10`,border:`1px solid ${accent}25`,borderRadius:10,padding:18,textAlign:"center"}}><div style={{fontSize:26,fontWeight:800,color:accent}}>{fr==="USD"?fi(cv):"$"+fu(cv)}</div></div></Crd></div>)}
+
+function InvPg({d,onSave,pn}){const[sh,sSh]=useState(false);const[vw,sVw]=useState(null);const[f,sf]=useState({date:td(),invoiceNo:"",items:[{name:"",qty:"",price:"",note:""}]});const s=[...d.invoices].sort((a,b)=>(b.date||"").localeCompare(a.date||""));const gt=items=>items.reduce((t,it)=>t+(Number(it.qty)||0)*(Number(it.price)||0),0);const doPr=inv=>{const rows=inv.items.map((it,i)=>'<tr><td>'+(i+1)+'</td><td>'+it.name+'</td><td>'+it.qty+'</td><td>'+fi(it.price)+'</td><td>'+fi((Number(it.qty)||0)*(Number(it.price)||0))+'</td><td>'+(it.note||"")+'</td></tr>').join("");printHTML('<div class="header"><h1>Karo Group \u2014 '+pn+'</h1><p>INVOICE</p></div><div class="meta"><span>Date: '+inv.date+'</span><span>#'+inv.invoiceNo+'</span></div><table><thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th>Note</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr class="total-row"><td colspan="4">TOTAL</td><td>'+fi(inv.total||gt(inv.items))+'</td><td></td></tr></tfoot></table>','Invoice-'+inv.invoiceNo)};return(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}><h2 style={{fontSize:20,fontWeight:800}}>{"\u0626\u06cc\u0646\u06a4\u06c6\u06cc\u0633"}</h2><Btn onClick={()=>{sf({date:td(),invoiceNo:String(s.length+1).padStart(3,"0"),items:[{name:"",qty:"",price:"",note:""}]});sSh(true)}}>+</Btn></div>{s.length===0?<Crd><Emp icon={"\ud83e\uddfe"} text={"\u0646\u06cc\u06cc\u06d5"}/></Crd>:<Crd style={{overflowX:"auto",padding:0}}><table style={{width:"100%",borderCollapse:"collapse"}}><thead><tr>{["\u0628\u06d5\u0631\u0648\u0627\u0631","#","\u0626\u0627\u06cc\u062a\u0645","\u062a\u06c6\u062a\u0627\u06b5",""].map((h,i)=><th key={i} style={{textAlign:"right",padding:"9px 10px",fontSize:10,color:"#555",fontWeight:700,borderBottom:"1px solid rgba(255,255,255,0.05)"}}>{h}</th>)}</tr></thead><tbody>{s.map(inv=><tr key={inv.id}><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,color:"#777"}}>{inv.date}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,fontSize:12}}>{inv.invoiceNo}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{inv.items?.length}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,color:accent,fontSize:12}}>{fi(inv.total||gt(inv.items||[]))}</td><td style={{padding:"9px 10px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}><div style={{display:"flex",gap:4}}><Btn v="blue" style={{padding:"3px 7px",fontSize:11}} onClick={()=>doPr(inv)}>{"\ud83d\udda8\ufe0f"}</Btn><Btn v="ghost" style={{padding:"3px 7px"}} onClick={()=>sVw(inv)}>{"\ud83d\udc41"}</Btn><Btn v="danger" style={{padding:"3px 7px"}} onClick={()=>onSave({...d,invoices:d.invoices.filter(x=>x.id!==inv.id)})}>{"\ud83d\uddd1"}</Btn></div></td></tr>)}</tbody></table></Crd>}<Mdl show={!!vw} onClose={()=>sVw(null)} title={"#"+(vw?.invoiceNo)} wide>{vw&&<div><div style={{textAlign:"center",marginBottom:14}}><div style={{fontSize:22,fontWeight:800,color:accent}}>Karo Group</div><div style={{fontSize:11,color:"#6b7280"}}>{vw.date} | #{vw.invoiceNo}</div></div><table style={{width:"100%",borderCollapse:"collapse"}}><thead><tr>{["#","\u06a9\u0627\u06b5\u0627","\u062d\u06d5\u062f\u06d5\u062f","\u0646\u0631\u062e","\u06a9\u06c6","\u062a\u06ce\u0628\u06cc\u0646\u06cc"].map((h,i)=><th key={i} style={{textAlign:"right",padding:8,fontSize:10,color:"#555",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>{h}</th>)}</tr></thead><tbody>{vw.items?.map((it,i)=><tr key={i}><td style={{padding:8,borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{i+1}</td><td style={{padding:8,borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{it.name}</td><td style={{padding:8,borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{it.qty}</td><td style={{padding:8,borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{fi(it.price)}</td><td style={{padding:8,borderBottom:"1px solid rgba(255,255,255,0.03)",fontWeight:700,fontSize:12}}>{fi((Number(it.qty)||0)*(Number(it.price)||0))}</td><td style={{padding:8,borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:12}}>{it.note||"\u2014"}</td></tr>)}</tbody></table><div style={{textAlign:"left",marginTop:12,fontSize:18,fontWeight:800,color:accent}}>TOTAL: {fi(vw.total||gt(vw.items||[]))}</div><Btn v="blue" onClick={()=>doPr(vw)} style={{marginTop:10}}>{"\ud83d\udda8\ufe0f Print"}</Btn></div>}</Mdl><Mdl show={sh} onClose={()=>sSh(false)} title={"\u0626\u06cc\u0646\u06a4\u06c6\u06cc\u0633\u06cc \u0646\u0648\u06ce"} wide><Rw><Inp label={"\u0628\u06d5\u0631\u0648\u0627\u0631"} type="date" value={f.date} onChange={e=>sf({...f,date:e.target.value})}/><Inp label="#" value={f.invoiceNo} onChange={e=>sf({...f,invoiceNo:e.target.value})}/></Rw><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><span style={{fontSize:13,fontWeight:700}}>{"\u0626\u0627\u06cc\u062a\u0645\u06d5\u06a9\u0627\u0646"}</span><Btn v="ghost" onClick={()=>sf(f=>({...f,items:[...f.items,{name:"",qty:"",price:"",note:""}]}))} style={{padding:"3px 10px",fontSize:11}}>+</Btn></div>{f.items.map((it,i)=><div key={i} style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:10,padding:10,marginBottom:6}}><Rw><Inp label={"\u06a9\u0627\u06b5\u0627"} value={it.name} onChange={e=>sf(f=>({...f,items:f.items.map((x,j)=>j===i?{...x,name:e.target.value}:x)}))}/><Inp label={"\u062d\u06d5\u062f\u06d5\u062f"} type="number" value={it.qty} onChange={e=>sf(f=>({...f,items:f.items.map((x,j)=>j===i?{...x,qty:e.target.value}:x)}))}/></Rw><Rw><Inp label={"\u0646\u0631\u062e"} type="number" value={it.price} onChange={e=>sf(f=>({...f,items:f.items.map((x,j)=>j===i?{...x,price:e.target.value}:x)}))}/><Inp label={"\u062a\u06ce\u0628\u06cc\u0646\u06cc"} value={it.note} onChange={e=>sf(f=>({...f,items:f.items.map((x,j)=>j===i?{...x,note:e.target.value}:x)}))}/></Rw>{f.items.length>1&&<Btn v="danger" onClick={()=>sf(f=>({...f,items:f.items.filter((_,j)=>j!==i)}))} style={{padding:"2px 8px",fontSize:10}}>{"\u2715"}</Btn>}</div>)}<div style={{background:`${accent}10`,border:`1px solid ${accent}25`,borderRadius:10,padding:14,textAlign:"center",marginTop:8,marginBottom:12}}><span style={{fontSize:22,fontWeight:800,color:accent}}>{fi(gt(f.items))}</span></div><Btn onClick={()=>{if(!f.invoiceNo)return;onSave({...d,invoices:[...d.invoices,{id:gid(),...f,total:gt(f.items)}]});sSh(false)}}>{"\u2713"}</Btn></Mdl></div>)}
+
+// ══ MAIN APP ══
+export default function App() {
+  const [view, setView] = useState("landing");
+  const [theme, setTheme] = useState("dark");
+  const [lang, setLang] = useState("ku");
+  const [proj, setProj] = useState(null);
+  const hl = (r) => { if (r.type === "admin") setView("admin"); else { setProj(r.project); setView("project"); } };
+  return (<><style>{CSS}</style>
+    {view === "landing" && <Landing onSecret={() => setView("login")} theme={theme} setTheme={setTheme} lang={lang} setLang={setLang} />}
+    {view === "login" && <LoginPage onLogin={hl} onBack={() => setView("landing")} theme={theme} />}
+    {view === "admin" && <AdminPanel onLogout={() => setView("landing")} theme={theme} />}
+    {view === "project" && proj && <AccSys project={proj} onLogout={() => setView("landing")} />}
+  </>);
 }
