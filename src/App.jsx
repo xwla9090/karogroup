@@ -1193,68 +1193,72 @@ function ExpensesPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
   };
 
   const handleImportExcel = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const text = ev.target.result;
-      const lines = text.split("\n").filter(l => l.trim());
-      if (lines.length < 2) return;
-      const header = lines[0].split(",").map(c => c.replace(/"/g, "").trim().toLowerCase());
-      const findCol = (keywords) => {
-        for (let i = 0; i < header.length; i++) {
-          for (const kw of keywords) {
-            if (header[i].includes(kw)) return i;
-          }
-        }
-        return -1;
-      };
-      const iIQD = findCol(["دینار", "dinar", "iqd", "بری پارە دینار", "بڕ بە دینار"]);
-      const iUSD = findCol(["دۆلار", "dollar", "usd", "بری پارە دۆلار", "بڕ بە دۆلار"]);
-      const iReceipt = findCol(["وەسڵ", "receipt", "ژمارە"]);
-      const iNote = findCol(["تێبینی", "note", "ملاحظ"]);
-      const iDate = findCol(["بەروار", "date", "تاريخ"]);
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  
+  reader.onload = ev => {
+    const text = ev.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) return;
 
-      const newItems = [];
-      for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map(c => c.replace(/"/g, "").trim());
-        if (cols.length < 2) continue;
+    const header = lines[0].split(",").map(c => c.replace(/"/g, "").trim().toLowerCase());
 
-        const amtIQD = iIQD >= 0 ? cols[iIQD] || "" : "";
-        const amtUSD = iUSD >= 0 ? cols[iUSD] || "" : "";
-        const receipt = iReceipt >= 0 ? cols[iReceipt] || "" : "";
-        const note = iNote >= 0 ? cols[iNote] || "" : "";
-        let dateVal = iDate >= 0 ? cols[iDate] || "" : "";
-
-        if (dateVal) {
-          const parts = dateVal.split("/");
-          if (parts.length === 3) {
-            const d = parts[0].padStart(2, "0");
-            const m = parts[1].padStart(2, "0");
-            const y = parts[2].length === 2 ? "20" + parts[2] : parts[2];
-            dateVal = `${y}-${m}-${d}`;
-          }
-        }
-        if (!dateVal || !/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) dateVal = today();
-
-        const iqd = Number(amtIQD.replace(/[^0-9.-]/g, "") || 0);
-        const usd = Number(amtUSD.replace(/[^0-9.-]/g, "") || 0);
-
-        const item = { 
-          id: genId(), amountIQD: iqd || "", amountUSD: usd || "", 
-          receiptNo: receipt, note: note, date: dateVal, receiptImg: "", marked: false 
-        };
-        newItems.push(item);
-        if (iqd > 0) setCashIQD(prev => prev - iqd);
-        if (usd > 0) setCashUSD(prev => prev - usd);
-        addCashLog(`${t.importExcel}: ${note || receipt}`, iqd > 0 ? -iqd : 0, usd > 0 ? -usd : 0);
-      }
-      setItems(prev => [...newItems, ...prev]);
+    const findCol = (keywords) => {
+      return header.findIndex(h => keywords.some(kw => h.includes(kw)));
     };
-    reader.readAsText(file);
-    e.target.value = "";
-  };
 
+    const iIQD = findCol(["دینار", "dinar", "iqd", "بری پارە دینار", "بڕ بە دینار"]);
+    const iUSD = findCol(["دۆلار", "dollar", "usd", "بری پارە دۆلار", "بڕ بە دۆلار"]);
+    const iReceipt = findCol(["وەسڵ", "receipt", "ژمارە"]);
+    const iNote = findCol(["تێبینی", "note", "ملاحظ"]);
+    const iDate = findCol(["بەروار", "date", "تاريخ"]);
+
+    const newItems = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(",").map(c => c.replace(/"/g, "").trim());
+      if (cols.length < 2) continue;
+
+      const amtIQD = iIQD !== -1 ? cols[iIQD] : "0";
+      const amtUSD = iUSD !== -1 ? cols[iUSD] : "0";
+      const receipt = iReceipt !== -1 ? cols[iReceipt] : "";
+      const note = iNote !== -1 ? cols[iNote] : "";
+      
+      let dateVal = iDate !== -1 ? cols[iDate] : "";
+      if (dateVal) {
+        const dParts = dateVal.split(/[/.-]/);
+        if (dParts.length === 3) {
+          const [d, m, y] = dParts;
+          const fullYear = y.length === 2 ? "20" + y : y;
+          dateVal = `${fullYear}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+        }
+      }
+      if (!dateVal || isNaN(new Date(dateVal).getTime())) dateVal = today();
+
+      const iqd = Number(amtIQD.replace(/[^0-9.-]/g, "") || 0);
+      const usd = Number(amtUSD.replace(/[^0-9.-]/g, "") || 0);
+
+      newItems.push({
+        id: genId(),
+        amountIQD: iqd,
+        amountUSD: usd,
+        receiptNo: receipt,
+        note: note,
+        date: dateVal,
+        receiptImg: "",
+        marked: false
+      });
+
+      if (iqd > 0) setCashIQD(prev => prev - iqd);
+      if (usd > 0) setCashUSD(prev => prev - usd);
+      addCashLog(`${t.importExcel}: ${note || receipt}`, iqd > 0 ? -iqd : 0, usd > 0 ? -usd : 0);
+    }
+    setItems(prev => [...newItems, ...prev]);
+  };
+  
+  reader.readAsText(file);
+  e.target.value = "";
+};
   const doExport = (type, size) => {
     const hdrs = [t.amountIQD, t.amountUSD, t.receiptNo, t.note, t.date];
     const rows = filtered.map(i => [fmt(i.amountIQD || 0), fmt(i.amountUSD || 0), i.receiptNo || "", i.note || "", i.date || ""]);
