@@ -169,8 +169,8 @@ const trunc = (s, m = 25) => (!s ? “” : s.length > m ? s.slice(0, m) + “�
 
 // ==================== ICONS (SVG) ====================
 const I = {
-Sun: (p) => <svg {…p} width={p?.s||18} height={p?.s||18} viewBox=“0 0 24 24” fill=“none” stroke=“currentColor” strokeWidth=“2”><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>,
-Moon: (p) => <svg {…p} width={p?.s||18} height={p?.s||18} viewBox=“0 0 24 24” fill=“none” stroke=“currentColor” strokeWidth=“2”><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+Sun: (p) => <svg {...p} width={p?.s||18} height={p?.s||18} viewBox=“0 0 24 24” fill=“none” stroke=“currentColor” strokeWidth=“2”><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>,
+Moon: (p) => <svg {...p} width={p?.s||18} height={p?.s||18} viewBox=“0 0 24 24” fill=“none” stroke=“currentColor” strokeWidth=“2”><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
 Phone: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
 Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
 Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
@@ -197,7 +197,7 @@ return (
 <div style={{ position: “relative”, display: “inline-flex”, alignItems: “center”, justifyContent: “center” }}>
 <div style={{ position: “absolute”, width: size + 14, height: size + 14, borderRadius: “50%”, background: `${PRIMARY}20`, animation: “ping 2s cubic-bezier(0,0,0.2,1) infinite” }} />
 <div style={{ width: size, height: size, borderRadius: “50%”, background: PRIMARY, display: “flex”, alignItems: “center”, justifyContent: “center”, position: “relative”, zIndex: 1, boxShadow: `0 4px 16px ${PRIMARY}40` }}>
-<span style={{ color: “#fff”, fontWeight: 900, fontSize: size * 0.38, letterSpacing: -1 }}>KG</span>
+<span style={{ color: “#fff”, fontWeight: 900, fontSize: size * 0.38, letterSpacing: -1 }}>KG</span><span style={{ position: "absolute", bottom: -2, right: -2, background: "#fff", color: "#4DAF94", fontSize: 8, fontWeight: 800, borderRadius: 4, padding: "0 3px", lineHeight: "12px" }}>v3</span>
 </div>
 </div>
 );
