@@ -397,12 +397,12 @@ return (
             <div onClick={() => setLightbox(img.src)} style={{ borderRadius: 10, overflow: "hidden", cursor: "pointer", aspectRatio: "16/9" }}>
               <img src={img.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }} onMouseEnter={e=>e.target.style.transform="scale(1.04)"} onMouseLeave={e=>e.target.style.transform="scale(1)"} loading="lazy" />
             </div>
-            <p style={{ textAlign: "center", fontSize: 12, color: "#78716c", marginTop: 4, fontWeight: 600, fontFamily }}>{img[`desc_${lang}`]}</p>
+            <p style={{ textAlign: "right", fontSize: 12, color: "#78716c", marginTop: 4, fontWeight: 600, fontFamily }}>{img[`desc_${lang}`]}</p>
           </div>
         ))}
       </div>
     </div>
-    <div style={{ textAlign: "center", padding: "50px 20px 70px" }}>
+    <div style={{ textAlign: "right", padding: "50px 20px 70px" }}>
       <div style={{ marginBottom: 20 }}><Logo size={64} /></div>
       <h1 style={{ fontSize: "clamp(28px,5vw,50px)", fontWeight: 900, color: PRIMARY, marginBottom: 16, fontFamily }}>{t.hero.title}</h1>
       <p style={{ fontSize: "clamp(14px,2vw,17px)", color: "#78716c", lineHeight: 1.7, maxWidth: 560, margin: "0 auto 30px", fontFamily }}>{t.hero.subtitle}</p>
@@ -411,7 +411,7 @@ return (
   </section>
 
   <section id="services" style={{ padding: "70px 20px", maxWidth: 1200, margin: "0 auto" }}>
-    <h2 style={{ textAlign: "center", fontSize: 28, fontWeight: 800, marginBottom: 40, color: PRIMARY, fontFamily }}>{t.services.title}</h2>
+    <h2 style={{ textAlign: "right", fontSize: 28, fontWeight: 800, marginBottom: 40, color: PRIMARY, fontFamily }}>{t.services.title}</h2>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
       {[t.services.s1, t.services.s2, t.services.s3].map((sv, i) => (
         <div key={i} style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: 28, borderTop: `3px solid ${PRIMARY}`, transition: "transform 0.3s" }} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
@@ -424,7 +424,7 @@ return (
 
   <section id="about" style={{ padding: "70px 20px", background: "#f9fafb" }}>
     <div style={{ maxWidth: 750, margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center", fontSize: 28, fontWeight: 800, marginBottom: 36, color: PRIMARY, fontFamily }}>{t.about.title}</h2>
+      <h2 style={{ textAlign: "right", fontSize: 28, fontWeight: 800, marginBottom: 36, color: PRIMARY, fontFamily }}>{t.about.title}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
         {t.about.items.map((item, i) => (
           <div key={i} style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 8, padding: "16px 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
@@ -437,7 +437,7 @@ return (
   </section>
 
   <section id="contact" style={{ padding: "70px 20px" }}>
-    <div style={{ maxWidth: 500, margin: "0 auto", textAlign: "center" }}>
+    <div style={{ maxWidth: 500, margin: "0 auto", textAlign: "right" }}>
       <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 36, color: PRIMARY, fontFamily }}>{t.contact.title}</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {[
@@ -456,7 +456,7 @@ return (
     </div>
   </section>
 
-  <footer style={{ padding: "24px 20px", textAlign: "center", borderTop: "1px solid #e5e5e5" }}>
+  <footer style={{ padding: "24px 20px", textAlign: "right", borderTop: "1px solid #e5e5e5" }}>
     <div onClick={onLogoClick} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
       <Logo size={22} /><span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>KARO GROUP</span>
     </div>
@@ -580,7 +580,7 @@ return (
 
   {formatModal && (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ background: s.bgCard, borderRadius: 14, padding: 28, maxWidth: 340, width: "100%", textAlign: "center" }}>
+      <div style={{ background: s.bgCard, borderRadius: 14, padding: 28, maxWidth: 340, width: "100%", textAlign: "right" }}>
         <div style={{ marginBottom: 14 }}><I.Warn /></div>
         <p style={{ fontSize: 13, marginBottom: 16, color: s.text, lineHeight: 1.6 }}>{t.formatConfirm}</p>
         <input placeholder={t.username} value={fmtUser} onChange={e=>setFmtUser(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, marginBottom: 8, direction: "ltr" }} />
@@ -877,13 +877,13 @@ return (
               <TD s={s} style={{ minWidth: 120, maxWidth: 200 }} title={item.note}>{trunc(item.note, 30) || "—"}</TD>
               <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
               <TD s={s} style={{ minWidth: 40 }}>{item.receiptImg ? <img src={item.receiptImg} alt="" style={{ width: 24, height: 24, objectFit: "cover", borderRadius: 3, cursor: "pointer" }} onClick={()=>setImgPreview(item.receiptImg)} /> : "—"}</TD>
-              <TD s={s} style={{ textAlign: "center", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
+              <TD s={s} style={{ textAlign: "right", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
               <TD s={s} style={{ minWidth: 50 }}><div style={{ display: "flex", gap: 3 }}><button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button><button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button></div></TD>
             </tr>
           ))}
         </tbody>
       </table>
-      {filtered.length===0 && <div style={{ padding: 30, textAlign: "center", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+      {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
     </div>
   </div>
 
@@ -1076,13 +1076,13 @@ return (
               <TD s={s} style={{ direction: "ltr", minWidth: 80 }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
               <TD s={s} style={{ minWidth: 100, maxWidth: 180 }} title={item.note}>{trunc(item.note, 25) || "—"}</TD>
               <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
-              <TD s={s} style={{ textAlign: "center", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
+              <TD s={s} style={{ textAlign: "right", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
               <TD s={s} style={{ minWidth: 50 }}><div style={{ display: "flex", gap: 3 }}><button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button><button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button></div></TD>
             </tr>
           ))}
         </tbody>
       </table>
-      {filtered.length===0 && <div style={{ padding: 30, textAlign: "center", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+      {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
     </div>
   </div>
 
@@ -1223,7 +1223,7 @@ return (
                 {item.isReceived ? <span style={{ color: s.success, fontSize: 11, fontWeight: 600 }}>✓ {t.receivedStatus}</span>
                 : <button onClick={()=>markReceived(item.id)} style={{ padding: "3px 8px", borderRadius: 4, border: `1px solid ${s.success}`, background: "#D1FAE5", color: "#059669", cursor: "pointer", fontSize: 10, fontWeight: 600 }}>{t.receivedStatus}</button>}
               </TD>
-              <TD s={s} style={{ textAlign: "center", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
+              <TD s={s} style={{ textAlign: "right", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
               <TD s={s} style={{ minWidth: 70 }}>
                 <div style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                   {!item.depositClaimed && item.deposit > 0 && <button onClick={()=>claimDeposit(item.id)} style={{ padding: "2px 6px", borderRadius: 4, border: `1px solid #D97706`, background: "#FEF3C7", color: "#D97706", cursor: "pointer", fontSize: 9, fontWeight: 600 }}>{t.claimDeposit}</button>}
@@ -1235,7 +1235,7 @@ return (
           )})}
         </tbody>
       </table>
-      {filtered.length===0 && <div style={{ padding: 30, textAlign: "center", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+      {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
     </div>
   </div>
   {alert && <AlertModal message={alert} onOk={()=>setAlert(null)} s={s} />}
@@ -1403,13 +1403,13 @@ return (
               <TD s={s} style={{ direction: "ltr", fontWeight: 600, minWidth: 90 }}>{Number(item.amountIQD)?fmt(item.amountIQD):"—"}</TD>
               <TD s={s} style={{ direction: "ltr", fontWeight: 600, minWidth: 80 }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
               <TD s={s} style={{ minWidth: 100, maxWidth: 180 }} title={item.note}>{trunc(item.note, 25) || "—"}</TD>
-              <TD s={s} style={{ textAlign: "center", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
+              <TD s={s} style={{ textAlign: "right", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
               <TD s={s} style={{ minWidth: 50 }}><div style={{ display: "flex", gap: 3 }}><button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button><button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button></div></TD>
             </tr>
           ))}
         </tbody>
       </table>
-      {filtered.length===0 && <div style={{ padding: 30, textAlign: "center", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+      {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
     </div>
   </div>
   {alert && <AlertModal message={alert} onOk={()=>{setAlert(null);resetForm();setShowForm(false)}} s={s} />}
@@ -1571,7 +1571,7 @@ return (
         </div>
       ))}
       <button onClick={addItem} style={{ padding: "4px 10px", borderRadius: 5, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 10, cursor: "pointer", marginBottom: 8 }}><I.Plus /> {t.addItem}</button>
-      <div style={{ padding: "8px 12px", background: `${PRIMARY}10`, borderRadius: 6, textAlign: "center", marginBottom: 8 }}>
+      <div style={{ padding: "8px 12px", background: `${PRIMARY}10`, borderRadius: 6, textAlign: "right", marginBottom: 8 }}>
         <span style={{ fontWeight: 800, color: PRIMARY, fontSize: 15 }}>{t.total}: {form.currency==="usd"?"$":""}{fmt(total)} {form.currency==="usd"?t.usd:t.iqd}</span>
       </div>
       <div style={{ display: "flex", gap: 6 }}>
@@ -1607,15 +1607,15 @@ return (
   {preview && (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div style={{ background: "#fff", color: "#000", borderRadius: 10, padding: 30, maxWidth: 600, width: "100%", maxHeight: "90vh", overflow: "auto" }}>
-        <div style={{ textAlign: "center", borderBottom: `3px solid ${PRIMARY}`, paddingBottom: 10, marginBottom: 12 }}><h2 style={{ color: PRIMARY, margin: 0, fontSize: 20 }}>KARO GROUP</h2><p style={{ color: "#666", fontSize: 10, margin: "2px 0" }}>{PHONE} | {EMAIL}</p></div>
+        <div style={{ textAlign: "right", borderBottom: `3px solid ${PRIMARY}`, paddingBottom: 10, marginBottom: 12 }}><h2 style={{ color: PRIMARY, margin: 0, fontSize: 20 }}>KARO GROUP</h2><p style={{ color: "#666", fontSize: 10, margin: "2px 0" }}>{PHONE} | {EMAIL}</p></div>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8 }}><div><strong>DATE:</strong> {preview.date}</div><div><strong>INVOICE #:</strong> {preview.invoiceNo}</div></div>
         {preview.billTo && <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 10 }}><div><strong>BILL TO:</strong> {preview.billTo}</div>{preview.billPhone&&<div><strong>Phone:</strong> {preview.billPhone}</div>}</div>}
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, marginBottom: 10 }}>
           <thead><tr style={{ background: PRIMARY, color: "#fff" }}><th style={{padding:5}}>#</th><th style={{padding:5}}>{t.itemName}</th><th style={{padding:5}}>{t.qty}</th><th style={{padding:5}}>{t.price}</th><th style={{padding:5}}>{t.total}</th></tr></thead>
-          <tbody>{preview.items.map((it,i)=><tr key={i} style={{ borderBottom: "1px solid #ddd", textAlign: "center" }}><td style={{padding:5}}>{i+1}</td><td style={{padding:5}}>{it.name}</td><td style={{padding:5}}>{it.qty}</td><td style={{padding:5}}>{preview.currency==="usd"?"$":""}{fmt(it.price)}</td><td style={{padding:5,fontWeight:600}}>{preview.currency==="usd"?"$":""}{fmt(Number(it.qty||0)*Number(it.price||0))}</td></tr>)}</tbody>
+          <tbody>{preview.items.map((it,i)=><tr key={i} style={{ borderBottom: "1px solid #ddd", textAlign: "right" }}><td style={{padding:5}}>{i+1}</td><td style={{padding:5}}>{it.name}</td><td style={{padding:5}}>{it.qty}</td><td style={{padding:5}}>{preview.currency==="usd"?"$":""}{fmt(it.price)}</td><td style={{padding:5,fontWeight:600}}>{preview.currency==="usd"?"$":""}{fmt(Number(it.qty||0)*Number(it.price||0))}</td></tr>)}</tbody>
         </table>
         <div style={{ textAlign: "right", fontSize: 16, fontWeight: 800, color: PRIMARY }}>{t.total}: {preview.currency==="usd"?"$":""}{fmt(preview.total)} {preview.currency==="usd"?t.usd:t.iqd}</div>
-        <div style={{ textAlign: "center", marginTop: 16 }}><button onClick={()=>setPreview(null)} style={{ padding: "6px 20px", borderRadius: 6, border: "1px solid #ddd", background: "#f5f5f5", color: "#333", cursor: "pointer", fontSize: 12 }}>{t.cancel}</button></div>
+        <div style={{ textAlign: "right", marginTop: 16 }}><button onClick={()=>setPreview(null)} style={{ padding: "6px 20px", borderRadius: 6, border: "1px solid #ddd", background: "#f5f5f5", color: "#333", cursor: "pointer", fontSize: 12 }}>{t.cancel}</button></div>
       </div>
     </div>
   )}
@@ -1744,11 +1744,11 @@ return (
 
   {activeTab==="summary" && (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "center", borderTop: `3px solid ${s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalExpIQD}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.danger }}>{fmt(tExpIQD)}</div></div>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "center", borderTop: `3px solid ${s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalExpUSD}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.danger }}>${fmt(tExpUSD)}</div></div>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "center", borderTop: `3px solid ${s.success}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalConcreteReceived}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.success }}>{fmt(tConcRec)}</div></div>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "center", borderTop: `3px solid #F59E0B` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalDeposit}</div><div style={{ fontSize: 20, fontWeight: 800, color: "#F59E0B" }}>{fmt(tConcDep)}</div></div>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "center", borderTop: `3px solid ${profitIQD>=0?s.success:s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.profitLoss} ({t.iqd})</div><div style={{ fontSize: 20, fontWeight: 800, color: profitIQD>=0?s.success:s.danger }}>{profitIQD>=0?t.profit:t.loss}: {fmt(Math.abs(profitIQD))}</div></div>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalExpIQD}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.danger }}>{fmt(tExpIQD)}</div></div>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalExpUSD}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.danger }}>${fmt(tExpUSD)}</div></div>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${s.success}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalConcreteReceived}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.success }}>{fmt(tConcRec)}</div></div>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid #F59E0B` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalDeposit}</div><div style={{ fontSize: 20, fontWeight: 800, color: "#F59E0B" }}>{fmt(tConcDep)}</div></div>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${profitIQD>=0?s.success:s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.profitLoss} ({t.iqd})</div><div style={{ fontSize: 20, fontWeight: 800, color: profitIQD>=0?s.success:s.danger }}>{profitIQD>=0?t.profit:t.loss}: {fmt(Math.abs(profitIQD))}</div></div>
     </div>
   )}
 
@@ -1767,7 +1767,7 @@ return (
             </tr>
           ))}</tbody>
         </table>
-        {exp.length===0&&<div style={{ padding: 30, textAlign: "center", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+        {exp.length===0&&<div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
       </div>
     </div>
   )}
@@ -1788,7 +1788,7 @@ return (
             </tr>
           ))}</tbody>
         </table>
-        {conc.length===0&&<div style={{ padding: 30, textAlign: "center", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+        {conc.length===0&&<div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
       </div>
     </div>
   )}
