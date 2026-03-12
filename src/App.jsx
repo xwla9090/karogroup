@@ -608,8 +608,8 @@ return (
 }
 
 // ==================== SHARED TABLE HEADER ====================
-const TH = ({ children, isRtl, style }) => <th style={{ padding: “10px 10px”, textAlign: isRtl?“right”:“left”, fontWeight: 700, fontSize: 12, whiteSpace: “nowrap”, background: PRIMARY, color: “#fff”, position: “sticky”, top: 0, …style }}>{children}</th>;
-const TD = ({ children, s, style }) => <td style={{ …cellStyle, borderBottomColor: s.border, …style }}>{children}</td>;
+const TH = ({ children, isRtl, style }) => <th style={{ padding: “10px 10px”, textAlign: isRtl?“right”:“left”, fontWeight: 700, fontSize: 12, whiteSpace: “nowrap”, background: PRIMARY, color: “#fff”, position: “sticky”, top: 0, ...style }}>{children}</th>;
+const TD = ({ children, s, style }) => <td style={{ ...cellStyle, borderBottomColor: s.border, ...style }}>{children}</td>;
 
 // ==================== REPORTS ====================
 function ReportsPage({ t, s, isRtl, pKey, cashIQD, cashUSD, exchangeRate }) {
