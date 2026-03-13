@@ -165,7 +165,7 @@ const today = () => new Date().toISOString().split(“T”)[0];
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const getLS = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
 const setLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-const trunc = (s, m = 25) => (!s ? “” : s.length > m ? s.slice(0, m) + “...” : s);
+const trunc = (s, m = 25) => (!s ? “” : s.length > m ? s.slice(0, m) + “…” : s);
 
 // ==================== ICONS (SVG) ====================
 const I = {
@@ -197,7 +197,7 @@ return (
 <div style={{ position: “relative”, display: “inline-flex”, alignItems: “center”, justifyContent: “center” }}>
 <div style={{ position: “absolute”, width: size + 14, height: size + 14, borderRadius: “50%”, background: `${PRIMARY}20`, animation: “ping 2s cubic-bezier(0,0,0.2,1) infinite” }} />
 <div style={{ width: size, height: size, borderRadius: “50%”, background: PRIMARY, display: “flex”, alignItems: “center”, justifyContent: “center”, position: “relative”, zIndex: 1, boxShadow: `0 4px 16px ${PRIMARY}40` }}>
-<span style={{ color: “#fff”, fontWeight: 900, fontSize: size * 0.38, letterSpacing: -1 }}>KG</span><span style={{ position: "absolute", bottom: -2, right: -2, background: "#fff", color: "#4DAF94", fontSize: 8, fontWeight: 800, borderRadius: 4, padding: "0 3px", lineHeight: "12px" }}>v4</span>
+<span style={{ color: “#fff”, fontWeight: 900, fontSize: size * 0.38, letterSpacing: -1 }}>KG</span><span style={{ position: "absolute", bottom: -2, right: -2, background: "#fff", color: "#4DAF94", fontSize: 8, fontWeight: 800, borderRadius: 4, padding: "0 3px", lineHeight: "12px" }}>v3</span>
 </div>
 </div>
 );
@@ -321,7 +321,7 @@ setCashLog(getLS(`karo_cashLog_${pk}`, []));
 }, [loggedUser?.project]);
 
 const addCashLog = useCallback((desc, iqd, usd) => {
-setCashLog(prev => [...prev, { id: genId(), date: today(), desc, iqd: Number(iqd||0), usd: Number(usd||0), time: new Date().toLocaleTimeString() }]);
+setCashLog(prev => […prev, { id: genId(), date: today(), desc, iqd: Number(iqd||0), usd: Number(usd||0), time: new Date().toLocaleTimeString() }]);
 }, []);
 
 useEffect(() => {
@@ -348,9 +348,9 @@ const handleLogout = () => { setLoggedUser(null); setPage(“landing”); localS
 
 const shared = { t, s, isRtl, dark, lang, fontFamily, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, setExchangeRate, cashLog, setCashLog, addCashLog };
 
-if (page === “login”) return <LoginPage {...shared} onLogin={handleLogin} onBack={() => setPage(“landing”)} />;
-if (page === “dashboard” && loggedUser) return <Dashboard {...shared} setLang={setLang} user={loggedUser} dashPage={dashPage} setDashPage={setDashPage} onLogout={handleLogout} setDark={setDark} fontIdx={fontIdx} setFontIdx={setFontIdx} />;
-return <LandingPage {...shared} setLang={setLang} setDark={setDark} onLogoClick={handleLogoClick} />;
+if (page === “login”) return <LoginPage {…shared} onLogin={handleLogin} onBack={() => setPage(“landing”)} />;
+if (page === “dashboard” && loggedUser) return <Dashboard {…shared} setLang={setLang} user={loggedUser} dashPage={dashPage} setDashPage={setDashPage} onLogout={handleLogout} setDark={setDark} fontIdx={fontIdx} setFontIdx={setFontIdx} />;
+return <LandingPage {…shared} setLang={setLang} setDark={setDark} onLogoClick={handleLogoClick} />;
 }
 
 // ==================== LANDING ====================
@@ -643,7 +643,7 @@ const chartData = [
 { label: t.loanTake, val: tLoanTake, c: PRIMARY },
 { label: t.loanGive, val: tLoanGive, c: “#8B5CF6” },
 ];
-const maxVal = Math.max(...chartData.map(d => d.val), 1);
+const maxVal = Math.max(…chartData.map(d => d.val), 1);
 
 return (
 <div>
@@ -686,7 +686,7 @@ const [confirmDel, setConfirmDel] = useState(null);
 
 useEffect(() => { setLS(KEY, items); }, [items, KEY]);
 
-const months = [...new Set(items.map(i => i.date?.slice(0,7)))].sort().reverse();
+const months = […new Set(items.map(i => i.date?.slice(0,7)))].sort().reverse();
 const filtered = items.filter(i => {
 if (search && !Object.values(i).some(v => String(v||””).toLowerCase().includes(search.toLowerCase()))) return false;
 if (filterMonth && !i.date?.startsWith(filterMonth)) return false;
@@ -711,11 +711,11 @@ if (diffUSD < 0 && Math.abs(diffUSD) > cashUSD) { setAlert(t.noBalance); return;
 setCashIQD(prev => prev + diffIQD); setCashUSD(prev => prev + diffUSD);
 addCashLog(`${t.edit} ${t.sidebar.expenses}`, diffIQD, diffUSD);
 }
-setItems(prev => prev.map(i => i.id === editId ? { ...i, ...form } : i));
+setItems(prev => prev.map(i => i.id === editId ? { …i, …form } : i));
 } else {
 if (iqd > 0 && cashIQD < iqd) { setAlert(t.noBalance); return; }
 if (usd > 0 && cashUSD < usd) { setAlert(t.noBalance); return; }
-setItems(prev => [{ ...form, id: genId(), marked: false }, ...prev]);
+setItems(prev => [{ …form, id: genId(), marked: false }, …prev]);
 if (iqd > 0) setCashIQD(prev => prev - iqd);
 if (usd > 0) setCashUSD(prev => prev - usd);
 addCashLog(`${t.sidebar.expenses}: ${form.note||form.receiptNo}`, -iqd, -usd);
@@ -731,9 +731,9 @@ setConfirmDel(null);
 };
 
 const handleEdit = (item) => { setForm(item); setEditId(item.id); setShowForm(true); };
-const toggleMark = id => setItems(prev => prev.map(i => i.id===id ? {...i, marked: !i.marked} : i));
+const toggleMark = id => setItems(prev => prev.map(i => i.id===id ? {…i, marked: !i.marked} : i));
 
-const handleImgUpload = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => setForm(prev => ({...prev, receiptImg: ev.target.result})); r.readAsDataURL(f); };
+const handleImgUpload = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => setForm(prev => ({…prev, receiptImg: ev.target.result})); r.readAsDataURL(f); };
 
 const handleImportExcel = e => {
 const file = e.target.files[0]; if (!file) return;
@@ -918,8 +918,8 @@ useEffect(() => { setLS(PKEY, personsList); }, [personsList, PKEY]);
 
 // sync persons from items
 useEffect(() => {
-const fromItems = [...new Set(items.map(i => i.personName).filter(Boolean))];
-const merged = [...new Set([...personsList, ...fromItems])];
+const fromItems = […new Set(items.map(i => i.personName).filter(Boolean))];
+const merged = […new Set([…personsList, …fromItems])];
 if (merged.length !== personsList.length) setPersonsList(merged);
 }, [items]);
 
@@ -933,8 +933,8 @@ const resetForm = () => { setForm({ type: “take”, personName: “”, amount
 
 const handleAddPerson = () => {
 if (newPerson.trim() && !personsList.includes(newPerson.trim())) {
-setPersonsList(prev => [...prev, newPerson.trim()]);
-setForm({ ...form, personName: newPerson.trim() });
+setPersonsList(prev => […prev, newPerson.trim()]);
+setForm({ …form, personName: newPerson.trim() });
 setNewPerson(””);
 }
 };
@@ -944,7 +944,7 @@ const iqd = Number(form.amountIQD||0), usd = Number(form.amountUSD||0);
 if (iqd===0 && usd===0) return;
 const pName = form.personName || newPerson.trim();
 if (!pName) return;
-if (!personsList.includes(pName)) setPersonsList(prev => [...prev, pName]);
+if (!personsList.includes(pName)) setPersonsList(prev => […prev, pName]);
 
 ```
 if (editId) {
@@ -984,7 +984,7 @@ setConfirmDel(null);
 };
 
 const handleEdit = item => { setForm(item); setEditId(item.id); setShowForm(true); };
-const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{...i,marked:!i.marked}:i));
+const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{…i,marked:!i.marked}:i));
 
 const doExport = (type, size) => {
 const hdrs = [t.loanType, t.personName, t.amountIQD, t.amountUSD, t.note, t.date];
@@ -1117,8 +1117,8 @@ const filtered = items.filter(i => showMarkedOnly ? i.marked : true);
 const handleSave = () => {
 if (totalPrice <= 0) return;
 const cur = form.currency || “iqd”;
-const item = { ...form, id: genId(), totalPrice, deposit: depositAmt, received: receivedAmt, depositClaimed: false, isReceived: false, marked: false, currency: cur };
-setItems(prev => [item, ...prev]);
+const item = { …form, id: genId(), totalPrice, deposit: depositAmt, received: receivedAmt, depositClaimed: false, isReceived: false, marked: false, currency: cur };
+setItems(prev => [item, …prev]);
 // don’t add to cash until marked as received
 setForm({ date: today(), meters: “”, pricePerMeter: “”, depositPercent: “”, note: “”, currency: “iqd” });
 setShowForm(false);
@@ -1131,7 +1131,7 @@ const cur = item.currency || “iqd”;
 if (cur === “usd”) { setCashUSD(prev => prev + item.received); }
 else { setCashIQD(prev => prev + item.received); }
 addCashLog(`${t.received} ${t.sidebar.concrete}`, cur === “iqd” ? item.received : 0, cur === “usd” ? item.received : 0);
-setItems(prev => prev.map(i => i.id === id ? { ...i, isReceived: true } : i));
+setItems(prev => prev.map(i => i.id === id ? { …i, isReceived: true } : i));
 }
 };
 
@@ -1142,7 +1142,7 @@ const cur = item.currency || “iqd”;
 if (cur === “usd”) { setCashUSD(prev => prev + item.deposit); }
 else { setCashIQD(prev => prev + item.deposit); }
 addCashLog(`${t.claimDeposit}: ${item.deposit}`, cur === “iqd” ? item.deposit : 0, cur === “usd” ? item.deposit : 0);
-setItems(prev => prev.map(i => i.id === id ? { ...i, depositClaimed: true } : i));
+setItems(prev => prev.map(i => i.id === id ? { …i, depositClaimed: true } : i));
 }
 };
 
@@ -1164,7 +1164,7 @@ setItems(prev => prev.filter(i => i.id !== id));
 setConfirmDel(null);
 };
 
-const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{...i,marked:!i.marked}:i));
+const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{…i,marked:!i.marked}:i));
 
 return (
 <div>
@@ -1172,7 +1172,7 @@ return (
 <h1 style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>{t.sidebar.concrete}</h1>
 <div style={{ display: “flex”, gap: 5 }}>
 {showMarkedOnly
-? <button onClick={()=>{setShowMarkedOnly(false);setItems(prev=>prev.map(i=>({...i,marked:false})))}} style={{ padding: “6px 12px”, borderRadius: 6, border: “none”, background: “#D1FAE5”, color: “#059669”, fontSize: 11, fontWeight: 600, cursor: “pointer” }}>{t.showAll}</button>
+? <button onClick={()=>{setShowMarkedOnly(false);setItems(prev=>prev.map(i=>({…i,marked:false})))}} style={{ padding: “6px 12px”, borderRadius: 6, border: “none”, background: “#D1FAE5”, color: “#059669”, fontSize: 11, fontWeight: 600, cursor: “pointer” }}>{t.showAll}</button>
 : <button onClick={()=>setShowMarkedOnly(true)} style={{ padding: “6px 12px”, borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11, cursor: “pointer” }}>{t.showMarked}</button>
 }
 <button onClick={()=>setShowForm(!showForm)} style={{ padding: “6px 14px”, borderRadius: 6, border: “none”, background: PRIMARY, color: “#fff”, cursor: “pointer”, fontSize: 11, fontWeight: 600, display: “flex”, alignItems: “center”, gap: 4 }}><I.Plus /> {t.add}</button>
@@ -1265,8 +1265,8 @@ useEffect(() => { setLS(KEY, items); }, [items, KEY]);
 useEffect(() => { setLS(PKEY, personsList); }, [personsList, PKEY]);
 
 useEffect(() => {
-const fromItems = [...new Set(items.map(i => i.personName).filter(Boolean))];
-const merged = [...new Set([...personsList, ...fromItems])];
+const fromItems = […new Set(items.map(i => i.personName).filter(Boolean))];
+const merged = […new Set([…personsList, …fromItems])];
 if (merged.length !== personsList.length) setPersonsList(merged);
 }, [items]);
 
@@ -1280,8 +1280,8 @@ const resetForm = () => { setForm({ date: today(), type: “withdraw”, personN
 
 const handleAddPerson = () => {
 if (newPerson.trim() && !personsList.includes(newPerson.trim())) {
-setPersonsList(prev => [...prev, newPerson.trim()]);
-setForm({ ...form, personName: newPerson.trim() });
+setPersonsList(prev => […prev, newPerson.trim()]);
+setForm({ …form, personName: newPerson.trim() });
 setNewPerson(””);
 }
 };
@@ -1291,7 +1291,7 @@ const iqd = Number(form.amountIQD||0), usd = Number(form.amountUSD||0);
 if (iqd===0 && usd===0) return;
 const pName = form.personName || newPerson.trim();
 if (!pName) return;
-if (!personsList.includes(pName)) setPersonsList(prev => [...prev, pName]);
+if (!personsList.includes(pName)) setPersonsList(prev => […prev, pName]);
 
 ```
 if (editId) {
@@ -1328,7 +1328,7 @@ setConfirmDel(null);
 };
 
 const handleEdit = item => { setForm(item); setEditId(item.id); setShowForm(true); };
-const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{...i,marked:!i.marked}:i));
+const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{…i,marked:!i.marked}:i));
 
 // Person balance
 const personBalance = selectedPerson ? (() => {
@@ -1449,7 +1449,7 @@ return (
 <div style={{ overflowX: “auto”, maxHeight: 400, overflowY: “auto” }}>
 <table style={tableStyle}>
 <thead><tr>{[t.date,””,t.type,t.iqd,t.usd].map((h,i)=><TH key={i} isRtl={isRtl}>{h}</TH>)}</tr></thead>
-<tbody>{[...cashLog].reverse().map(log=>(
+<tbody>{[…cashLog].reverse().map(log=>(
 <tr key={log.id}>
 <TD s={s} style={{ direction: “ltr”, fontSize: 10, minWidth: 85 }}>{log.date}</TD>
 <TD s={s} style={{ fontSize: 9, color: s.textMuted, minWidth: 60 }}>{log.time}</TD>
@@ -1523,13 +1523,13 @@ const [preview, setPreview] = useState(null);
 const [confirmDel, setConfirmDel] = useState(null);
 useEffect(() => { setLS(KEY, invoices); }, [invoices, KEY]);
 
-const addItem = () => setForm({...form, items: [...form.items, { name: “”, qty: “”, price: “”, note: “” }]});
-const removeItem = i => setForm({...form, items: form.items.filter((_,idx)=>idx!==i)});
-const updateItem = (i, f, v) => { const n=[...form.items]; n[i]={...n[i],[f]:v}; setForm({...form, items: n}); };
+const addItem = () => setForm({…form, items: […form.items, { name: “”, qty: “”, price: “”, note: “” }]});
+const removeItem = i => setForm({…form, items: form.items.filter((_,idx)=>idx!==i)});
+const updateItem = (i, f, v) => { const n=[…form.items]; n[i]={…n[i],[f]:v}; setForm({…form, items: n}); };
 const total = form.items.reduce((a,b)=>a+(Number(b.qty||0)*Number(b.price||0)),0);
 
 const handleSave = () => {
-setInvoices(prev => [{...form, id: genId(), total, marked: false}, ...prev]);
+setInvoices(prev => [{…form, id: genId(), total, marked: false}, …prev]);
 setForm({ date: today(), invoiceNo: “”, currency: “iqd”, billTo: “”, billPhone: “”, items: [{ name: “”, qty: “”, price: “”, note: “” }] });
 setShowForm(false);
 };
@@ -1670,7 +1670,7 @@ return (
 <div style={{ overflowX: “auto”, maxHeight: 450, overflowY: “auto” }}>
 <table style={tableStyle}>
 <thead><tr>{[t.date,””,t.type,t.iqd,t.usd].map((h,i)=><TH key={i} isRtl={isRtl}>{h}</TH>)}</tr></thead>
-<tbody>{[...recent].reverse().map(log=>(
+<tbody>{[…recent].reverse().map(log=>(
 <tr key={log.id}>
 <TD s={s} style={{ direction: “ltr”, fontSize: 10, minWidth: 85 }}>{log.date}</TD>
 <TD s={s} style={{ fontSize: 9, color: s.textMuted, minWidth: 60 }}>{log.time}</TD>
