@@ -294,6 +294,57 @@ const I = {
       <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
   ),
+  Wallet: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 12v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3z"/>
+      <circle cx="7" cy="12" r="1.5" fill="currentColor"/>
+      <circle cx="17" cy="12" r="1.5" fill="currentColor"/>
+    </svg>
+  ),
+  Loan: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="6" width="20" height="12" rx="2"/>
+      <path d="M12 12h4"/>
+      <path d="M8 12h2"/>
+    </svg>
+  ),
+  Concrete: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="4" y="4" width="16" height="16" rx="2"/>
+      <line x1="4" y1="10" x2="20" y2="10"/>
+      <line x1="4" y1="14" x2="20" y2="14"/>
+    </svg>
+  ),
+  Contractor: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
+  Exchange: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 2l4 4-4 4"/>
+      <path d="M3 12h4l3-3 3 3 3-3 3 3 4-4"/>
+      <path d="M7 22l-4-4 4-4"/>
+      <path d="M21 12h-4l-3 3-3-3-3 3-3-3-4 4"/>
+    </svg>
+  ),
+  Invoice: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+      <polyline points="10 9 9 9 8 9"/>
+    </svg>
+  ),
+  Backup: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+      <polyline points="17 21 17 13 7 13 7 21"/>
+      <polyline points="7 3 7 8 15 8"/>
+    </svg>
+  ),
 };
 // ==================== LOGO ====================
 function Logo({ size = 40 }) {
@@ -305,43 +356,6 @@ function Logo({ size = 40 }) {
         <circle cx="20" cy="20" r="6" fill={PRIMARY_DARK} />
       </svg>
       <span style={{ fontWeight: 800, fontSize: size * 0.5, color: PRIMARY }}>KARO</span>
-    </div>
-  );
-}
-
-// ==================== LANDING ====================
-function LandingPage({ t, s, isRtl, dark, lang, fontFamily, setLang, setDark, onLogoClick }) {
-  const [mobileMenu, setMobileMenu] = useState(false);
-  const [lightbox, setLightbox] = useState(null);
-  const [scrolled, setScrolled] = useState(false);
-  
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", h);
-    return () => window.removeEventListener("scroll", h);
-  }, []);
-  
-  const scrollTo = id => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMobileMenu(false);
-  };
-  
-  return (
-    <div>
-      {/* Landing page content would go here */}
-    </div>
-  );
-}
-
-// ==================== LOGIN ====================
-function LoginPage({ t, s, isRtl, fontFamily, onLogin, onBack }) {
-  const [u, setU] = useState("");
-  const [p, setP] = useState("");
-  const [err, setErr] = useState(false);
-  
-  return (
-    <div>
-      {/* Login page content would go here */}
     </div>
   );
 }
@@ -500,33 +514,43 @@ function Dashboard({ t, s, isRtl, pKey, user, logout }) {
   );
 }
 
-// Simplified page components (you'll need to expand these)
+// Simple page components
 function CashPage({ t, s, isRtl, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, cashLog }) {
-  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>Cash Page Content</div>;
+  return (
+    <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>
+      <h3>{t.cashBox}</h3>
+      <div style={{ display: "flex", gap: 20, marginTop: 16 }}>
+        <div style={{ background: s.bgCard2, padding: 16, borderRadius: 8 }}>
+          <div>{t.cashIQD}: {fmt(cashIQD)}</div>
+          <div>{t.cashUSD}: ${fmt(cashUSD)}</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function LoansPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
-  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>Loans Page Content</div>;
+  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>{t.sidebar.loans}</div>;
 }
 
 function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
-  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>Concrete Page Content</div>;
+  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>{t.sidebar.concrete}</div>;
 }
 
 function ContractorPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
-  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>Contractor Page Content</div>;
+  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>{t.sidebar.contractor}</div>;
 }
 
 function ExchangePage({ t, s, isRtl, exchangeRate, setExchangeRate, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
-  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>Exchange Page Content</div>;
+  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>{t.sidebar.exchange}</div>;
 }
 
 function InvoicePage({ t, s, isRtl, pKey }) {
-  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>Invoice Page Content</div>;
+  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>{t.sidebar.invoice}</div>;
 }
 
 function ReportsPage({ t, s, isRtl, pKey, cashIQD, cashUSD, exchangeRate }) {
-  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>Reports Page Content</div>;
+  return <div style={{ background: s.bgCard, padding: 20, borderRadius: 12 }}>{t.sidebar.reports}</div>;
 }
 
 function BackupPage({ t, s }) {
@@ -571,6 +595,50 @@ function BackupPage({ t, s }) {
           {t.uploadBackup}
           <input type="file" accept=".json" onChange={handleUpload} style={{ display: "none" }} />
         </label>
+      </div>
+    </div>
+  );
+}
+
+// ==================== LANDING PAGE ====================
+function LandingPage({ t, s, isRtl, dark, lang, fontFamily, setLang, setDark, onLogoClick }) {
+  return (
+    <div style={{ minHeight: "100vh" }}>
+      <h1>{t.hero.title}</h1>
+    </div>
+  );
+}
+
+// ==================== LOGIN PAGE ====================
+function LoginPage({ t, s, isRtl, fontFamily, onLogin, onBack }) {
+  const [u, setU] = useState("");
+  const [p, setP] = useState("");
+  const [err, setErr] = useState(false);
+  
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+      <div style={{ background: s.bgCard, padding: 32, borderRadius: 16, width: 320 }}>
+        <h2 style={{ textAlign: "center", marginBottom: 24 }}>{t.login}</h2>
+        {err && <div style={{ color: s.danger, marginBottom: 16 }}>{t.wrongLogin}</div>}
+        <input 
+          placeholder={t.username} 
+          value={u} 
+          onChange={e => setU(e.target.value)}
+          style={{ width: "100%", padding: 10, marginBottom: 12, borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text }}
+        />
+        <input 
+          type="password"
+          placeholder={t.password} 
+          value={p} 
+          onChange={e => setP(e.target.value)}
+          style={{ width: "100%", padding: 10, marginBottom: 20, borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text }}
+        />
+        <button 
+          onClick={() => onLogin(u, p)}
+          style={{ width: "100%", padding: 12, background: s.primary, color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}
+        >
+          {t.enter}
+        </button>
       </div>
     </div>
   );
