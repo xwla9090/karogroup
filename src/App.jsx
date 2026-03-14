@@ -287,7 +287,8 @@ const getS = (dark) => ({
 
 // ==================== TABLE STYLES (responsive) ====================
 const tableStyle = { width: "100%", borderCollapse: "collapse", fontSize: 12 };
-const cellStyle = { padding: "8px 10px", borderBottom: "1px solid", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", verticalAlign: "middle" };
+// ✅ گۆڕانکاری: زیادکردنی textAlign: "center" بۆ ناوەڕۆکی خانەکان
+const cellStyle = { padding: "8px 10px", borderBottom: "1px solid", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", verticalAlign: "middle", textAlign: "center" };
 
 // ==================== APP ====================
 export default function App() {
