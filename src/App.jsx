@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 // ==================== CONFIG ====================
 const PRIMARY = "#4DAF94";
 const PRIMARY_DARK = "#3D9A82";
+const SIDEBAR_BG = "#4EA88E";
+const SIDEBAR_TEXT = "#fff";
 const PHONE = "+964 770 153 6017";
 const EMAIL = "hawbirranya6@gmail.com";
 
@@ -17,17 +19,25 @@ const PROJECT_IMAGES = [
   { src: "https://i.ibb.co/G38Hxksc/IMG-0435.jpg", desc_ku: "ستراکچەری بنەڕەت", desc_en: "Foundation Structure", desc_ar: "هيكل الأساسات" },
 ];
 
+// ==================== USERS ====================
 const USERS = [
-  { username: "shasti", password: "shasti123", project: "shasti", label: "شاستی" },
-  { username: "surosh", password: "surosh123", project: "surosh", label: "بەرزایەکانی سروشت" },
-  { username: "admin", password: "karo2024", project: "admin", label: "Admin", isAdmin: true }
+  { username: "shasti", password: "shasti123", project: "shasti", label: "شاستی", isAdmin: false, isFrozen: false },
+  { username: "surosh", password: "surosh123", project: "surosh", label: "بەرزایەکانی سروشت", isAdmin: false, isFrozen: false },
+  { username: "admin", password: "karo2024", project: "admin", label: "Admin", isAdmin: true, isFrozen: false }
 ];
 
+// ==================== FONTS ====================
 const FONTS = [
   { name: "Segoe UI", value: "'Segoe UI', Tahoma, sans-serif" },
   { name: "NRT", value: "'NRT', sans-serif" },
   { name: "Rudaw", value: "'Rudaw', sans-serif" },
   { name: "Rabar", value: "'Rabar', sans-serif" },
+  { name: "Vazirmatn", value: "'Vazirmatn', sans-serif" },
+  { name: "Noto Kufi Arabic", value: "'Noto Kufi Arabic', sans-serif" },
+  { name: "Tajawal", value: "'Tajawal', sans-serif" },
+  { name: "Cairo", value: "'Cairo', sans-serif" },
+  { name: "Danmark", value: "'Danmark', sans-serif" },
+  { name: "KG Primary", value: "'KG Primary', sans-serif" },
   { name: "Noto Sans Arabic", value: "'Noto Sans Arabic', sans-serif" },
   { name: "Ava TV", value: "'Ava TV', sans-serif" },
 ];
@@ -42,16 +52,32 @@ const T = {
     contact: { title: "پەیوەندیمان پێوە بکە", phone: "تەلەفۆن", whatsapp: "واتسئاپ", viber: "ڤایبەر", email: "ئیمەیڵ" },
     footer: { rights: "هەموو مافەکان پارێزراون", poweredBy: "کارۆ گروپ" },
     login: "چوونەژوورەوە", username: "ناوی بەکارهێنەر", password: "وشەی نهێنی", enter: "بچۆرە ژوورەوە", wrongLogin: "ناوی بەکارهێنەر یان وشەی نهێنی هەڵەیە", logout: "چوونەدەرەوە",
-    sidebar: { cash: "قاسە", loans: "قەرز", concrete: "سلفە کۆنکرێت", contractor: "حیسابی مقاول", exchange: "ئالوگۆری دراو", invoice: "ئینڤۆیس", backup: "پاشەکەوتی داتاکان", reports: "ڕاپۆرتەکان", history: "هیستۆری داتا", monthlyReport: "کەشف حیسابی مانگانە", expenses: "خەرجی (مەسارف)", formatData: "سڕینەوەی هەموو داتاکان" },
+    sidebar: { 
+      cash: "قاسە", 
+      loans: "قەرز", 
+      concrete: "سلفە کۆنکرێت", 
+      contractor: "حیسابی مقاول", 
+      exchange: "ئالوگۆری دراو", 
+      invoice: "ئینڤۆیس", 
+      backup: "پاشەکەوتی داتاکان", 
+      reports: "ڕاپۆرتەکان", 
+      history: "هیستۆری داتا", 
+      monthlyReport: "کەشف حیسابی مانگانە", 
+      expenses: "خەرجی (مەسارف)", 
+      formatData: "سڕینەوەی هەموو داتاکان",
+      users: "بەکارهێنەران",
+      allProjects: "هەموو پرۆژەکان",
+      messages: "نامەکان"
+    },
     cashBox: "قاسەی پارە", iqd: "دینار", usd: "دۆلار", dark: "تاریک", light: "ڕووناک",
     date: "بەروار", receiptNo: "ژمارەی وەسڵ", receiptImg: "وێنە", amountIQD: "بڕ بە دینار", amountUSD: "بڕ بە دۆلار", note: "تێبینی",
-    search: "گەڕان", filterMonth: "فلتەر بە مانگ", total: "کۆی گشتی", print: "پرینت", save: "پاشەکەوت", delete: "سڕینەوە", edit: "دەستکاری", add: "زیادکردن", cancel: "هەڵوەشاندنەوە",
+    search: "گەڕان", filterMonth: "فلتەر بە مانگ", filterProject: "فلتەر بە پرۆژە", total: "کۆی گشتی", print: "پرینت", save: "پاشەکەوت", delete: "سڕینەوە", edit: "دەستکاری", add: "زیادکردن", cancel: "هەڵوەشاندنەوە",
     mark: "مارک", marked: "✓", showAll: "پیشاندانی هەمووی", showMarked: "تەنها مارککراوەکان",
     loanType: "جۆر", loanTake: "قەرز وەرگرتن", loanGive: "قەرز دان", personName: "ناوی کەس",
     meters: "بڕی مەتر", pricePerMeter: "نرخی مەتر", totalConcrete: "کۆی گشتی", deposit: "تەئمین", depositPercent: "ڕێژەی تەئمین %", received: "بڕی وەرگرتن", claimDeposit: "وەرگرتنی تەئمین",
     contractorType: "جۆر", withdraw: "ڕاکێشان", addMoney: "زیادکردن",
     cashIQD: "دینار لە قاسە", cashUSD: "دۆلار لە قاسە", totalInIQD: "کۆی گشتی بە دینار",
-    exchangeRate: "نرخی دۆلار بە دینار", saveRate: "پاشەکەوت", convertTo: "گۆڕین بۆ", fromUSD: "دینار ← دۆلار", fromIQD: "دۆلار ← دینار",
+    exchangeRate: "نرخی دۆلار بە دینار", saveRate: "پاشەکەوت", convertTo: "گۆڕین بۆ", fromUSD: "دۆلار بۆ دینار", fromIQD: "دینار بۆ دۆلار",
     amount: "بڕ", result: "ئەنجام", convert: "گۆڕین",
     invoiceNo: "ژمارەی ئینڤۆیس", itemName: "ناوی کاڵا", qty: "حەدەد", price: "نرخ", addItem: "زیادکردنی ئایتم", viewInvoice: "بینین", billTo: "بۆ", billPhone: "ژمارەی مۆبایل",
     cashLog: "هاتن/چوونی پارە", type: "جۆر",
@@ -75,6 +101,40 @@ const T = {
     receivedStatus: "وەرگیراو",
     notReceived: "وەرنەگیراو",
     concCurrency: "دراوی سلفە",
+    returnMoney: "گەڕاندنەوەی پارە",
+    returnConfirm: "دڵنیایت لە گەڕاندنەوەی ئەم پارەیە؟",
+    returned: "گەڕێندراوەتەوە",
+    notReturned: "نەگەڕێندراوەتەوە",
+    addUser: "زیادکردنی بەکارهێنەر",
+    editUser: "دەستکاری بەکارهێنەر",
+    projectName: "ناوی پرۆژە",
+    userLabel: "ناوی پیشاندراو",
+    isAdmin: "ئەدمینە",
+    adminRequired: "تەنها ئەدمین دەتوانێت ئەم کارە بکات",
+    enterAdminCredentials: "ناوی بەکارهێنەر و وشەی نهێنی ئەدمین بنووسە",
+    totalDepositIQD: "کۆی تەئمین (دینار)",
+    totalDepositUSD: "کۆی تەئمین (دۆلار)",
+    searchInvoice: "گەڕان بەپێی ژمارە یان ناو",
+    selectCurrency: "دراو هەڵبژێرە",
+    exchangeRateForReport: "نرخی ئالوگۆڕ بۆ ڕاپۆرت",
+    totalMeters: "کۆی گشتی مەتر",
+    avgPricePerMeter: "تێکڕای نرخی مەتر",
+    freeze: "وەستاندن",
+    unfreeze: "کردنەوە",
+    frozen: "وەستێنراوە",
+    active: "چالاکە",
+    sendMessage: "ناردنی نامە",
+    newMessage: "نامەی نوێ",
+    message: "نامە",
+    to: "بۆ",
+    selectProjects: "پرۆژەکان هەڵبژێرە",
+    send: "ناردن",
+    inbox: "سندوقی وەرگیراو",
+    markAsRead: "نیشانکردن وەک خوێندراوە",
+    unread: "نەخوێندراوە",
+    read: "خوێندراوە",
+    fromAdmin: "لە ئەدمینەوە",
+    importExcel: "هاوردە لە Excel",
   },
   en: {
     nav: { home: "Home", services: "Services", projects: "Projects", about: "About", contact: "Contact" },
@@ -84,16 +144,32 @@ const T = {
     contact: { title: "Contact Us", phone: "Phone", whatsapp: "WhatsApp", viber: "Viber", email: "Email" },
     footer: { rights: "All rights reserved", poweredBy: "Karo Group" },
     login: "Login", username: "Username", password: "Password", enter: "Sign In", wrongLogin: "Wrong username or password", logout: "Logout",
-    sidebar: { cash: "Cash Box", loans: "Loans", concrete: "Concrete Advance", contractor: "Contractor", exchange: "Exchange", invoice: "Invoice", backup: "Backup", reports: "Reports", history: "History", monthlyReport: "Monthly Statement", expenses: "Expenses", formatData: "Format All Data" },
+    sidebar: { 
+      cash: "Cash Box", 
+      loans: "Loans", 
+      concrete: "Concrete Advance", 
+      contractor: "Contractor", 
+      exchange: "Exchange", 
+      invoice: "Invoice", 
+      backup: "Backup", 
+      reports: "Reports", 
+      history: "History", 
+      monthlyReport: "Monthly Statement", 
+      expenses: "Expenses", 
+      formatData: "Format All Data",
+      users: "Users",
+      allProjects: "All Projects",
+      messages: "Messages"
+    },
     cashBox: "Cash Box", iqd: "IQD", usd: "USD", dark: "Dark", light: "Light",
     date: "Date", receiptNo: "Receipt #", receiptImg: "Image", amountIQD: "Amount IQD", amountUSD: "Amount USD", note: "Note",
-    search: "Search", filterMonth: "Filter Month", total: "Total", print: "Print", save: "Save", delete: "Delete", edit: "Edit", add: "Add", cancel: "Cancel",
+    search: "Search", filterMonth: "Filter Month", filterProject: "Filter Project", total: "Total", print: "Print", save: "Save", delete: "Delete", edit: "Edit", add: "Add", cancel: "Cancel",
     mark: "Mark", marked: "✓", showAll: "Show All", showMarked: "Marked Only",
     loanType: "Type", loanTake: "Received", loanGive: "Given", personName: "Person",
     meters: "Meters", pricePerMeter: "Price/m", totalConcrete: "Total", deposit: "Deposit", depositPercent: "Deposit %", received: "Received", claimDeposit: "Claim Deposit",
     contractorType: "Type", withdraw: "Withdraw", addMoney: "Add",
     cashIQD: "Cash IQD", cashUSD: "Cash USD", totalInIQD: "Total (IQD)",
-    exchangeRate: "USD Rate", saveRate: "Save", convertTo: "Convert to", fromUSD: "IQD ← USD", fromIQD: "USD ← IQD",
+    exchangeRate: "USD Rate", saveRate: "Save", convertTo: "Convert to", fromUSD: "USD to IQD", fromIQD: "IQD to USD",
     amount: "Amount", result: "Result", convert: "Convert",
     invoiceNo: "Invoice #", itemName: "Item", qty: "Qty", price: "Price", addItem: "Add Item", viewInvoice: "View", billTo: "Bill To", billPhone: "Phone",
     cashLog: "Cash Log", type: "Type",
@@ -117,6 +193,40 @@ const T = {
     receivedStatus: "Received",
     notReceived: "Not Received",
     concCurrency: "Concrete Currency",
+    returnMoney: "Return Money",
+    returnConfirm: "Are you sure you want to return this money?",
+    returned: "Returned",
+    notReturned: "Not Returned",
+    addUser: "Add User",
+    editUser: "Edit User",
+    projectName: "Project Name",
+    userLabel: "Display Name",
+    isAdmin: "Is Admin",
+    adminRequired: "Only admin can do this",
+    enterAdminCredentials: "Enter admin username and password",
+    totalDepositIQD: "Total Deposit (IQD)",
+    totalDepositUSD: "Total Deposit (USD)",
+    searchInvoice: "Search by number or name",
+    selectCurrency: "Select Currency",
+    exchangeRateForReport: "Exchange rate for report",
+    totalMeters: "Total Meters",
+    avgPricePerMeter: "Avg Price/Meter",
+    freeze: "Freeze",
+    unfreeze: "Unfreeze",
+    frozen: "Frozen",
+    active: "Active",
+    sendMessage: "Send Message",
+    newMessage: "New Message",
+    message: "Message",
+    to: "To",
+    selectProjects: "Select Projects",
+    send: "Send",
+    inbox: "Inbox",
+    markAsRead: "Mark as Read",
+    unread: "Unread",
+    read: "Read",
+    fromAdmin: "From Admin",
+    importExcel: "Import Excel",
   },
   ar: {
     nav: { home: "الرئيسية", services: "الخدمات", projects: "المشاريع", about: "حولنا", contact: "اتصل بنا" },
@@ -126,16 +236,32 @@ const T = {
     contact: { title: "تواصل معنا", phone: "هاتف", whatsapp: "واتساب", viber: "فايبر", email: "بريد إلكتروني" },
     footer: { rights: "جميع الحقوق محفوظة", poweredBy: "مجموعة كارو" },
     login: "تسجيل الدخول", username: "اسم المستخدم", password: "كلمة المرور", enter: "دخول", wrongLogin: "خطأ في الاسم أو كلمة المرور", logout: "خروج",
-    sidebar: { cash: "الصندوق", loans: "القروض", concrete: "سلفة خرسانة", contractor: "المقاول", exchange: "صرف العملات", invoice: "فاتورة", backup: "نسخ احتياطي", reports: "التقارير", history: "السجل", monthlyReport: "كشف حساب", expenses: "المصاريف", formatData: "مسح جميع البيانات" },
+    sidebar: { 
+      cash: "الصندوق", 
+      loans: "القروض", 
+      concrete: "سلفة خرسانة", 
+      contractor: "المقاول", 
+      exchange: "صرف العملات", 
+      invoice: "فاتورة", 
+      backup: "نسخ احتياطي", 
+      reports: "التقارير", 
+      history: "السجل", 
+      monthlyReport: "كشف حساب", 
+      expenses: "المصاريف", 
+      formatData: "مسح جميع البيانات",
+      users: "المستخدمين",
+      allProjects: "جميع المشاريع",
+      messages: "الرسائل"
+    },
     cashBox: "صندوق النقد", iqd: "دينار", usd: "دولار", dark: "داكن", light: "فاتح",
     date: "التاريخ", receiptNo: "رقم الوصل", receiptImg: "صورة", amountIQD: "المبلغ (دينار)", amountUSD: "المبلغ (دولار)", note: "ملاحظة",
-    search: "بحث", filterMonth: "تصفية", total: "المجموع", print: "طباعة", save: "حفظ", delete: "حذف", edit: "تعديل", add: "إضافة", cancel: "إلغاء",
+    search: "بحث", filterMonth: "تصفية", filterProject: "تصفية بالمشروع", total: "المجموع", print: "طباعة", save: "حفظ", delete: "حذف", edit: "تعديل", add: "إضافة", cancel: "إلغاء",
     mark: "تعليم", marked: "✓", showAll: "عرض الكل", showMarked: "المعلّم فقط",
     loanType: "النوع", loanTake: "مستلم", loanGive: "ممنوح", personName: "الشخص",
     meters: "الأمتار", pricePerMeter: "سعر/م", totalConcrete: "الإجمالي", deposit: "التأمين", depositPercent: "نسبة التأمين %", received: "المستلم", claimDeposit: "استلام التأمين",
     contractorType: "النوع", withdraw: "سحب", addMoney: "إيداع",
     cashIQD: "نقد دينار", cashUSD: "نقد دولار", totalInIQD: "الإجمالي (دينار)",
-    exchangeRate: "سعر الدولار", saveRate: "حفظ", convertTo: "تحويل إلى", fromUSD: "دينار ← دولار", fromIQD: "دولار ← دینار",
+    exchangeRate: "سعر الدولار", saveRate: "حفظ", convertTo: "تحويل إلى", fromUSD: "دولار إلى دينار", fromIQD: "دينار إلى دولار",
     amount: "المبلغ", result: "النتيجة", convert: "تحويل",
     invoiceNo: "رقم الفاتورة", itemName: "السلعة", qty: "العدد", price: "السعر", addItem: "إضافة عنصر", viewInvoice: "عرض", billTo: "إلى", billPhone: "الهاتف",
     cashLog: "سجل النقد", type: "النوع",
@@ -159,18 +285,55 @@ const T = {
     receivedStatus: "مستلم",
     notReceived: "لم يُستلم",
     concCurrency: "عملة السلفة",
+    returnMoney: "إعادة المبلغ",
+    returnConfirm: "هل أنت متأكد من إعادة هذا المبلغ؟",
+    returned: "تم الإعادة",
+    notReturned: "لم يتم الإعادة",
+    addUser: "إضافة مستخدم",
+    editUser: "تعديل مستخدم",
+    projectName: "اسم المشروع",
+    userLabel: "الاسم المعروض",
+    isAdmin: "مدير",
+    adminRequired: "فقط المدير يمكنه القيام بذلك",
+    enterAdminCredentials: "أدخل اسم المستخدم وكلمة المرور للمدير",
+    totalDepositIQD: "إجمالي التأمين (دينار)",
+    totalDepositUSD: "إجمالي التأمين (دولار)",
+    searchInvoice: "البحث بالرقم أو الاسم",
+    selectCurrency: "اختر العملة",
+    exchangeRateForReport: "سعر الصرف للتقرير",
+    totalMeters: "إجمالي الأمتار",
+    avgPricePerMeter: "متوسط السعر للمتر",
+    freeze: "تجميد",
+    unfreeze: "إلغاء التجميد",
+    frozen: "مجمد",
+    active: "نشط",
+    sendMessage: "إرسال رسالة",
+    newMessage: "رسالة جديدة",
+    message: "رسالة",
+    to: "إلى",
+    selectProjects: "اختر المشاريع",
+    send: "إرسال",
+    inbox: "صندوق الوارد",
+    markAsRead: "تحديث كمقروء",
+    unread: "غير مقروء",
+    read: "مقروء",
+    fromAdmin: "من المدير",
+    importExcel: "استيراد Excel",
   }
 };
 
 // ==================== HELPERS ====================
-const fmt = (n) => { const v = Number(n || 0); return v.toLocaleString(); };
+const fmt = (n) => { 
+  const v = Number(n || 0); 
+  return Math.round(v).toString();
+};
 const today = () => new Date().toISOString().split("T")[0];
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const getLS = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
 const setLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const trunc = (s, m = 25) => (!s ? "" : s.length > m ? s.slice(0, m) + "…" : s);
 
-// ==================== ICONS (SVG) ====================
+// ==================== ICONS ====================
 const I = {
   Sun: (p) => <svg width={p?.s||18} height={p?.s||18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>,
   Moon: (p) => <svg width={p?.s||18} height={p?.s||18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
@@ -199,12 +362,16 @@ const I = {
   Exchange: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 2l4 4-4 4"/><path d="M3 12h4l3-3 3 3 3-3 3 3 4-4"/><path d="M7 22l-4-4 4-4"/><path d="M21 12h-4l-3 3-3-3-3 3-3-3-4 4"/></svg>,
   Invoice: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
   Backup: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
+  Return: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h14M9 18l6-6-6-6"/></svg>,
+  Bell: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+  Send: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  Freeze: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>,
 };
 
 // ==================== LOGO ====================
 function Logo({ size = 40 }) {
   return (
-    <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
       <div style={{ position: "absolute", width: size + 14, height: size + 14, borderRadius: "50%", background: `${PRIMARY}20`, animation: "ping 2s cubic-bezier(0,0,0.2,1) infinite" }} />
       <div style={{ width: size, height: size, borderRadius: "50%", background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 1, boxShadow: `0 4px 16px ${PRIMARY}40` }}>
         <span style={{ color: "#fff", fontWeight: 900, fontSize: size * 0.38, letterSpacing: -1 }}>KG</span>
@@ -213,12 +380,12 @@ function Logo({ size = 40 }) {
   );
 }
 
-// ==================== ALERT MODAL ====================
+// ==================== MODALS ====================
 function AlertModal({ message, onOk, s }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: s.bgCard, borderRadius: 16, padding: 32, maxWidth: 380, width: "100%", textAlign: "right", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
-        <div style={{ marginBottom: 16 }}><I.Warn /></div>
+      <div style={{ background: s.bgCard, borderRadius: 16, padding: 32, maxWidth: 380, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+        <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><I.Warn /></div>
         <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 24, color: s.text }}>{message}</p>
         <button onClick={onOk} style={{ background: PRIMARY, color: "#fff", border: "none", borderRadius: 8, padding: "10px 40px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>OK</button>
       </div>
@@ -226,12 +393,11 @@ function AlertModal({ message, onOk, s }) {
   );
 }
 
-// ==================== CONFIRM MODAL ====================
 function ConfirmModal({ message, onYes, onNo, s, t }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: s.bgCard, borderRadius: 16, padding: 32, maxWidth: 380, width: "100%", textAlign: "right", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
-        <div style={{ marginBottom: 16 }}><I.Warn /></div>
+      <div style={{ background: s.bgCard, borderRadius: 16, padding: 32, maxWidth: 380, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+        <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><I.Warn /></div>
         <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 24, color: s.text }}>{message}</p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
           <button onClick={onYes} style={{ background: "#EF4444", color: "#fff", border: "none", borderRadius: 8, padding: "10px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>{t.yes}</button>
@@ -242,11 +408,71 @@ function ConfirmModal({ message, onYes, onNo, s, t }) {
   );
 }
 
-// ==================== SIZE MODAL ====================
+function AdminModal({ message, onConfirm, onCancel, s, t }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleConfirm = () => {
+    if (username === "admin" && password === "karo2024") {
+      onConfirm();
+    } else {
+      setError(true);
+    }
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: s.bgCard, borderRadius: 16, padding: 32, maxWidth: 380, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+        <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><I.Warn /></div>
+        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16, color: s.text }}>{message}</p>
+        
+        <input 
+          type="text" 
+          placeholder={t.username} 
+          value={username} 
+          onChange={e => { setUsername(e.target.value); setError(false); }} 
+          style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: `1px solid ${error ? "#EF4444" : s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, marginBottom: 10, direction: "ltr", textAlign: "center" }} 
+        />
+        
+        <input 
+          type="password" 
+          placeholder={t.password} 
+          value={password} 
+          onChange={e => { setPassword(e.target.value); setError(false); }} 
+          style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: `1px solid ${error ? "#EF4444" : s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, marginBottom: 10, direction: "ltr", textAlign: "center" }} 
+        />
+        
+        {error && <p style={{ color: "#EF4444", fontSize: 11, marginBottom: 10, textAlign: "center" }}>{t.wrongLogin}</p>}
+        
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 10 }}>
+          <button onClick={handleConfirm} style={{ background: PRIMARY, color: "#fff", border: "none", borderRadius: 8, padding: "10px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>{t.ok}</button>
+          <button onClick={onCancel} style={{ background: s.bgCard2, color: s.text, border: `1px solid ${s.border}`, borderRadius: 8, padding: "10px 28px", fontSize: 14, cursor: "pointer" }}>{t.cancel}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditModal({ title, children, onSave, onCancel, s, t }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: s.bgCard, borderRadius: 16, padding: 32, maxWidth: 500, width: "100%", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+        <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20, color: PRIMARY, textAlign: "center" }}>{title}</h3>
+        <div style={{ marginBottom: 20 }}>{children}</div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+          <button onClick={onSave} style={{ background: PRIMARY, color: "#fff", border: "none", borderRadius: 8, padding: "10px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>{t.save}</button>
+          <button onClick={onCancel} style={{ background: s.bgCard2, color: s.text, border: `1px solid ${s.border}`, borderRadius: 8, padding: "10px 28px", fontSize: 14, cursor: "pointer" }}>{t.cancel}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SizeModal({ onSelect, onClose, s, t }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ background: s.bgCard, borderRadius: 16, padding: 28, textAlign: "right" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: s.bgCard, borderRadius: 16, padding: 28, textAlign: "center" }}>
         <h3 style={{ marginBottom: 18, fontSize: 15, fontWeight: 700, color: s.text }}>{t.selectSize}</h3>
         <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
           {["A3", "A4", "A5"].map(sz => (
@@ -263,9 +489,10 @@ function SizeModal({ onSelect, onClose, s, t }) {
 function doPrint({ title, headers, rows, totalRow, size, isRtl }) {
   const sz = { A3: "420mm 297mm", A4: "210mm 297mm", A5: "148mm 210mm" };
   const w = window.open("", "_blank");
-  w.document.write(`<html dir="${isRtl?"rtl":"ltr"}"><head><title>${title}</title><style>@page{size:${sz[size]||sz.A4};margin:12mm}body{font-family:sans-serif;padding:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th{background:${PRIMARY};color:#fff;padding:7px 5px;font-size:11px}td{border:1px solid #ddd;padding:5px;text-align:center;font-size:11px}h2{color:${PRIMARY};text-align:center;font-size:16px}.t{font-weight:bold;background:#f0fdf4}</style></head><body><h2>KARO GROUP — ${title}</h2><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}${totalRow?`<tr class="t">${totalRow.map(c=>`<td>${c}</td>`).join("")}</tr>`:""}</tbody></table></body></html>`);
+  w.document.write(`<html dir="${isRtl?"rtl":"ltr"}"><head><title>${title}</title><style>@page{size:${sz[size]||sz.A4};margin:12mm}body{font-family:sans-serif;padding:16px;height:100vh;display:flex;flex-direction:column}table{width:100%;border-collapse:collapse;margin-top:12px;flex:1}th{background:${PRIMARY};color:#fff;padding:7px 5px;font-size:11px;position:sticky;top:0;z-index:10}td{border:1px solid #ddd;padding:5px;text-align:center;font-size:11px}h2{color:${PRIMARY};text-align:center;font-size:16px}.t{font-weight:bold;background:#f0fdf4}</style></head><body><h2>KARO GROUP — ${title}</h2><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}${totalRow?`<tr class="t">${totalRow.map(c=>`<td>${c}</td>`).join("")}</tr>`:""}</tbody></table></body></html>`);
   w.document.close(); w.print();
 }
+
 function doExcel({ title, headers, rows, totalRow }) {
   let csv = "\uFEFF" + headers.join(",") + "\n";
   rows.forEach(r => { csv += r.map(c => `"${c}"`).join(",") + "\n"; });
@@ -282,13 +509,63 @@ const getS = (dark) => ({
   text: dark ? "#e5e5e5" : "#1c1917",
   textMuted: dark ? "#999" : "#78716c",
   border: dark ? "#333" : "#e5e5e5",
-  danger: "#EF4444", success: "#22C55E"
+  danger: "#EF4444", success: "#22C55E", warning: "#F59E0B"
 });
 
-// ==================== TABLE STYLES (responsive) ====================
+// ==================== TABLE STYLES ====================
 const tableStyle = { width: "100%", borderCollapse: "collapse", fontSize: 12 };
-// ✅ گۆڕانکاری: زیادکردنی textAlign: "center" بۆ ناوەڕۆکی خانەکان
-const cellStyle = { padding: "8px 10px", borderBottom: "1px solid", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", verticalAlign: "middle", textAlign: "center" };
+const cellStyle = { padding: "10px 12px", borderBottom: "1px solid", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", verticalAlign: "middle", textAlign: "center" };
+
+// ==================== TH COMPONENT WITH STICKY ====================
+const TH = ({ children, isRtl, style }) => (
+  <th style={{ 
+    padding: "12px 12px", 
+    textAlign: "center", 
+    fontWeight: 700, 
+    fontSize: 13, 
+    whiteSpace: "nowrap", 
+    background: PRIMARY, 
+    color: "#fff", 
+    position: "sticky", 
+    top: 0, 
+    zIndex: 10,
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    ...style 
+  }}>
+    {children}
+  </th>
+);
+
+const TD = ({ children, s, style }) => (
+  <td style={{ 
+    padding: "10px 12px", 
+    borderBottom: `1px solid ${s.border}`, 
+    whiteSpace: "nowrap", 
+    overflow: "hidden", 
+    textOverflow: "ellipsis", 
+    verticalAlign: "middle", 
+    textAlign: "center", 
+    fontSize: 12,
+    ...style 
+  }}>
+    {children}
+  </td>
+);
+
+// ==================== STICKY HEADER COMPONENT ====================
+const StickyHeader = ({ children, s }) => (
+  <div style={{
+    position: "sticky",
+    top: 0,
+    zIndex: 20,
+    background: s.bgCard,
+    borderBottom: `2px solid ${PRIMARY}`,
+    padding: "15px 0 10px 0",
+    marginBottom: 10
+  }}>
+    {children}
+  </div>
+);
 
 // ==================== APP ====================
 export default function App() {
@@ -299,23 +576,44 @@ export default function App() {
   const [dashPage, setDashPage] = useState(getLS("karo_dashPage", "reports"));
   const [logoClicks, setLogoClicks] = useState(0);
   const [fontIdx, setFontIdx] = useState(getLS("karo_font", 0));
+  const [users, setUsers] = useState(USERS);
+  const [messages, setMessages] = useState(getLS("karo_messages", []));
+  const [unreadCount, setUnreadCount] = useState(0);
   const logoTimer = useRef(null);
 
-  const t = T[lang]; const isRtl = lang !== "en"; const s = getS(dark);
+  const t = T[lang]; 
+  const isRtl = lang !== "en"; 
+  const s = getS(dark);
   const fontFamily = FONTS[fontIdx]?.value || FONTS[0].value;
 
-  const pKey = loggedUser?.project || "x";
+  const pKey = loggedUser?.project || "default";
+  const currentUser = users.find(u => u.username === loggedUser?.username);
+  const isFrozen = currentUser?.isFrozen || false;
+
+  // دیتای هەر پرۆژەیەک بە کلیدی تایبەت
   const [cashIQD, setCashIQD] = useState(getLS(`karo_cashIQD_${pKey}`, 0));
   const [cashUSD, setCashUSD] = useState(getLS(`karo_cashUSD_${pKey}`, 0));
   const [exchangeRate, setExchangeRate] = useState(getLS(`karo_rate_${pKey}`, 1500));
   const [cashLog, setCashLog] = useState(getLS(`karo_cashLog_${pKey}`, []));
+
+  useEffect(() => {
+    if (loggedUser && !loggedUser.isAdmin) {
+      const userMessages = messages.filter(m => 
+        m.to.includes(loggedUser.project) && !m.read
+      );
+      setUnreadCount(userMessages.length);
+    }
+  }, [messages, loggedUser]);
 
   useEffect(() => { setLS("karo_lang", lang); }, [lang]);
   useEffect(() => { setLS("karo_dark", dark); }, [dark]);
   useEffect(() => { setLS("karo_page", page); }, [page]);
   useEffect(() => { setLS("karo_dashPage", dashPage); }, [dashPage]);
   useEffect(() => { setLS("karo_font", fontIdx); }, [fontIdx]);
-  useEffect(() => { if (loggedUser) { setLS("karo_user", loggedUser); } }, [loggedUser]);
+  useEffect(() => { setLS("karo_user", loggedUser); }, [loggedUser]);
+  useEffect(() => { setLS("karo_users", users); }, [users]);
+  useEffect(() => { setLS("karo_messages", messages); }, [messages]);
+  
   useEffect(() => { setLS(`karo_cashIQD_${pKey}`, cashIQD); }, [cashIQD, pKey]);
   useEffect(() => { setLS(`karo_cashUSD_${pKey}`, cashUSD); }, [cashUSD, pKey]);
   useEffect(() => { setLS(`karo_rate_${pKey}`, exchangeRate); }, [exchangeRate, pKey]);
@@ -351,13 +649,36 @@ export default function App() {
   };
 
   const handleLogin = (u, p) => {
-    const user = USERS.find(x => x.username === u && x.password === p);
-    if (user) { setLoggedUser(user); setPage("dashboard"); setDashPage("reports"); return true; }
+    const user = users.find(x => x.username === u && x.password === p);
+    if (user) { 
+      setLoggedUser(user); 
+      setPage("dashboard"); 
+      setDashPage("reports"); 
+      return true; 
+    }
     return false;
   };
-  const handleLogout = () => { setLoggedUser(null); setPage("landing"); localStorage.removeItem("karo_user"); setLS("karo_page", "landing"); };
+  
+  const handleLogout = () => { 
+    setLoggedUser(null); 
+    setPage("landing"); 
+    localStorage.removeItem("karo_user"); 
+    setLS("karo_page", "landing"); 
+  };
 
-  const shared = { t, s, isRtl, dark, lang, fontFamily, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, setExchangeRate, cashLog, setCashLog, addCashLog };
+  const markMessageAsRead = (messageId) => {
+    setMessages(prev => prev.map(m => 
+      m.id === messageId ? { ...m, read: true } : m
+    ));
+  };
+
+  const shared = { 
+    t, s, isRtl, dark, lang, fontFamily, pKey, 
+    cashIQD, setCashIQD, cashUSD, setCashUSD, 
+    exchangeRate, setExchangeRate, cashLog, setCashLog, 
+    addCashLog, users, setUsers, isFrozen,
+    messages, setMessages, unreadCount, markMessageAsRead
+  };
 
   if (page === "login") return <LoginPage {...shared} onLogin={handleLogin} onBack={() => setPage("landing")} />;
   if (page === "dashboard" && loggedUser) return <Dashboard {...shared} setLang={setLang} user={loggedUser} dashPage={dashPage} setDashPage={setDashPage} onLogout={handleLogout} setDark={setDark} fontIdx={fontIdx} setFontIdx={setFontIdx} />;
@@ -369,19 +690,36 @@ function LandingPage({ t, s, isRtl, dark, lang, fontFamily, setLang, setDark, on
   const [mobileMenu, setMobileMenu] = useState(false);
   const [lightbox, setLightbox] = useState(null);
   const [scrolled, setScrolled] = useState(false);
-  useEffect(() => { const h = () => setScrolled(window.scrollY > 40); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
-  const scrollTo = id => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setMobileMenu(false); };
+  
+  useEffect(() => { 
+    const h = () => setScrolled(window.scrollY > 40); 
+    window.addEventListener("scroll", h); 
+    return () => window.removeEventListener("scroll", h); 
+  }, []);
+  
+  const scrollTo = id => { 
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); 
+    setMobileMenu(false); 
+  };
+
+  const sections = [
+    { id: "home", title: t.nav.home, bg: "linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%)" },
+    { id: "services", title: t.services.title, bg: "#ffffff" },
+    { id: "about", title: t.about.title, bg: "#f8f9fa" },
+    { id: "contact", title: t.contact.title, bg: "#ffffff" }
+  ];
 
   return (
-    <div dir={isRtl?"rtl":"ltr"} style={{ background: "#fff", color: "#1c1917", fontFamily, minHeight: "100vh" }}>
+    <div dir={isRtl?"rtl":"ltr"} style={{ fontFamily, minHeight: "100vh" }}>
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: scrolled ? "rgba(255,255,255,0.97)" : "transparent", backdropFilter: scrolled ? "blur(16px)" : "none", borderBottom: scrolled ? "1px solid #e5e5e5" : "none", transition: "all 0.3s", padding: scrolled ? "8px 0" : "14px 0" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }} onClick={onLogoClick}>
-            <Logo size={34} /><span style={{ fontWeight: 800, fontSize: 18, color: PRIMARY }}>KARO GROUP</span>
+            <Logo size={34} />
+            <span style={{ fontWeight: 800, fontSize: 18, color: PRIMARY }}>KARO GROUP</span>
           </div>
           <div className="dnav" style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            {["home","services","about","contact"].map(x => (
-              <button key={x} onClick={() => scrollTo(x)} style={{ background: "none", border: "none", color: "#1c1917", cursor: "pointer", fontSize: 13, fontWeight: 500, fontFamily, padding: "3px 0", borderBottom: "2px solid transparent", transition: "all 0.3s" }} onMouseEnter={e=>e.target.style.borderBottomColor=PRIMARY} onMouseLeave={e=>e.target.style.borderBottomColor="transparent"}>{t.nav[x]}</button>
+            {sections.map(s => (
+              <button key={s.id} onClick={() => scrollTo(s.id)} style={{ background: "none", border: "none", color: "#1c1917", cursor: "pointer", fontSize: 13, fontWeight: 500, fontFamily, padding: "3px 0", borderBottom: "2px solid transparent", transition: "all 0.3s" }} onMouseEnter={e=>e.target.style.borderBottomColor=PRIMARY} onMouseLeave={e=>e.target.style.borderBottomColor="transparent"}>{s.title}</button>
             ))}
             <select value={lang} onChange={e => setLang(e.target.value)} style={{ background: "#f5f5f5", color: "#333", border: "1px solid #e5e5e5", borderRadius: 6, padding: "4px 8px", fontSize: 11, cursor: "pointer", fontFamily }}>
               <option value="ku">کوردی</option><option value="en">English</option><option value="ar">عربي</option>
@@ -391,7 +729,7 @@ function LandingPage({ t, s, isRtl, dark, lang, fontFamily, setLang, setDark, on
         </div>
         {mobileMenu && (
           <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "rgba(255,255,255,0.98)", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
-            {["home","services","about","contact"].map(x => <button key={x} onClick={() => scrollTo(x)} style={{ background: "none", border: "none", color: "#1c1917", cursor: "pointer", fontSize: 14, textAlign: isRtl?"right":"left", padding: "5px 0", fontFamily }}>{t.nav[x]}</button>)}
+            {sections.map(s => <button key={s.id} onClick={() => scrollTo(s.id)} style={{ background: "none", border: "none", color: "#1c1917", cursor: "pointer", fontSize: 14, textAlign: isRtl?"right":"left", padding: "5px 0", fontFamily }}>{s.title}</button>)}
             <select value={lang} onChange={e => setLang(e.target.value)} style={{ background: "#f5f5f5", border: "1px solid #e5e5e5", borderRadius: 6, padding: "6px 10px", fontSize: 13, fontFamily }}>
               <option value="ku">کوردی</option><option value="en">English</option><option value="ar">عربي</option>
             </select>
@@ -399,88 +737,133 @@ function LandingPage({ t, s, isRtl, dark, lang, fontFamily, setLang, setDark, on
         )}
       </nav>
 
-      <section id="home" style={{ paddingTop: 80 }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }} className="hgrid">
-            {PROJECT_IMAGES.map((img, i) => (
-              <div key={i} style={{ position: "relative" }}>
-                <div onClick={() => setLightbox(img.src)} style={{ borderRadius: 10, overflow: "hidden", cursor: "pointer", aspectRatio: "16/9" }}>
-                  <img src={img.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }} onMouseEnter={e=>e.target.style.transform="scale(1.04)"} onMouseLeave={e=>e.target.style.transform="scale(1)"} loading="lazy" />
-                </div>
-                <p style={{ textAlign: "right", fontSize: 12, color: "#78716c", marginTop: 4, fontWeight: 600, fontFamily }}>{img[`desc_${lang}`]}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ textAlign: "right", padding: "50px 20px 70px" }}>
-          <div style={{ marginBottom: 20 }}><Logo size={64} /></div>
-          <h1 style={{ fontSize: "clamp(28px,5vw,50px)", fontWeight: 900, color: PRIMARY, marginBottom: 16, fontFamily }}>{t.hero.title}</h1>
-          <p style={{ fontSize: "clamp(14px,2vw,17px)", color: "#78716c", lineHeight: 1.7, maxWidth: 560, margin: "0 auto 30px", fontFamily }}>{t.hero.subtitle}</p>
-          <button onClick={() => scrollTo("services")} style={{ background: PRIMARY, color: "#fff", border: "none", borderRadius: 8, padding: "12px 32px", fontSize: 15, fontWeight: 700, cursor: "pointer", boxShadow: `0 4px 20px ${PRIMARY}40`, fontFamily }}>{t.hero.cta}</button>
-        </div>
-      </section>
-
-      <section id="services" style={{ padding: "70px 20px", maxWidth: 1200, margin: "0 auto" }}>
-        <h2 style={{ textAlign: "right", fontSize: 28, fontWeight: 800, marginBottom: 40, color: PRIMARY, fontFamily }}>{t.services.title}</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
-          {[t.services.s1, t.services.s2, t.services.s3].map((sv, i) => (
-            <div key={i} style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: 28, borderTop: `3px solid ${PRIMARY}`, transition: "transform 0.3s" }} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: PRIMARY, fontFamily }}>{sv.name}</h3>
-              <p style={{ color: "#78716c", lineHeight: 1.7, fontSize: 13, fontFamily }}>{sv.desc}</p>
+      {sections.map((section, index) => (
+        <section 
+          key={section.id} 
+          id={section.id} 
+          style={{ 
+            background: section.bg,
+            position: "relative",
+            overflow: "hidden",
+            padding: index === 0 ? "120px 20px 80px" : "80px 20px"
+          }}
+        >
+          {section.id === "home" && (
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", opacity: 0.05, fontSize: 120, fontWeight: 900, color: PRIMARY, pointerEvents: "none" }}>
+              KG
             </div>
-          ))}
-        </div>
-      </section>
+          )}
+          {section.id === "services" && (
+            <div style={{ position: "absolute", top: 0, right: 0, width: "300px", height: "300px", background: `radial-gradient(circle, ${PRIMARY}10 0%, transparent 70%)` }} />
+          )}
+          {section.id === "about" && (
+            <div style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "100%", background: `repeating-linear-gradient(45deg, ${PRIMARY}05 0px, ${PRIMARY}05 10px, transparent 10px, transparent 20px)` }} />
+          )}
+          {section.id === "contact" && (
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "600px", height: "600px", background: `radial-gradient(circle, ${PRIMARY}08 0%, transparent 70%)` }} />
+          )}
+          
+          <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto" }}>
+            {section.id === "home" && (
+              <>
+                <div style={{ textAlign: "center", marginBottom: 40 }}>
+                  <Logo size={80} />
+                  <h1 style={{ fontSize: "clamp(32px,6vw,56px)", fontWeight: 900, color: PRIMARY, marginBottom: 16 }}>{t.hero.title}</h1>
+                  <p style={{ fontSize: "clamp(14px,2vw,18px)", color: "#666", lineHeight: 1.7, maxWidth: 700, margin: "0 auto 30px" }}>{t.hero.subtitle}</p>
+                  <button onClick={() => scrollTo("services")} style={{ background: PRIMARY, color: "#fff", border: "none", borderRadius: 8, padding: "14px 40px", fontSize: 16, fontWeight: 700, cursor: "pointer", boxShadow: `0 4px 20px ${PRIMARY}40` }}>{t.hero.cta}</button>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 15 }} className="project-grid">
+                  {PROJECT_IMAGES.slice(0, 4).map((img, i) => (
+                    <div key={i} onClick={() => setLightbox(img.src)} style={{ cursor: "pointer", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                      <img src={img.src} alt="" style={{ width: "100%", height: "200px", objectFit: "cover", transition: "transform 0.4s" }} onMouseEnter={e=>e.target.style.transform="scale(1.05)"} onMouseLeave={e=>e.target.style.transform="scale(1)"} />
+                      <p style={{ textAlign: "center", padding: "10px", background: "#fff", margin: 0, fontSize: 13, fontWeight: 600 }}>{img[`desc_${lang}`]}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
-      <section id="about" style={{ padding: "70px 20px", background: "#f9fafb" }}>
-        <div style={{ maxWidth: 750, margin: "0 auto" }}>
-          <h2 style={{ textAlign: "right", fontSize: 28, fontWeight: 800, marginBottom: 36, color: PRIMARY, fontFamily }}>{t.about.title}</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
-            {t.about.items.map((item, i) => (
-              <div key={i} style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 8, padding: "16px 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
-                <span style={{ color: PRIMARY, fontWeight: 800 }}>✦</span>
-                <span style={{ fontSize: 13, lineHeight: 1.7, fontFamily }}>{item}</span>
-              </div>
-            ))}
+            {section.id === "services" && (
+              <>
+                <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 40, color: PRIMARY, textAlign: "center" }}>{t.services.title}</h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 25 }}>
+                  {[t.services.s1, t.services.s2, t.services.s3].map((sv, i) => (
+                    <div key={i} style={{ background: "#fff", borderRadius: 16, padding: 30, boxShadow: "0 10px 30px rgba(0,0,0,0.08)", borderTop: `4px solid ${PRIMARY}`, transition: "transform 0.3s" }} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-5px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
+                      <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: PRIMARY, textAlign: "center" }}>{sv.name}</h3>
+                      <p style={{ color: "#666", lineHeight: 1.8, fontSize: 14, textAlign: "center" }}>{sv.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {section.id === "about" && (
+              <>
+                <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 40, color: PRIMARY, textAlign: "center" }}>{t.about.title}</h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20, maxWidth: 800, margin: "0 auto" }}>
+                  {t.about.items.map((item, i) => (
+                    <div key={i} style={{ background: "#fff", borderRadius: 12, padding: "20px", display: "flex", gap: 12, alignItems: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
+                      <span style={{ fontSize: 24, color: PRIMARY }}>✓</span>
+                      <span style={{ fontSize: 14, lineHeight: 1.6 }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {section.id === "contact" && (
+              <>
+                <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 40, color: PRIMARY, textAlign: "center" }}>{t.contact.title}</h2>
+                <div style={{ maxWidth: 500, margin: "0 auto" }}>
+                  {[
+                    { icon: <I.Phone />, label: t.contact.phone, value: PHONE, href: `tel:${PHONE.replace(/\s/g,"")}` },
+                    { icon: "💬", label: t.contact.whatsapp, value: PHONE, href: `https://wa.me/${PHONE.replace(/[^0-9]/g,"")}` },
+                    { icon: "📱", label: t.contact.viber, value: PHONE, href: `viber://chat?number=${PHONE.replace(/[^0-9]/g,"")}` },
+                    { icon: <I.Mail />, label: t.contact.email, value: EMAIL, href: `mailto:${EMAIL}` },
+                  ].map((c, i) => (
+                    <a key={i} href={c.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "15px 20px", background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10, textDecoration: "none", color: "#1c1917", marginBottom: 10, transition: "border-color 0.3s" }} onMouseEnter={e=>e.currentTarget.style.borderColor=PRIMARY} onMouseLeave={e=>e.currentTarget.style.borderColor="#e5e5e5"}>
+                      <span style={{ color: PRIMARY }}>{c.icon}</span>
+                      <span style={{ fontWeight: 600, minWidth: 80 }}>{c.label}:</span>
+                      <span style={{ color: "#666" }}>{c.value}</span>
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
-      <section id="contact" style={{ padding: "70px 20px" }}>
-        <div style={{ maxWidth: 500, margin: "0 auto", textAlign: "right" }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 36, color: PRIMARY, fontFamily }}>{t.contact.title}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {[
-              { icon: <I.Phone />, label: t.contact.phone, value: PHONE, href: `tel:${PHONE.replace(/\s/g,"")}` },
-              { icon: "💬", label: t.contact.whatsapp, value: PHONE, href: `https://wa.me/${PHONE.replace(/[^0-9]/g,"")}` },
-              { icon: "📱", label: t.contact.viber, value: PHONE, href: `viber://chat?number=${PHONE.replace(/[^0-9]/g,"")}` },
-              { icon: <I.Mail />, label: t.contact.email, value: EMAIL, href: `mailto:${EMAIL}` },
-            ].map((c, i) => (
-              <a key={i} href={c.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: "1px solid #e5e5e5", borderRadius: 8, textDecoration: "none", color: "#1c1917", direction: "ltr", transition: "border-color 0.3s", fontFamily }} onMouseEnter={e=>e.currentTarget.style.borderColor=PRIMARY} onMouseLeave={e=>e.currentTarget.style.borderColor="#e5e5e5"}>
-                <span style={{ color: PRIMARY, display: "flex" }}>{c.icon}</span>
-                <span style={{ fontWeight: 600, minWidth: 65 }}>{c.label}:</span>
-                <span style={{ color: "#78716c" }}>{c.value}</span>
-              </a>
-            ))}
-          </div>
+      <footer style={{ padding: "30px 20px", textAlign: "center", borderTop: "1px solid #e5e5e5" }}>
+        <div onClick={onLogoClick} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
+          <Logo size={26} />
+          <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 14 }}>KARO GROUP</span>
         </div>
-      </section>
-
-      <footer style={{ padding: "24px 20px", textAlign: "right", borderTop: "1px solid #e5e5e5" }}>
-        <div onClick={onLogoClick} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-          <Logo size={22} /><span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>KARO GROUP</span>
-        </div>
-        <p style={{ color: "#78716c", fontSize: 11, fontFamily }}>© 2024 {t.footer.poweredBy}. {t.footer.rights}.</p>
+        <p style={{ color: "#78716c", fontSize: 12 }}>© 2024 {t.footer.poweredBy}. {t.footer.rights}.</p>
       </footer>
 
-      {lightbox && <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 16 }}><img src={lightbox} alt="" style={{ maxWidth: "92%", maxHeight: "92vh", borderRadius: 6, objectFit: "contain" }} /><button onClick={() => setLightbox(null)} style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}><I.X /></button></div>}
+      {lightbox && (
+        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.95)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <img src={lightbox} alt="" style={{ maxWidth: "90%", maxHeight: "90vh", borderRadius: 8 }} />
+          <button onClick={() => setLightbox(null)} style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 40, height: 40, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}><I.X /></button>
+        </div>
+      )}
 
       <style>{`
-        @media(max-width:768px){.dnav{display:none!important}.mbtn{display:flex!important}.hgrid{grid-template-columns:repeat(2,1fr)!important}}
-        @media(min-width:769px){.mbtn{display:none!important}}
-        *{margin:0;padding:0;box-sizing:border-box}body{margin:0}
-        @keyframes ping{0%{transform:scale(1);opacity:.6}75%,100%{transform:scale(1.6);opacity:0}}
-        input,select,textarea,button,th,td,label,span,p,div,h1,h2,h3{font-family:${fontFamily}!important}
+        @media (max-width: 768px) {
+          .dnav { display: none !important; }
+          .mbtn { display: flex !important; }
+          .project-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (min-width: 769px) {
+          .mbtn { display: none !important; }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { margin: 0; overflow-x: hidden; }
+        @keyframes ping {
+          0% { transform: scale(1); opacity: 0.6; }
+          75%, 100% { transform: scale(1.6); opacity: 0; }
+        }
       `}</style>
     </div>
   );
@@ -488,28 +871,46 @@ function LandingPage({ t, s, isRtl, dark, lang, fontFamily, setLang, setDark, on
 
 // ==================== LOGIN ====================
 function LoginPage({ t, s, isRtl, fontFamily, onLogin, onBack }) {
-  const [u, setU] = useState(""); const [p, setP] = useState(""); const [err, setErr] = useState(false);
+  const [u, setU] = useState(""); 
+  const [p, setP] = useState(""); 
+  const [err, setErr] = useState(false);
+  
   return (
-    <div dir={isRtl?"rtl":"ltr"} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb", fontFamily, padding: 20 }}>
-      <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 16, padding: 40, width: "100%", maxWidth: 360, boxShadow: "0 8px 32px rgba(0,0,0,0.06)" }}>
-        <div style={{ textAlign: "right", marginBottom: 28 }}><Logo size={50} /><h2 style={{ color: PRIMARY, marginTop: 12, fontSize: 20, fontWeight: 800 }}>{t.login}</h2></div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div><label style={{ fontSize: 11, color: "#78716c", fontWeight: 600 }}>{t.username}</label><input value={u} onChange={e=>{setU(e.target.value);setErr(false)}} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: `1px solid ${err?"#EF4444":"#e5e5e5"}`, background: "#f8f8f8", color: "#333", fontSize: 13, outline: "none", direction: "ltr", marginTop: 3 }} /></div>
-          <div><label style={{ fontSize: 11, color: "#78716c", fontWeight: 600 }}>{t.password}</label><input type="password" value={p} onChange={e=>{setP(e.target.value);setErr(false)}} onKeyDown={e=>e.key==="Enter"&&(onLogin(u,p)||setErr(true))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: `1px solid ${err?"#EF4444":"#e5e5e5"}`, background: "#f8f8f8", color: "#333", fontSize: 13, outline: "none", direction: "ltr", marginTop: 3 }} /></div>
-          {err && <p style={{ color: "#EF4444", fontSize: 11, textAlign: "right" }}>{t.wrongLogin}</p>}
-          <button onClick={()=>{if(!onLogin(u,p))setErr(true)}} style={{ background: PRIMARY, color: "#fff", border: "none", borderRadius: 8, padding: "10px", fontSize: 14, fontWeight: 700, cursor: "pointer", marginTop: 4 }}>{t.enter}</button>
-          <button onClick={onBack} style={{ background: "none", border: "none", color: "#78716c", cursor: "pointer", fontSize: 12 }}>← {t.nav.home}</button>
+    <div dir={isRtl?"rtl":"ltr"} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", fontFamily, padding: 20 }}>
+      <div style={{ background: "#fff", borderRadius: 20, padding: 40, width: "100%", maxWidth: 380, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+        <div style={{ textAlign: "center", marginBottom: 30 }}>
+          <Logo size={70} />
+          <h2 style={{ color: PRIMARY, marginTop: 15, fontSize: 22, fontWeight: 800 }}>{t.login}</h2>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+          <div>
+            <label style={{ fontSize: 12, color: "#666", fontWeight: 600, display: "block", textAlign: "center", marginBottom: 5 }}>{t.username}</label>
+            <input value={u} onChange={e=>{setU(e.target.value);setErr(false)}} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: `1px solid ${err?"#EF4444":"#e5e5e5"}`, background: "#f8f8f8", fontSize: 14, outline: "none", direction: "ltr", textAlign: "center" }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, color: "#666", fontWeight: 600, display: "block", textAlign: "center", marginBottom: 5 }}>{t.password}</label>
+            <input type="password" value={p} onChange={e=>{setP(e.target.value);setErr(false)}} onKeyDown={e=>e.key==="Enter"&&(onLogin(u,p)||setErr(true))} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: `1px solid ${err?"#EF4444":"#e5e5e5"}`, background: "#f8f8f8", fontSize: 14, outline: "none", direction: "ltr", textAlign: "center" }} />
+          </div>
+          {err && <p style={{ color: "#EF4444", fontSize: 12, textAlign: "center" }}>{t.wrongLogin}</p>}
+          <button onClick={()=>{if(!onLogin(u,p))setErr(true)}} style={{ background: PRIMARY, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", marginTop: 5 }}>{t.enter}</button>
+          <button onClick={onBack} style={{ background: "none", border: "none", color: "#666", cursor: "pointer", fontSize: 13, marginTop: 5 }}>← {t.nav.home}</button>
         </div>
       </div>
-      <style>{`input,select,textarea,button,th,td,label,span,p,div,h1,h2,h3{font-family:${fontFamily}!important}`}</style>
     </div>
   );
 }
 
 // ==================== DASHBOARD ====================
-function Dashboard({ t, s, isRtl, dark, lang, fontFamily, pKey, user, dashPage, setDashPage, onLogout, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, setExchangeRate, cashLog, setCashLog, addCashLog, setDark, setLang, fontIdx, setFontIdx }) {
+function Dashboard({ t, s, isRtl, dark, lang, fontFamily, pKey, user, dashPage, setDashPage, onLogout, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, setExchangeRate, cashLog, setCashLog, addCashLog, setDark, setLang, fontIdx, setFontIdx, users, setUsers, isFrozen, messages, setMessages, unreadCount, markMessageAsRead }) {
   const [formatModal, setFormatModal] = useState(false);
-  const [fmtUser, setFmtUser] = useState(""); const [fmtPass, setFmtPass] = useState("");
+  const [fmtUser, setFmtUser] = useState(""); 
+  const [fmtPass, setFmtPass] = useState("");
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [editUser, setEditUser] = useState(null);
+  const [userForm, setUserForm] = useState({ username: "", password: "", project: "", label: "", isAdmin: false, isFrozen: false });
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [messageForm, setMessageForm] = useState({ to: [], text: "" });
+  const [showInbox, setShowInbox] = useState(false);
 
   const items = [
     { id: "reports", label: t.sidebar.reports, icon: <I.Chart /> },
@@ -525,73 +926,336 @@ function Dashboard({ t, s, isRtl, dark, lang, fontFamily, pKey, user, dashPage, 
     { id: "monthly", label: t.sidebar.monthlyReport, icon: "📊" },
   ];
 
+  if (user?.isAdmin) {
+    items.push(
+      { id: "users", label: t.sidebar.users, icon: "👥" },
+      { id: "allProjects", label: t.sidebar.allProjects, icon: "📊" },
+      { id: "messages", label: t.sidebar.messages, icon: <I.Bell /> }
+    );
+  }
+
   const doFormat = () => {
     if (fmtUser === "admin" && fmtPass === "karo2024") {
-      const keys = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith("karo_") && k.includes(pKey)) keys.push(k); }
+      // تەنها داتای پرۆژەی ئێستا بسڕەوە
+      const keys = []; 
+      for (let i = 0; i < localStorage.length; i++) { 
+        const k = localStorage.key(i); 
+        if (k?.startsWith("karo_") && k.includes(pKey)) keys.push(k); 
+      }
       keys.forEach(k => localStorage.removeItem(k));
-      setCashIQD(0); setCashUSD(0); setCashLog([]); setExchangeRate(1500);
-      setFormatModal(false); setFmtUser(""); setFmtPass("");
+      setCashIQD(0); 
+      setCashUSD(0); 
+      setCashLog([]); 
+      setExchangeRate(1500);
+      setFormatModal(false); 
+      setFmtUser(""); 
+      setFmtPass("");
       alert(t.formatSuccess);
     }
   };
 
-  const shared = { t, s, isRtl, dark, lang, fontFamily, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, setExchangeRate, cashLog, setCashLog, addCashLog };
+  const handleSaveUser = () => {
+    if (!userForm.username || !userForm.password || !userForm.project || !userForm.label) return;
+    
+    if (editUser) {
+      setUsers(prev => prev.map(u => u.username === editUser.username ? { ...userForm } : u));
+    } else {
+      setUsers(prev => [...prev, { ...userForm }]);
+    }
+    setShowUserForm(false);
+    setEditUser(null);
+    setUserForm({ username: "", password: "", project: "", label: "", isAdmin: false, isFrozen: false });
+  };
+
+  const handleDeleteUser = (username) => {
+    if (username === "admin") {
+      alert(t.adminRequired);
+      return;
+    }
+    setUsers(prev => prev.filter(u => u.username !== username));
+  };
+
+  const handleToggleFreeze = (username) => {
+    setUsers(prev => prev.map(u => 
+      u.username === username ? { ...u, isFrozen: !u.isFrozen } : u
+    ));
+  };
+
+  const handleSendMessage = () => {
+    if (!messageForm.text || messageForm.to.length === 0) return;
+    
+    const newMessage = {
+      id: genId(),
+      from: "admin",
+      to: messageForm.to,
+      text: messageForm.text,
+      date: today(),
+      time: new Date().toLocaleTimeString(),
+      read: false
+    };
+    
+    setMessages(prev => [newMessage, ...prev]);
+    setMessageForm({ to: [], text: "" });
+    setShowMessageModal(false);
+  };
+
+  const shared = { 
+    t, s, isRtl, dark, lang, fontFamily, pKey, 
+    cashIQD, setCashIQD, cashUSD, setCashUSD, 
+    exchangeRate, setExchangeRate, cashLog, setCashLog, 
+    addCashLog, isFrozen, users, messages, markMessageAsRead
+  };
 
   return (
     <div dir={isRtl?"rtl":"ltr"} style={{ display: "flex", minHeight: "100vh", background: s.bg, fontFamily, color: s.text }}>
-      <aside style={{ width: 240, minWidth: 240, background: dark?"#141414":"#fff", borderRight: isRtl?"none":`1px solid ${s.border}`, borderLeft: isRtl?`1px solid ${s.border}`:"none", display: "flex", flexDirection: "column", position: "fixed", top: 0, bottom: 0, [isRtl?"right":"left"]: 0, zIndex: 100, overflowY: "auto" }}>
-        <div style={{ padding: "14px 12px", borderBottom: `1px solid ${s.border}`, display: "flex", alignItems: "center", gap: 7 }}>
-          <Logo size={28} /><div><div style={{ fontWeight: 800, color: PRIMARY, fontSize: 13 }}>KARO GROUP</div><div style={{ fontSize: 9, color: s.textMuted }}>{user.label || user.project}</div></div>
+      <aside style={{ width: 260, minWidth: 260, background: SIDEBAR_BG, borderRight: isRtl?"none":`1px solid ${s.border}`, borderLeft: isRtl?`1px solid ${s.border}`:"none", display: "flex", flexDirection: "column", position: "fixed", top: 0, bottom: 0, [isRtl?"right":"left"]: 0, zIndex: 100, overflowY: "auto" }}>
+        <div style={{ padding: "20px 15px", borderBottom: `1px solid ${s.border}`, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, background: "#fff" }}>
+          <Logo size={40} />
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontWeight: 800, color: PRIMARY, fontSize: 16 }}>KARO GROUP</div>
+            <div style={{ fontSize: 12, color: "#666" }}>{user.label || user.project}</div>
+            {user.isAdmin && <div style={{ fontSize: 11, color: PRIMARY, marginTop: 3 }}>Admin</div>}
+          </div>
         </div>
-        <div style={{ padding: "10px 12px", borderBottom: `1px solid ${s.border}`, background: dark?"#0d0d0d":`${PRIMARY}06` }}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: s.textMuted, marginBottom: 5 }}>{t.cashBox}</div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 2 }}><span>{t.iqd}:</span><span style={{ fontWeight: 700, color: cashIQD>=0?s.success:s.danger }}>{fmt(cashIQD)}</span></div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}><span>{t.usd}:</span><span style={{ fontWeight: 700, color: cashUSD>=0?s.success:s.danger }}>${fmt(cashUSD)}</span></div>
-        </div>
-        <nav style={{ flex: 1, padding: "6px 5px" }}>
+        
+        {!user.isAdmin && (
+          <div style={{ padding: "15px", borderBottom: `1px solid ${s.border}`, background: `${SIDEBAR_BG}dd` }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: SIDEBAR_TEXT, marginBottom: 10, textAlign: "center" }}>{t.cashBox}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 8, color: SIDEBAR_TEXT, padding: "0 5px" }}>
+              <span>{t.iqd}:</span>
+              <span style={{ fontWeight: 700 }}>{fmt(cashIQD)}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: SIDEBAR_TEXT, padding: "0 5px" }}>
+              <span>{t.usd}:</span>
+              <span style={{ fontWeight: 700 }}>${fmt(cashUSD)}</span>
+            </div>
+          </div>
+        )}
+        
+        {!user.isAdmin && unreadCount > 0 && (
+          <div style={{ padding: "10px 15px", background: s.warning, color: "#fff", textAlign: "center", cursor: "pointer" }} onClick={() => setShowInbox(true)}>
+            <I.Bell /> {unreadCount} {t.unread}
+          </div>
+        )}
+        
+        <nav style={{ flex: 1, padding: "15px 10px" }}>
           {items.map(p => (
-            <button key={p.id} onClick={() => setDashPage(p.id)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", borderRadius: 7, border: "none", background: dashPage===p.id?`${PRIMARY}18`:"transparent", color: dashPage===p.id?PRIMARY:s.text, cursor: "pointer", fontSize: 12, fontWeight: dashPage===p.id?700:500, textAlign: isRtl?"right":"left", marginBottom: 1 }}>
-              {typeof p.icon==="string"?<span style={{ fontSize: 14 }}>{p.icon}</span>:<span style={{ color: dashPage===p.id?PRIMARY:s.textMuted }}>{p.icon}</span>}{p.label}
+            <button 
+              key={p.id} 
+              onClick={() => setDashPage(p.id)} 
+              disabled={isFrozen && !user.isAdmin && p.id !== "reports" && p.id !== "cash" && p.id !== "history"}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: 10, 
+                width: "100%", 
+                padding: "12px 15px", 
+                borderRadius: 8, 
+                border: "none", 
+                background: dashPage===p.id?`rgba(255,255,255,0.25)`:"transparent", 
+                color: dashPage===p.id?"#fff":SIDEBAR_TEXT, 
+                cursor: (isFrozen && !user.isAdmin && p.id !== "reports" && p.id !== "cash" && p.id !== "history") ? "not-allowed" : "pointer", 
+                fontSize: 14, 
+                fontWeight: dashPage===p.id?600:400, 
+                textAlign: isRtl?"right":"left", 
+                marginBottom: 3,
+                opacity: (isFrozen && !user.isAdmin && p.id !== "reports" && p.id !== "cash" && p.id !== "history") ? 0.5 : 1
+              }}
+            >
+              {typeof p.icon==="string"?<span style={{ fontSize: 16 }}>{p.icon}</span>:<span style={{ color: dashPage===p.id?"#fff":SIDEBAR_TEXT }}>{p.icon}</span>}
+              <span>{p.label}</span>
             </button>
           ))}
-          <button onClick={() => setFormatModal(true)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", borderRadius: 7, border: "none", background: "transparent", color: s.danger, cursor: "pointer", fontSize: 12, fontWeight: 500, textAlign: isRtl?"right":"left", marginTop: 4 }}>🗑️ {t.sidebar.formatData}</button>
+          {!user.isAdmin && (
+            <button onClick={() => setShowInbox(true)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "12px 15px", borderRadius: 8, border: "none", background: "transparent", color: SIDEBAR_TEXT, cursor: "pointer", fontSize: 14, marginTop: 10 }}>
+              <I.Bell /> {t.inbox} {unreadCount > 0 && `(${unreadCount})`}
+            </button>
+          )}
+          {user.isAdmin && (
+            <button onClick={() => setFormatModal(true)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "12px 15px", borderRadius: 8, border: "none", background: "transparent", color: "#FFB8B8", cursor: "pointer", fontSize: 14, marginTop: 20 }}>🗑️ {t.sidebar.formatData}</button>
+          )}
         </nav>
-        <div style={{ padding: "8px 10px", borderTop: `1px solid ${s.border}`, display: "flex", flexDirection: "column", gap: 4, fontSize: 11 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ color: s.textMuted }}>{t.font}:</span>
-            <select value={fontIdx} onChange={e => setFontIdx(Number(e.target.value))} style={{ flex: 1, background: s.bgCard2, color: s.text, border: `1px solid ${s.border}`, borderRadius: 5, padding: "3px 6px", fontSize: 10 }}>
+        
+        <div style={{ padding: "15px 12px", borderTop: `1px solid ${s.border}`, display: "flex", flexDirection: "column", gap: 10, background: `${SIDEBAR_BG}dd` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: SIDEBAR_TEXT, fontSize: 13, minWidth: 45 }}>{t.font}:</span>
+            <select value={fontIdx} onChange={e => setFontIdx(Number(e.target.value))} style={{ flex: 1, background: "#fff", color: "#333", border: "none", borderRadius: 5, padding: "6px 8px", fontSize: 13 }}>
               {FONTS.map((f, i) => <option key={i} value={i}>{f.name}</option>)}
             </select>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <I.Globe /><select value={lang} onChange={e => setLang(e.target.value)} style={{ flex: 1, background: s.bgCard2, color: s.text, border: `1px solid ${s.border}`, borderRadius: 5, padding: "3px 6px", fontSize: 10 }}><option value="ku">کوردی</option><option value="en">English</option><option value="ar">عربي</option></select>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <I.Globe style={{ color: SIDEBAR_TEXT }} />
+            <select value={lang} onChange={e => setLang(e.target.value)} style={{ flex: 1, background: "#fff", color: "#333", border: "none", borderRadius: 5, padding: "6px 8px", fontSize: 13 }}>
+              <option value="ku">کوردی</option>
+              <option value="en">English</option>
+              <option value="ar">عربي</option>
+            </select>
           </div>
-          <button onClick={() => setDark(!dark)} style={{ display: "flex", alignItems: "center", gap: 5, width: "100%", padding: "6px 8px", borderRadius: 5, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11 }}>{dark?<I.Sun />:<I.Moon />} {dark?t.light:t.dark}</button>
-          <button onClick={onLogout} style={{ display: "flex", alignItems: "center", gap: 5, width: "100%", padding: "6px 8px", borderRadius: 5, border: "none", background: "#FEE2E2", color: "#EF4444", cursor: "pointer", fontSize: 11, fontWeight: 600 }}><I.Logout /> {t.logout}</button>
+          
+          <button onClick={() => setDark(!dark)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "8px", borderRadius: 5, border: "none", background: "rgba(255,255,255,0.2)", color: SIDEBAR_TEXT, cursor: "pointer", fontSize: 13 }}>
+            {dark?<I.Sun />:<I.Moon />} {dark?t.light:t.dark}
+          </button>
+          
+          <button onClick={onLogout} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "8px", borderRadius: 5, border: "none", background: "#FEE2E2", color: "#EF4444", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+            <I.Logout /> {t.logout}
+          </button>
         </div>
       </aside>
 
-      <main style={{ flex: 1, [isRtl?"marginRight":"marginLeft"]: 240, padding: 16, minHeight: "100vh", width: "calc(100vw - 240px)" }}>
-        {dashPage === "reports" && <ReportsPage {...shared} />}
-        {dashPage === "expenses" && <ExpensesPage {...shared} />}
-        {dashPage === "loans" && <LoansPage {...shared} />}
-        {dashPage === "concrete" && <ConcretePage {...shared} />}
-        {dashPage === "contractor" && <ContractorPage {...shared} />}
-        {dashPage === "cash" && <CashPage {...shared} />}
-        {dashPage === "exchange" && <ExchangePage {...shared} />}
-        {dashPage === "invoice" && <InvoicePage {...shared} />}
-        {dashPage === "backup" && <BackupPage {...shared} />}
-        {dashPage === "history" && <HistoryPage {...shared} />}
-        {dashPage === "monthly" && <MonthlyPage {...shared} />}
+      <main style={{ 
+        flex: 1, 
+        [isRtl?"marginRight":"marginLeft"]: 260, 
+        padding: 20, 
+        minHeight: "100vh", 
+        width: "calc(100vw - 260px)", 
+        overflowX: "auto",
+        display: "flex",
+        flexDirection: "column"
+      }}>
+        {isFrozen && !user.isAdmin && dashPage !== "reports" && dashPage !== "cash" && dashPage !== "history" && (
+          <div style={{ background: s.warning, color: "#fff", padding: "10px 20px", borderRadius: 8, marginBottom: 15, textAlign: "center" }}>
+            ⚠️ {t.frozen} - {t.adminRequired}
+          </div>
+        )}
+        
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          {dashPage === "reports" && <ReportsPage {...shared} />}
+          {dashPage === "expenses" && <ExpensesPage {...shared} />}
+          {dashPage === "loans" && <LoansPage {...shared} />}
+          {dashPage === "concrete" && <ConcretePage {...shared} />}
+          {dashPage === "contractor" && <ContractorPage {...shared} />}
+          {dashPage === "exchange" && <ExchangePage {...shared} />}
+          {dashPage === "invoice" && <InvoicePage {...shared} />}
+          {dashPage === "backup" && <BackupPage {...shared} />}
+          {dashPage === "history" && <HistoryPage {...shared} />}
+          {dashPage === "monthly" && <MonthlyPage {...shared} />}
+          {dashPage === "cash" && <CashPage {...shared} user={user} />}
+          
+          {dashPage === "users" && user?.isAdmin && (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: PRIMARY }}>{t.sidebar.users}</h1>
+                <button onClick={() => { setEditUser(null); setUserForm({ username: "", password: "", project: "", label: "", isAdmin: false, isFrozen: false }); setShowUserForm(true); }} style={{ padding: "8px 16px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600 }}><I.Plus /> {t.addUser}</button>
+              </div>
+
+              {showUserForm && (
+                <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, padding: 20, marginBottom: 20 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 15, color: PRIMARY, textAlign: "center" }}>{editUser ? t.editUser : t.addUser}</h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+                    <div>
+                      <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.username}</label>
+                      <input value={userForm.username} onChange={e=>setUserForm({...userForm,username:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.password}</label>
+                      <input type="password" value={userForm.password} onChange={e=>setUserForm({...userForm,password:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.projectName}</label>
+                      <input value={userForm.project} onChange={e=>setUserForm({...userForm,project:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.userLabel}</label>
+                      <input value={userForm.label} onChange={e=>setUserForm({...userForm,label:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 15 }}>
+                      <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600 }}>{t.isAdmin}</label>
+                      <input type="checkbox" checked={userForm.isAdmin} onChange={e=>setUserForm({...userForm,isAdmin:e.target.checked})} />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 15 }}>
+                      <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600 }}>{t.freeze}</label>
+                      <input type="checkbox" checked={userForm.isFrozen} onChange={e=>setUserForm({...userForm,isFrozen:e.target.checked})} />
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "center" }}>
+                    <button onClick={handleSaveUser} style={{ padding: "8px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{editUser ? t.edit : t.save}</button>
+                    <button onClick={() => { setShowUserForm(false); setEditUser(null); }} style={{ padding: "8px 24px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, cursor: "pointer" }}>{t.cancel}</button>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+                <div style={{ overflowX: "auto", height: "100%" }}>
+                  <table style={tableStyle}>
+                    <thead>
+                      <tr>
+                        <TH isRtl={isRtl}>{t.username}</TH>
+                        <TH isRtl={isRtl}>{t.projectName}</TH>
+                        <TH isRtl={isRtl}>{t.userLabel}</TH>
+                        <TH isRtl={isRtl}>{t.isAdmin}</TH>
+                        <TH isRtl={isRtl}>{t.freeze}</TH>
+                        <TH isRtl={isRtl}></TH>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map(u => (
+                        <tr key={u.username}>
+                          <TD s={s}>{u.username}</TD>
+                          <TD s={s}>{u.project}</TD>
+                          <TD s={s}>{u.label}</TD>
+                          <TD s={s}>{u.isAdmin ? "✓" : ""}</TD>
+                          <TD s={s}>
+                            <span style={{ color: u.isFrozen ? s.danger : s.success, fontSize: 12, fontWeight: 600 }}>
+                              {u.isFrozen ? t.frozen : t.active}
+                            </span>
+                          </TD>
+                          <TD s={s}>
+                            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                              <button onClick={() => { setEditUser(u); setUserForm(u); setShowUserForm(true); }} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer" }}><I.Edit /></button>
+                              <button onClick={() => handleToggleFreeze(u.username)} style={{ background: "none", border: "none", color: u.isFrozen ? s.success : s.warning, cursor: "pointer" }}>
+                                {u.isFrozen ? <I.Check /> : <I.Freeze />}
+                              </button>
+                              {u.username !== "admin" && (
+                                <button onClick={() => handleDeleteUser(u.username)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer" }}><I.Trash /></button>
+                              )}
+                            </div>
+                          </TD>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {dashPage === "allProjects" && user?.isAdmin && (
+            <AllProjectsPage {...shared} users={users} />
+          )}
+
+          {dashPage === "messages" && user?.isAdmin && (
+            <AdminMessagesPage 
+              t={t} s={s} isRtl={isRtl} 
+              users={users} 
+              messages={messages} 
+              setMessages={setMessages}
+              showMessageModal={showMessageModal}
+              setShowMessageModal={setShowMessageModal}
+              messageForm={messageForm}
+              setMessageForm={setMessageForm}
+              onSend={handleSendMessage}
+            />
+          )}
+        </div>
       </main>
+
+      {showInbox && !user.isAdmin && (
+        <InboxModal
+          t={t} s={s} isRtl={isRtl}
+          messages={messages.filter(m => m.to.includes(user.project))}
+          onClose={() => setShowInbox(false)}
+          onMarkAsRead={markMessageAsRead}
+        />
+      )}
 
       {formatModal && (
         <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: s.bgCard, borderRadius: 14, padding: 28, maxWidth: 340, width: "100%", textAlign: "right" }}>
-            <div style={{ marginBottom: 14 }}><I.Warn /></div>
+          <div style={{ background: s.bgCard, borderRadius: 14, padding: 28, maxWidth: 340, width: "100%", textAlign: "center" }}>
+            <div style={{ marginBottom: 14, display: "flex", justifyContent: "center" }}><I.Warn /></div>
             <p style={{ fontSize: 13, marginBottom: 16, color: s.text, lineHeight: 1.6 }}>{t.formatConfirm}</p>
-            <input placeholder={t.username} value={fmtUser} onChange={e=>setFmtUser(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, marginBottom: 8, direction: "ltr" }} />
-            <input type="password" placeholder={t.password} value={fmtPass} onChange={e=>setFmtPass(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, marginBottom: 14, direction: "ltr" }} />
+            <input placeholder={t.username} value={fmtUser} onChange={e=>setFmtUser(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, marginBottom: 8, direction: "ltr", textAlign: "center" }} />
+            <input type="password" placeholder={t.password} value={fmtPass} onChange={e=>setFmtPass(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, marginBottom: 14, direction: "ltr", textAlign: "center" }} />
             <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
               <button onClick={doFormat} style={{ background: s.danger, color: "#fff", border: "none", borderRadius: 6, padding: "8px 20px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{t.delete}</button>
               <button onClick={() => setFormatModal(false)} style={{ background: s.bgCard2, color: s.text, border: `1px solid ${s.border}`, borderRadius: 6, padding: "8px 20px", fontSize: 12, cursor: "pointer" }}>{t.cancel}</button>
@@ -601,23 +1265,30 @@ function Dashboard({ t, s, isRtl, dark, lang, fontFamily, pKey, user, dashPage, 
       )}
 
       <style>{`
-        *{margin:0;padding:0;box-sizing:border-box}body{margin:0}
-        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:${PRIMARY}30;border-radius:2px}
-        input,select,textarea,button,th,td,label,span,p,div,h1,h2,h3,a{font-family:${fontFamily}!important}
-        @media print{aside,.noprint{display:none!important}main{margin:0!important;padding:8px!important;width:100%!important}}
-        @keyframes ping{0%{transform:scale(1);opacity:.6}75%,100%{transform:scale(1.6);opacity:0}}
-        @media(max-width:768px){aside{width:190px!important;min-width:190px!important}main{margin-left:190px!important;margin-right:190px!important;width:calc(100vw - 190px)!important}}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { margin: 0; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: ${PRIMARY}60; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: ${s.bgCard2}; }
+        @media print {
+          aside, .noprint { display: none !important; }
+          main { margin: 0 !important; padding: 8px !important; width: 100% !important; }
+        }
+        @keyframes ping {
+          0% { transform: scale(1); opacity: 0.6; }
+          75%, 100% { transform: scale(1.6); opacity: 0; }
+        }
+        @media (max-width: 768px) {
+          aside { width: 220px !important; min-width: 220px !important; }
+          main { margin-left: 220px !important; width: calc(100vw - 220px) !important; }
+        }
       `}</style>
     </div>
   );
 }
 
-// ==================== SHARED TABLE HEADER ====================
-const TH = ({ children, isRtl, style }) => <th style={{ padding: "10px 10px", textAlign: isRtl?"right":"left", fontWeight: 700, fontSize: 12, whiteSpace: "nowrap", background: PRIMARY, color: "#fff", position: "sticky", top: 0, ...style }}>{children}</th>;
-const TD = ({ children, s, style }) => <td style={{ ...cellStyle, borderBottomColor: s.border, ...style }}>{children}</td>;
-
 // ==================== REPORTS ====================
-function ReportsPage({ t, s, isRtl, pKey, cashIQD, cashUSD, exchangeRate }) {
+function ReportsPage({ t, s, isRtl, pKey, cashIQD, cashUSD, exchangeRate, isFrozen }) {
   const exp = getLS(`karo_exp_${pKey}`, []);
   const loans = getLS(`karo_loans_${pKey}`, []);
   const conc = getLS(`karo_conc_${pKey}`, []);
@@ -636,87 +1307,339 @@ function ReportsPage({ t, s, isRtl, pKey, cashIQD, cashUSD, exchangeRate }) {
     { label: t.totalExpIQD, val: fmt(tExpIQD)+" "+t.iqd, c: s.danger },
     { label: t.totalExpUSD, val: "$"+fmt(tExpUSD), c: s.danger },
     { label: t.totalConcreteReceived, val: fmt(tConcRec), c: s.success },
-    { label: t.totalDeposit, val: fmt(tConcDep), c: "#F59E0B" },
+    { label: t.totalDeposit, val: fmt(tConcDep), c: s.warning },
     { label: t.loanTake, val: fmt(tLoanTake), c: s.success },
     { label: t.loanGive, val: fmt(tLoanGive), c: s.danger },
   ];
 
-  const chartData = [
-    { label: t.sidebar.expenses, val: tExpIQD, c: s.danger },
-    { label: t.totalConcreteReceived, val: tConcRec, c: s.success },
-    { label: t.totalDeposit, val: tConcDep, c: "#F59E0B" },
-    { label: t.loanTake, val: tLoanTake, c: PRIMARY },
-    { label: t.loanGive, val: tLoanGive, c: "#8B5CF6" },
-  ];
-  const maxVal = Math.max(...chartData.map(d => d.val), 1);
-
   return (
-    <div>
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: PRIMARY }}>{t.reportsTitle}</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginBottom: 24 }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20, color: PRIMARY, textAlign: "center" }}>{t.reportsTitle}</h1>
+      {isFrozen && (
+        <div style={{ background: s.warning, color: "#fff", padding: "8px 16px", borderRadius: 6, marginBottom: 15, textAlign: "center", fontSize: 13 }}>
+          ⚠️ {t.frozen} - {t.adminRequired}
+        </div>
+      )}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 15 }}>
         {cards.map((c, i) => (
-          <div key={i} style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 16, borderTop: `3px solid ${c.c}`, textAlign: "right" }}>
-            <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, marginBottom: 6 }}>{c.label}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: c.c, direction: "ltr" }}>{c.val}</div>
+          <div key={i} style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, borderTop: `4px solid ${c.c}`, textAlign: "center" }}>
+            <div style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, marginBottom: 10 }}>{c.label}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: c.c, direction: "ltr" }}>{c.val}</div>
           </div>
         ))}
       </div>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: PRIMARY }}>Report Chart</h3>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 16, height: 200, paddingBottom: 30, position: "relative" }}>
-          {chartData.map((d, i) => (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: d.c }}>{fmt(d.val)}</span>
-              <div style={{ width: "100%", maxWidth: 60, height: `${Math.max((d.val / maxVal) * 160, 4)}px`, background: `linear-gradient(180deg, ${d.c}, ${d.c}90)`, borderRadius: "6px 6px 0 0", transition: "height 0.5s" }} />
-              <span style={{ fontSize: 9, color: s.textMuted, textAlign: "right", lineHeight: 1.2 }}>{d.label}</span>
-            </div>
-          ))}
+    </div>
+  );
+}
+
+// ==================== ALL PROJECTS PAGE ====================
+function AllProjectsPage({ t, s, isRtl, users }) {
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [search, setSearch] = useState("");
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const allData = [];
+    users.filter(u => !u.isAdmin).forEach(user => {
+      const pKey = user.project;
+      const exp = getLS(`karo_exp_${pKey}`, []);
+      const conc = getLS(`karo_conc_${pKey}`, []);
+      
+      exp.forEach(e => {
+        allData.push({
+          ...e,
+          project: user.label,
+          projectKey: pKey,
+          type: "expense"
+        });
+      });
+      
+      conc.forEach(c => {
+        allData.push({
+          ...c,
+          project: user.label,
+          projectKey: pKey,
+          type: "concrete"
+        });
+      });
+    });
+    setData(allData);
+  }, [users]);
+
+  const months = [...new Set(data.map(i => i.date?.slice(0,7)))].sort().reverse();
+  
+  const filtered = data.filter(i => {
+    if (search && !Object.values(i).some(v => String(v||"").toLowerCase().includes(search.toLowerCase()))) return false;
+    if (selectedMonth && !i.date?.startsWith(selectedMonth)) return false;
+    return true;
+  });
+
+  const totalIQD = filtered.reduce((a,b) => a + Number(b.amountIQD||0), 0);
+  const totalUSD = filtered.reduce((a,b) => a + Number(b.amountUSD||0), 0);
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <StickyHeader s={s}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 15, color: PRIMARY, textAlign: "center" }}>{t.sidebar.allProjects}</h1>
+        
+        <div style={{ display: "flex", gap: 15, marginBottom: 15, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "10px 20px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 12 }}>{t.totalExpIQD}: </span>
+            <strong style={{ color: s.danger, fontSize: 16 }}>{fmt(totalIQD)}</strong>
+          </div>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "10px 20px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 12 }}>{t.totalExpUSD}: </span>
+            <strong style={{ color: s.danger, fontSize: 16 }}>${fmt(totalUSD)}</strong>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, marginBottom: 15, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ flex: 1, minWidth: 250 }}>
+            <input 
+              value={search} 
+              onChange={e=>setSearch(e.target.value)} 
+              placeholder={t.search}
+              style={{ width: "100%", padding: "10px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, outline: "none", textAlign: "center" }} 
+            />
+          </div>
+          <div>
+            <select value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)} style={{ padding: "10px 20px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center", minWidth: 140 }}>
+              <option value="">{t.allMonths}</option>
+              {months.map(m=><option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+        </div>
+      </StickyHeader>
+
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <div style={{ overflowX: "auto", height: "100%" }}>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl}>{t.projectName}</TH>
+                <TH isRtl={isRtl}>{t.type}</TH>
+                <TH isRtl={isRtl}>{t.amountIQD}</TH>
+                <TH isRtl={isRtl}>{t.amountUSD}</TH>
+                <TH isRtl={isRtl}>{t.note}</TH>
+                <TH isRtl={isRtl}>{t.date}</TH>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(item => (
+                <tr key={item.id}>
+                  <TD s={s} style={{ fontWeight: 600, color: PRIMARY }}>{item.project}</TD>
+                  <TD s={s}>
+                    <span style={{ padding: "3px 8px", borderRadius: 12, fontSize: 11, fontWeight: 600, background: item.type === "expense" ? "#FEE2E2" : "#D1FAE5", color: item.type === "expense" ? "#EF4444" : "#059669" }}>
+                      {item.type === "expense" ? t.expense : t.concrete}
+                    </span>
+                  </TD>
+                  <TD s={s} style={{ direction: "ltr" }}>{Number(item.amountIQD)?fmt(item.amountIQD):"—"}</TD>
+                  <TD s={s} style={{ direction: "ltr" }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
+                  <TD s={s}>{item.note || "—"}</TD>
+                  <TD s={s} style={{ direction: "ltr" }}>{item.date}</TD>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length === 0 && <div style={{ padding: 50, textAlign: "center", color: s.textMuted }}>{t.noData}</div>}
         </div>
       </div>
     </div>
   );
 }
 
+// ==================== ADMIN MESSAGES PAGE ====================
+function AdminMessagesPage({ t, s, isRtl, users, messages, setMessages, showMessageModal, setShowMessageModal, messageForm, setMessageForm, onSend }) {
+  const nonAdminUsers = users.filter(u => !u.isAdmin);
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: PRIMARY }}>{t.sidebar.messages}</h1>
+        <button onClick={() => setShowMessageModal(true)} style={{ padding: "8px 16px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 5 }}>
+          <I.Send /> {t.sendMessage}
+        </button>
+      </div>
+
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <div style={{ overflowX: "auto", height: "100%" }}>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl}>{t.date}</TH>
+                <TH isRtl={isRtl}>{t.to}</TH>
+                <TH isRtl={isRtl}>{t.message}</TH>
+                <TH isRtl={isRtl}>{t.status}</TH>
+              </tr>
+            </thead>
+            <tbody>
+              {messages.map(msg => (
+                <tr key={msg.id}>
+                  <TD s={s} style={{ direction: "ltr" }}>{msg.date} {msg.time}</TD>
+                  <TD s={s}>
+                    {msg.to.map(p => {
+                      const user = users.find(u => u.project === p);
+                      return user ? user.label : p;
+                    }).join(", ")}
+                  </TD>
+                  <TD s={s} style={{ maxWidth: 300 }}>{msg.text}</TD>
+                  <TD s={s}>
+                    {msg.read ? (
+                      <span style={{ color: s.success }}>{t.read}</span>
+                    ) : (
+                      <span style={{ color: s.warning }}>{t.unread}</span>
+                    )}
+                  </TD>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {messages.length === 0 && <div style={{ padding: 50, textAlign: "center", color: s.textMuted }}>{t.noData}</div>}
+        </div>
+      </div>
+
+      {showMessageModal && (
+        <EditModal title={t.newMessage} onSave={onSend} onCancel={() => { setShowMessageModal(false); setMessageForm({ to: [], text: "" }); }} s={s} t={t}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.selectProjects}</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", maxHeight: 150, overflowY: "auto", padding: 10, border: `1px solid ${s.border}`, borderRadius: 6 }}>
+                {nonAdminUsers.map(u => (
+                  <label key={u.project} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", background: messageForm.to.includes(u.project) ? `${PRIMARY}20` : s.bgCard2, borderRadius: 20, cursor: "pointer" }}>
+                    <input 
+                      type="checkbox" 
+                      value={u.project} 
+                      checked={messageForm.to.includes(u.project)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setMessageForm({ ...messageForm, to: [...messageForm.to, u.project] });
+                        } else {
+                          setMessageForm({ ...messageForm, to: messageForm.to.filter(p => p !== u.project) });
+                        }
+                      }}
+                      style={{ marginRight: 3 }}
+                    />
+                    {u.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.message}</label>
+              <textarea 
+                value={messageForm.text} 
+                onChange={e => setMessageForm({ ...messageForm, text: e.target.value })}
+                rows={4}
+                style={{ width: "100%", padding: "10px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, resize: "vertical" }}
+              />
+            </div>
+          </div>
+        </EditModal>
+      )}
+    </div>
+  );
+}
+
+// ==================== INBOX MODAL ====================
+function InboxModal({ t, s, isRtl, messages, onClose, onMarkAsRead }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: s.bgCard, borderRadius: 16, padding: 24, maxWidth: 600, width: "100%", maxHeight: "80vh", overflowY: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: PRIMARY }}>{t.inbox}</h3>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20 }}><I.X /></button>
+        </div>
+        
+        {messages.length === 0 ? (
+          <p style={{ textAlign: "center", color: s.textMuted, padding: 30 }}>{t.noData}</p>
+        ) : (
+          messages.map(msg => (
+            <div key={msg.id} style={{ 
+              padding: 15, 
+              marginBottom: 10, 
+              background: msg.read ? s.bgCard2 : `${PRIMARY}10`, 
+              borderRadius: 8,
+              borderLeft: msg.read ? "none" : `3px solid ${PRIMARY}`
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 11, color: s.textMuted }}>{msg.date} {msg.time}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: PRIMARY }}>{t.fromAdmin}</span>
+              </div>
+              <p style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>{msg.text}</p>
+              {!msg.read && (
+                <button 
+                  onClick={() => onMarkAsRead(msg.id)}
+                  style={{ padding: "4px 12px", borderRadius: 4, border: "none", background: PRIMARY, color: "#fff", fontSize: 11, cursor: "pointer" }}
+                >
+                  {t.markAsRead}
+                </button>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ==================== EXPENSES ====================
-function ExpensesPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
+function ExpensesPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog, isFrozen }) {
   const KEY = `karo_exp_${pKey}`;
   const [items, setItems] = useState(getLS(KEY, []));
   const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState(null);
+  const [editItem, setEditItem] = useState(null);
   const [form, setForm] = useState({ amountIQD: "", amountUSD: "", receiptNo: "", note: "", date: today(), receiptImg: "" });
-  const [search, setSearch] = useState(""); const [filterMonth, setFilterMonth] = useState("");
+  const [search, setSearch] = useState(""); 
+  const [filterMonth, setFilterMonth] = useState("");
   const [showMarkedOnly, setShowMarkedOnly] = useState(false);
-  const [alert, setAlert] = useState(null); const [sizeModal, setSizeModal] = useState(null); const [imgPreview, setImgPreview] = useState(null);
+  const [alert, setAlert] = useState(null); 
+  const [sizeModal, setSizeModal] = useState(null); 
+  const [imgPreview, setImgPreview] = useState(null);
   const [confirmDel, setConfirmDel] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => { setLS(KEY, items); }, [items, KEY]);
 
   const months = [...new Set(items.map(i => i.date?.slice(0,7)))].sort().reverse();
+  
   const filtered = items.filter(i => {
     if (search && !Object.values(i).some(v => String(v||"").toLowerCase().includes(search.toLowerCase()))) return false;
     if (filterMonth && !i.date?.startsWith(filterMonth)) return false;
     if (showMarkedOnly && !i.marked) return false;
     return true;
   });
+  
   const totalIQD = filtered.reduce((a,b) => a+Number(b.amountIQD||0), 0);
   const totalUSD = filtered.reduce((a,b) => a+Number(b.amountUSD||0), 0);
 
-  const resetForm = () => { setForm({ amountIQD: "", amountUSD: "", receiptNo: "", note: "", date: today(), receiptImg: "" }); setEditId(null); };
+  const resetForm = () => { 
+    setForm({ amountIQD: "", amountUSD: "", receiptNo: "", note: "", date: today(), receiptImg: "" }); 
+    setEditItem(null); 
+  };
 
   const handleSave = () => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
     const iqd = Number(form.amountIQD||0), usd = Number(form.amountUSD||0);
     if (iqd === 0 && usd === 0) return;
-    if (editId) {
-      const old = items.find(i => i.id === editId);
+    
+    if (editItem) {
+      const old = items.find(i => i.id === editItem.id);
       if (old) {
         const diffIQD = Number(old.amountIQD||0) - iqd;
         const diffUSD = Number(old.amountUSD||0) - usd;
         if (diffIQD < 0 && Math.abs(diffIQD) > cashIQD) { setAlert(t.noBalance); return; }
         if (diffUSD < 0 && Math.abs(diffUSD) > cashUSD) { setAlert(t.noBalance); return; }
-        setCashIQD(prev => prev + diffIQD); setCashUSD(prev => prev + diffUSD);
+        setCashIQD(prev => prev + diffIQD); 
+        setCashUSD(prev => prev + diffUSD);
         addCashLog(`${t.edit} ${t.sidebar.expenses}`, diffIQD, diffUSD);
       }
-      setItems(prev => prev.map(i => i.id === editId ? { ...i, ...form } : i));
+      setItems(prev => prev.map(i => i.id === editItem.id ? { ...i, ...form } : i));
+      setEditModalOpen(false);
     } else {
       if (iqd > 0 && cashIQD < iqd) { setAlert(t.noBalance); return; }
       if (usd > 0 && cashUSD < usd) { setAlert(t.noBalance); return; }
@@ -724,79 +1647,124 @@ function ExpensesPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
       if (iqd > 0) setCashIQD(prev => prev - iqd);
       if (usd > 0) setCashUSD(prev => prev - usd);
       addCashLog(`${t.sidebar.expenses}: ${form.note||form.receiptNo}`, -iqd, -usd);
+      setShowForm(false);
     }
-    resetForm(); setShowForm(false);
+    resetForm(); 
   };
 
   const doDelete = (id) => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
     const item = items.find(i => i.id === id);
-    if (item) { setCashIQD(prev => prev + Number(item.amountIQD||0)); setCashUSD(prev => prev + Number(item.amountUSD||0)); addCashLog(`${t.delete} ${t.sidebar.expenses}`, Number(item.amountIQD||0), Number(item.amountUSD||0)); }
+    if (item) { 
+      setCashIQD(prev => prev + Number(item.amountIQD||0)); 
+      setCashUSD(prev => prev + Number(item.amountUSD||0)); 
+      addCashLog(`${t.delete} ${t.sidebar.expenses}`, Number(item.amountIQD||0), Number(item.amountUSD||0)); 
+    }
     setItems(prev => prev.filter(i => i.id !== id));
     setConfirmDel(null);
   };
 
-  const handleEdit = (item) => { setForm(item); setEditId(item.id); setShowForm(true); };
+  const handleEdit = (item) => { 
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    setForm(item); 
+    setEditItem(item); 
+    setEditModalOpen(true); 
+  };
+  
   const toggleMark = id => setItems(prev => prev.map(i => i.id===id ? {...i, marked: !i.marked} : i));
 
-  const handleImgUpload = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => setForm(prev => ({...prev, receiptImg: ev.target.result})); r.readAsDataURL(f); };
+  const handleImgUpload = e => { 
+    const f = e.target.files[0]; 
+    if (!f) return; 
+    const r = new FileReader(); 
+    r.onload = ev => setForm(prev => ({...prev, receiptImg: ev.target.result})); 
+    r.readAsDataURL(f); 
+  };
 
   const handleImportExcel = e => {
-    const file = e.target.files[0]; if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
+    
     const reader = new FileReader();
-    reader.onload = ev => {
+    reader.onload = (ev) => {
       const text = ev.target.result;
       const lines = text.split("\n").filter(l => l.trim());
       if (lines.length < 2) return;
-      const header = lines[0].split(",").map(c => c.replace(/"/g, "").trim().toLowerCase());
-      const findCol = (keywords) => {
-        for (let i = 0; i < header.length; i++) {
+      
+      const headers = lines[0].split(",").map(h => h.replace(/"/g, "").trim().toLowerCase());
+      
+      const findIndex = (keywords) => {
+        for (let i = 0; i < headers.length; i++) {
           for (const kw of keywords) {
-            if (header[i].includes(kw)) return i;
+            if (headers[i].includes(kw)) return i;
           }
         }
         return -1;
       };
-      const iIQD = findCol(["دینار", "dinar", "iqd", "بری پارە دینار", "بڕ بە دینار"]);
-      const iUSD = findCol(["دۆلار", "dollar", "usd", "بری پارە دۆلار", "بڕ بە دۆلار"]);
-      const iReceipt = findCol(["وەسڵ", "receipt", "ژمارە"]);
-      const iNote = findCol(["تێبینی", "note", "ملاحظ"]);
-      const iDate = findCol(["بەروار", "date", "تاريخ"]);
-
+      
+      const iqdIdx = findIndex(["دینار", "iqd", "amount iqd", "بڕ بە دینار"]);
+      const usdIdx = findIndex(["دۆلار", "usd", "amount usd", "بڕ بە دۆلار"]);
+      const receiptIdx = findIndex(["وەسڵ", "receipt", "ژمارە"]);
+      const noteIdx = findIndex(["تێبینی", "note", "ملاحظة"]);
+      const dateIdx = findIndex(["بەروار", "date", "تاریخ"]);
+      
       const newItems = [];
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split(",").map(c => c.replace(/"/g, "").trim());
         if (cols.length < 2) continue;
-
-        const amtIQD = iIQD >= 0 ? cols[iIQD] || "" : "";
-        const amtUSD = iUSD >= 0 ? cols[iUSD] || "" : "";
-        const receipt = iReceipt >= 0 ? cols[iReceipt] || "" : "";
-        const note = iNote >= 0 ? cols[iNote] || "" : "";
-        let dateVal = iDate >= 0 ? cols[iDate] || "" : "";
-
-        if (dateVal) {
-          const parts = dateVal.split("/");
+        
+        const amountIQD = iqdIdx >= 0 ? Number(cols[iqdIdx]?.replace(/[^0-9.-]/g, "") || 0) : 0;
+        const amountUSD = usdIdx >= 0 ? Number(cols[usdIdx]?.replace(/[^0-9.-]/g, "") || 0) : 0;
+        const receiptNo = receiptIdx >= 0 ? cols[receiptIdx] || "" : "";
+        let note = noteIdx >= 0 ? cols[noteIdx] || "" : "";
+        let date = dateIdx >= 0 ? cols[dateIdx] || "" : today();
+        
+        if (date.includes("/")) {
+          const parts = date.split("/");
           if (parts.length === 3) {
-            const d = parts[0].padStart(2,"0");
-            const m = parts[1].padStart(2,"0");
-            const y = parts[2].length === 2 ? "20" + parts[2] : parts[2];
-            dateVal = `${y}-${m}-${d}`;
+            date = `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
           }
         }
-        if (!dateVal || !/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) dateVal = today();
-
-        const iqd = Number(amtIQD.replace(/[^0-9.-]/g, "") || 0);
-        const usd = Number(amtUSD.replace(/[^0-9.-]/g, "") || 0);
-
-        const item = { id: genId(), amountIQD: iqd || "", amountUSD: usd || "", receiptNo: receipt, note: note, date: dateVal, receiptImg: "", marked: false };
-        newItems.push(item);
-        if (iqd > 0) setCashIQD(prev => prev - iqd);
-        if (usd > 0) setCashUSD(prev => prev - usd);
-        addCashLog(`${t.importExcel}: ${note||receipt}`, iqd > 0 ? -iqd : 0, usd > 0 ? -usd : 0);
+        
+        if (amountIQD > 0 || amountUSD > 0) {
+          newItems.push({
+            id: genId(),
+            amountIQD: amountIQD || "",
+            amountUSD: amountUSD || "",
+            receiptNo,
+            note,
+            date,
+            receiptImg: "",
+            marked: false
+          });
+          
+          if (amountIQD > 0 && cashIQD < amountIQD) {
+            setAlert(t.noBalance);
+            return;
+          }
+          if (amountUSD > 0 && cashUSD < amountUSD) {
+            setAlert(t.noBalance);
+            return;
+          }
+          
+          if (amountIQD > 0) setCashIQD(prev => prev - amountIQD);
+          if (amountUSD > 0) setCashUSD(prev => prev - amountUSD);
+          addCashLog(`${t.importExcel}: ${note || receiptNo}`, -amountIQD, -amountUSD);
+        }
       }
+      
       setItems(prev => [...newItems, ...prev]);
+      e.target.value = "";
     };
+    
     reader.readAsText(file);
-    e.target.value = "";
   };
 
   const doExport = (type, size) => {
@@ -809,81 +1777,169 @@ function ExpensesPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>{t.sidebar.expenses}</h1>
-        <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-          <label style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, cursor: "pointer", fontSize: 11, color: s.text }}><I.Upload /> {t.importExcel}<input type="file" accept=".csv,.txt" onChange={handleImportExcel} style={{ display: "none" }} /></label>
-          <button onClick={() => setSizeModal({type:"pdf"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.File /> {t.savePDF}</button>
-          <button onClick={() => setSizeModal({type:"excel"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.Download /> {t.saveExcel}</button>
-          <button onClick={() => { setShowForm(!showForm); resetForm(); }} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <StickyHeader s={s}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 15, flexWrap: "wrap", gap: 10 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: PRIMARY, textAlign: "center" }}>{t.sidebar.expenses}</h1>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              accept=".csv,.txt" 
+              onChange={handleImportExcel} 
+              style={{ display: "none" }} 
+            />
+            <button onClick={() => fileInputRef.current?.click()} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}>
+              <I.Upload /> {t.importExcel}
+            </button>
+            <button onClick={() => setSizeModal({type:"pdf"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.File /> {t.savePDF}</button>
+            <button onClick={() => setSizeModal({type:"excel"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.Download /> {t.saveExcel}</button>
+            {!isFrozen && (
+              <button onClick={() => { setShowForm(!showForm); resetForm(); }} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
-        <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "6px 14px", fontSize: 12 }}><span style={{ color: s.textMuted }}>{t.total} {t.iqd}: </span><strong style={{ color: PRIMARY }}>{fmt(totalIQD)}</strong></div>
-        <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "6px 14px", fontSize: 12 }}><span style={{ color: s.textMuted }}>{t.total} {t.usd}: </span><strong style={{ color: PRIMARY }}>${fmt(totalUSD)}</strong></div>
-      </div>
+        <div style={{ display: "flex", gap: 15, marginBottom: 15, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.total} {t.iqd}: </span>
+            <strong style={{ color: PRIMARY, fontSize: 15 }}>{fmt(totalIQD)}</strong>
+          </div>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.total} {t.usd}: </span>
+            <strong style={{ color: PRIMARY, fontSize: 15 }}>${fmt(totalUSD)}</strong>
+          </div>
+        </div>
 
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, padding: 10, marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
-        <div style={{ flex: 1, minWidth: 140 }}><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.search}</label><input value={search} onChange={e=>setSearch(e.target.value)} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, outline: "none" }} /></div>
-        <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.filterMonth}</label><select value={filterMonth} onChange={e=>setFilterMonth(e.target.value)} style={{ padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }}><option value="">{t.allMonths}</option>{months.map(m=><option key={m} value={m}>{m}</option>)}</select></div>
-        {showMarkedOnly
-          ? <button onClick={() => { setShowMarkedOnly(false); setItems(prev => prev.map(i => ({...i, marked: false}))); }} style={{ padding: "6px 12px", borderRadius: 6, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
-          : <button onClick={() => setShowMarkedOnly(true)} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11, cursor: "pointer" }}>{t.showMarked}</button>
-        }
-      </div>
+        <div style={{ display: "flex", gap: 10, marginBottom: 15, flexWrap: "wrap", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.search} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, outline: "none", textAlign: "center" }} />
+          </div>
+          <div>
+            <select value={filterMonth} onChange={e=>setFilterMonth(e.target.value)} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center", minWidth: 120 }}>
+              <option value="">{t.allMonths}</option>
+              {months.map(m=><option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+          {showMarkedOnly
+            ? <button onClick={() => { setShowMarkedOnly(false); setItems(prev => prev.map(i => ({...i, marked: false}))); }} style={{ padding: "8px 16px", borderRadius: 6, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
+            : <button onClick={() => setShowMarkedOnly(true)} style={{ padding: "8px 16px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.showMarked}</button>
+          }
+        </div>
+      </StickyHeader>
 
-      {showForm && (
-        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8 }}>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.amountIQD}</label><input type="number" value={form.amountIQD} onChange={e=>setForm({...form, amountIQD: e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.amountUSD}</label><input type="number" value={form.amountUSD} onChange={e=>setForm({...form, amountUSD: e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.receiptNo}</label><input value={form.receiptNo} onChange={e=>setForm({...form, receiptNo: e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.note}</label><input value={form.note} onChange={e=>setForm({...form, note: e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.date}</label><input type="date" value={form.date} onChange={e=>setForm({...form, date: e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.receiptImg}</label><label style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 10px", borderRadius: 6, border: `1px dashed ${s.border}`, background: s.bgCard2, cursor: "pointer", fontSize: 11, color: s.textMuted }}><I.Upload /> {t.receiptImg}<input type="file" accept="image/*" onChange={handleImgUpload} style={{ display: "none" }} /></label>
-              {form.receiptImg && <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 3 }}><img src={form.receiptImg} alt="" style={{ width: 32, height: 32, objectFit: "cover", borderRadius: 3 }} /><button onClick={()=>setForm(p=>({...p,receiptImg:""}))} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", fontSize: 10 }}>{t.removeImg}</button></div>}
+      {!isFrozen && showForm && (
+        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 20, marginBottom: 15 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 15, color: PRIMARY, textAlign: "center" }}>{t.add}</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.amountIQD}</label>
+              <input type="number" value={form.amountIQD} onChange={e=>setForm({...form, amountIQD: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.amountUSD}</label>
+              <input type="number" value={form.amountUSD} onChange={e=>setForm({...form, amountUSD: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.receiptNo}</label>
+              <input value={form.receiptNo} onChange={e=>setForm({...form, receiptNo: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form, note: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form, date: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.receiptImg}</label>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 12px", borderRadius: 6, border: `1px dashed ${s.border}`, background: s.bgCard2, cursor: "pointer", fontSize: 12, color: s.textMuted, justifyContent: "center" }}>
+                <I.Upload /> {t.receiptImg}
+                <input type="file" accept="image/*" onChange={handleImgUpload} style={{ display: "none" }} />
+              </label>
+              {form.receiptImg && <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 8, justifyContent: "center" }}>
+                <img src={form.receiptImg} alt="" style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 4 }} />
+                <button onClick={()=>setForm(p=>({...p,receiptImg:""}))} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", fontSize: 11 }}>{t.removeImg}</button>
+              </div>}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-            <button onClick={handleSave} style={{ padding: "7px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{editId ? t.edit : t.save}</button>
-            <button onClick={()=>{setShowForm(false);resetForm()}} style={{ padding: "7px 18px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.cancel}</button>
+          <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "center" }}>
+            <button onClick={handleSave} style={{ padding: "8px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t.save}</button>
+            <button onClick={()=>{setShowForm(false);resetForm()}} style={{ padding: "8px 24px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, cursor: "pointer" }}>{t.cancel}</button>
           </div>
         </div>
       )}
 
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <div style={{ overflowX: "auto", height: "100%" }}>
           <table style={tableStyle}>
-            <thead><tr>
-              <TH isRtl={isRtl}>{t.amountIQD}</TH>
-              <TH isRtl={isRtl}>{t.amountUSD}</TH>
-              <TH isRtl={isRtl}>{t.receiptNo}</TH>
-              <TH isRtl={isRtl}>{t.note}</TH>
-              <TH isRtl={isRtl}>{t.date}</TH>
-              <TH isRtl={isRtl}>{t.receiptImg}</TH>
-              <TH isRtl={isRtl}>{t.mark}</TH>
-              <TH isRtl={isRtl}></TH>
-            </tr></thead>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}>{t.amountIQD}</TH>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}>{t.amountUSD}</TH>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}>{t.receiptNo}</TH>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}>{t.note}</TH>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}>{t.date}</TH>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}>{t.receiptImg}</TH>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}>{t.mark}</TH>
+                <TH isRtl={isRtl} style={{ textAlign: "center" }}></TH>
+              </tr>
+            </thead>
             <tbody>
               {filtered.map(item => (
-                <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent" }}>
+                <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent", textAlign: "center" }}>
                   <TD s={s} style={{ direction: "ltr", fontWeight: 600, minWidth: 90 }}>{Number(item.amountIQD)?fmt(item.amountIQD):"—"}</TD>
-                  <TD s={s} style={{ direction: "ltr", textAlign: "center", fontWeight: 600, minWidth: 80 }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
-                  <TD s={s} style={{ textAlign: "center", minWidth: 80 }}>{item.receiptNo || "—"}</TD>
-                  <TD s={s} style={{ textAlign: "center", minWidth: 120, maxWidth: 200 }} title={item.note}>{trunc(item.note, 30) || "—"}</TD>
+                  <TD s={s} style={{ direction: "ltr", fontWeight: 600, minWidth: 80 }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
+                  <TD s={s} style={{ minWidth: 80 }}>{item.receiptNo || "—"}</TD>
+                  <TD s={s} style={{ minWidth: 120, maxWidth: 200 }} title={item.note}>{trunc(item.note, 30) || "—"}</TD>
                   <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
-                  <TD s={s} style={{ textAlign: "center", minWidth: 40 }}>{item.receiptImg ? <img src={item.receiptImg} alt="" style={{ width: 24, height: 24, objectFit: "cover", borderRadius: 3, cursor: "pointer" }} onClick={()=>setImgPreview(item.receiptImg)} /> : "—"}</TD>
-                  <TD s={s} style={{ textAlign: "center", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
-                  <TD s={s} style={{ textAlign: "center", minWidth: 50 }}><div style={{ display: "flex", gap: 3, justifyContent: "center" }}><button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button><button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button></div></TD>
+                  <TD s={s} style={{ minWidth: 40 }}>{item.receiptImg ? <img src={item.receiptImg} alt="" style={{ width: 28, height: 28, objectFit: "cover", borderRadius: 4, cursor: "pointer", margin: "0 auto" }} onClick={()=>setImgPreview(item.receiptImg)} /> : "—"}</TD>
+                  <TD s={s} style={{ minWidth: 35 }}>
+                    <button onClick={()=>toggleMark(item.id)} style={{ width: 22, height: 22, borderRadius: 4, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", margin: "0 auto" }}>
+                      {item.marked&&<I.Check />}
+                    </button>
+                  </TD>
+                  <TD s={s} style={{ minWidth: 60 }}>
+                    <div style={{ display: "flex", gap: 5, justifyContent: "center" }}>
+                      <button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button>
+                      <button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button>
+                    </div>
+                  </TD>
                 </tr>
               ))}
             </tbody>
           </table>
-          {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+          {filtered.length===0 && <div style={{ padding: 40, textAlign: "center", color: s.textMuted, fontSize: 13 }}>{t.noData}</div>}
         </div>
       </div>
+
+      {editModalOpen && (
+        <EditModal title={t.edit} onSave={handleSave} onCancel={() => { setEditModalOpen(false); resetForm(); }} s={s} t={t}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.amountIQD}</label>
+              <input type="number" value={form.amountIQD} onChange={e=>setForm({...form, amountIQD: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.amountUSD}</label>
+              <input type="number" value={form.amountUSD} onChange={e=>setForm({...form, amountUSD: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.receiptNo}</label>
+              <input value={form.receiptNo} onChange={e=>setForm({...form, receiptNo: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form, note: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form, date: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+          </div>
+        </EditModal>
+      )}
 
       {alert && <AlertModal message={alert} onOk={()=>{setAlert(null);resetForm();setShowForm(false)}} s={s} />}
       {confirmDel && <ConfirmModal message={t.confirmDelete} onYes={()=>doDelete(confirmDel)} onNo={()=>setConfirmDel(null)} s={s} t={t} />}
@@ -893,38 +1949,175 @@ function ExpensesPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
   );
 }
 
+// ==================== CASH ====================
+function CashPage({ t, s, isRtl, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, cashLog, user }) {
+  const [editIQD, setEditIQD] = useState(false); 
+  const [editUSD, setEditUSD] = useState(false);
+  const [tmpIQD, setTmpIQD] = useState(cashIQD); 
+  const [tmpUSD, setTmpUSD] = useState(cashUSD);
+  const [adminModal, setAdminModal] = useState(false);
+  const [editType, setEditType] = useState(null);
+
+  const handleEditClick = (type) => {
+    if (user?.isAdmin) {
+      if (type === 'iqd') {
+        setEditIQD(true);
+        setTmpIQD(cashIQD);
+      } else {
+        setEditUSD(true);
+        setTmpUSD(cashUSD);
+      }
+    } else {
+      setEditType(type);
+      setAdminModal(true);
+    }
+  };
+
+  const handleAdminConfirm = () => {
+    setAdminModal(false);
+    if (editType === 'iqd') {
+      setEditIQD(true);
+      setTmpIQD(cashIQD);
+    } else {
+      setEditUSD(true);
+      setTmpUSD(cashUSD);
+    }
+  };
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20, color: PRIMARY, textAlign: "center" }}>{t.sidebar.cash}</h1>
+      
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 15, marginBottom: 20 }}>
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", borderTop: `4px solid ${s.success}` }} onClick={() => handleEditClick('iqd')}>
+          <div style={{ fontSize: 13, color: s.textMuted, fontWeight: 600, marginBottom: 8 }}>{t.cashIQD}</div>
+          {editIQD ? (
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <input type="number" value={tmpIQD} onChange={e=>setTmpIQD(Number(e.target.value))} style={{ width: 140, padding: "8px 12px", borderRadius: 6, border: `1px solid ${PRIMARY}`, background: s.bgCard2, color: s.text, fontSize: 16, textAlign: "center", direction: "ltr" }} autoFocus />
+              <button onClick={e=>{e.stopPropagation();setCashIQD(tmpIQD);setEditIQD(false)}} style={{ padding: "8px 16px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 13, cursor: "pointer" }}>{t.save}</button>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 26, fontWeight: 800, color: cashIQD>=0?s.success:s.danger, direction: "ltr" }}>{fmt(cashIQD)}</div>
+              <div style={{ fontSize: 11, color: s.textMuted, marginTop: 5 }}>{t.clickToChange}</div>
+            </>
+          )}
+        </div>
+        
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", borderTop: `4px solid ${s.success}` }} onClick={() => handleEditClick('usd')}>
+          <div style={{ fontSize: 13, color: s.textMuted, fontWeight: 600, marginBottom: 8 }}>{t.cashUSD}</div>
+          {editUSD ? (
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <input type="number" value={tmpUSD} onChange={e=>setTmpUSD(Number(e.target.value))} style={{ width: 140, padding: "8px 12px", borderRadius: 6, border: `1px solid ${PRIMARY}`, background: s.bgCard2, color: s.text, fontSize: 16, textAlign: "center", direction: "ltr" }} autoFocus />
+              <button onClick={e=>{e.stopPropagation();setCashUSD(tmpUSD);setEditUSD(false)}} style={{ padding: "8px 16px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 13, cursor: "pointer" }}>{t.save}</button>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 26, fontWeight: 800, color: cashUSD>=0?s.success:s.danger, direction: "ltr" }}>${fmt(cashUSD)}</div>
+              <div style={{ fontSize: 11, color: s.textMuted, marginTop: 5 }}>{t.clickToChange}</div>
+            </>
+          )}
+        </div>
+        
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", borderTop: `4px solid ${PRIMARY}` }}>
+          <div style={{ fontSize: 13, color: s.textMuted, fontWeight: 600, marginBottom: 8 }}>{t.totalInIQD}</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: PRIMARY, direction: "ltr" }}>{fmt(Math.round(cashIQD+cashUSD*exchangeRate))}</div>
+          <div style={{ fontSize: 12, color: s.textMuted, marginTop: 5 }}>1$ = {fmt(exchangeRate)} {t.iqd}</div>
+        </div>
+      </div>
+
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <h3 style={{ padding: "15px 15px 5px", fontSize: 16, fontWeight: 700, textAlign: "center", marginBottom: 5 }}>{t.cashLog}</h3>
+        <div style={{ overflowX: "auto", height: "calc(100% - 50px)" }}>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl}>{t.date}</TH>
+                <TH isRtl={isRtl}>{t.type}</TH>
+                <TH isRtl={isRtl}>{t.iqd}</TH>
+                <TH isRtl={isRtl}>{t.usd}</TH>
+              </tr>
+            </thead>
+            <tbody>
+              {[...cashLog].reverse().map(log => (
+                <tr key={log.id} style={{ textAlign: "center" }}>
+                  <TD s={s} style={{ direction: "ltr", fontSize: 12, minWidth: 85 }}>{log.date} {log.time}</TD>
+                  <TD s={s} style={{ minWidth: 200 }}>{log.desc}</TD>
+                  <TD s={s} style={{ direction: "ltr", color: log.iqd>=0?s.success:s.danger, fontWeight: 600, minWidth: 80 }}>
+                    {log.iqd>=0?"+":""}{fmt(log.iqd)}
+                  </TD>
+                  <TD s={s} style={{ direction: "ltr", color: log.usd>=0?s.success:s.danger, fontWeight: 600, minWidth: 70 }}>
+                    {log.usd>=0?"+":""}${fmt(log.usd)}
+                  </TD>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {cashLog.length === 0 && <div style={{ padding: 40, textAlign: "center", color: s.textMuted }}>{t.noData}</div>}
+        </div>
+      </div>
+
+      {adminModal && (
+        <AdminModal 
+          message={t.enterAdminCredentials} 
+          onConfirm={handleAdminConfirm} 
+          onCancel={() => setAdminModal(false)} 
+          s={s} 
+          t={t} 
+        />
+      )}
+    </div>
+  );
+}
+
 // ==================== LOANS ====================
-function LoansPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
+function LoansPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog, isFrozen }) {
   const KEY = `karo_loans_${pKey}`;
-  const PKEY = `karo_loanPersons_${pKey}`;
+  const PERSONS_KEY = `karo_loanPersons_${pKey}`;
+  
   const [items, setItems] = useState(getLS(KEY, []));
-  const [personsList, setPersonsList] = useState(getLS(PKEY, []));
+  const [personsList, setPersonsList] = useState(getLS(PERSONS_KEY, []));
   const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({ type: "take", personName: "", amountIQD: "", amountUSD: "", note: "", date: today() });
+  const [editItem, setEditItem] = useState(null);
+  const [form, setForm] = useState({ type: "take", personName: "", amountIQD: "", amountUSD: "", note: "", date: today(), returned: false });
   const [alert, setAlert] = useState(null);
   const [selectedPerson, setSelectedPerson] = useState("");
   const [newPerson, setNewPerson] = useState("");
   const [sizeModal, setSizeModal] = useState(null);
   const [showMarkedOnly, setShowMarkedOnly] = useState(false);
   const [confirmDel, setConfirmDel] = useState(null);
+  const [confirmReturn, setConfirmReturn] = useState(null);
+  const [viewTab, setViewTab] = useState("loans");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
 
   useEffect(() => { setLS(KEY, items); }, [items, KEY]);
-  useEffect(() => { setLS(PKEY, personsList); }, [personsList, PKEY]);
+  useEffect(() => { setLS(PERSONS_KEY, personsList); }, [personsList, PERSONS_KEY]);
 
   useEffect(() => {
-    const fromItems = [...new Set(items.map(i => i.personName).filter(Boolean))];
-    const merged = [...new Set([...personsList, ...fromItems])];
+    const namesFromItems = [...new Set(items.map(i => i.personName).filter(name => name && name.trim() !== ""))];
+    const merged = [...new Set([...personsList, ...namesFromItems])];
     if (merged.length !== personsList.length) setPersonsList(merged);
   }, [items]);
 
+  const months = [...new Set(items.map(i => i.date?.slice(0,7)))].sort().reverse();
+
   const filtered = items.filter(i => {
-    if (selectedPerson && i.personName !== selectedPerson) return false;
+    if (selectedPerson === "") return true;
+    return i.personName === selectedPerson;
+  }).filter(i => {
+    if (search && !Object.values(i).some(v => String(v||"").toLowerCase().includes(search.toLowerCase()))) return false;
+    if (filterMonth && !i.date?.startsWith(filterMonth)) return false;
     if (showMarkedOnly && !i.marked) return false;
     return true;
   });
 
-  const resetForm = () => { setForm({ type: "take", personName: "", amountIQD: "", amountUSD: "", note: "", date: today() }); setEditId(null); setNewPerson(""); };
+  const resetForm = () => { 
+    setForm({ type: "take", personName: "", amountIQD: "", amountUSD: "", note: "", date: today(), returned: false }); 
+    setEditItem(null); 
+    setNewPerson(""); 
+  };
 
   const handleAddPerson = () => {
     if (newPerson.trim() && !personsList.includes(newPerson.trim())) {
@@ -935,162 +2128,400 @@ function LoansPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD
   };
 
   const handleSave = () => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
     const iqd = Number(form.amountIQD||0), usd = Number(form.amountUSD||0);
-    if (iqd===0 && usd===0) return;
-    const pName = form.personName || newPerson.trim();
-    if (!pName) return;
-    if (!personsList.includes(pName)) setPersonsList(prev => [...prev, pName]);
+    if (iqd===0 && usd===0) {
+      setAlert("تکایە بڕی پارە دیاری بکە");
+      return;
+    }
+    
+    const pName = form.personName || "";
 
-    if (editId) {
-      const old = items.find(i => i.id === editId);
-      if (old) {
-        if (old.type==="take") { setCashIQD(p=>p-Number(old.amountIQD||0)); setCashUSD(p=>p-Number(old.amountUSD||0)); }
-        else { setCashIQD(p=>p+Number(old.amountIQD||0)); setCashUSD(p=>p+Number(old.amountUSD||0)); }
+    if (pName && !personsList.includes(pName)) {
+      setPersonsList(prev => [...prev, pName]);
+    }
+
+    if (editItem) {
+      const old = items.find(i => i.id === editItem.id);
+      if (old && !old.returned) {
+        if (old.type==="take") { 
+          setCashIQD(p=>p-Number(old.amountIQD||0)); 
+          setCashUSD(p=>p-Number(old.amountUSD||0)); 
+        } else { 
+          setCashIQD(p=>p+Number(old.amountIQD||0)); 
+          setCashUSD(p=>p+Number(old.amountUSD||0)); 
+        }
       }
-      if (form.type==="take") { setCashIQD(p=>p+iqd); setCashUSD(p=>p+usd); addCashLog(`${t.edit} ${t.loanTake}: ${pName}`, iqd, usd); }
-      else {
+      
+      if (form.type==="take" && !form.returned) { 
+        setCashIQD(p=>p+iqd); 
+        setCashUSD(p=>p+usd); 
+        addCashLog(`${t.edit} ${t.loanTake}: ${pName}`, iqd, usd); 
+      } else if (form.type==="give" && !form.returned) {
         if (iqd>cashIQD||usd>cashUSD) { setAlert(t.noBalance); return; }
-        setCashIQD(p=>p-iqd); setCashUSD(p=>p-usd); addCashLog(`${t.edit} ${t.loanGive}: ${pName}`, -iqd, -usd);
+        setCashIQD(p=>p-iqd); 
+        setCashUSD(p=>p-usd); 
+        addCashLog(`${t.edit} ${t.loanGive}: ${pName}`, -iqd, -usd);
       }
-      setItems(prev => prev.map(i => i.id===editId ? {...i, ...form, personName: pName} : i));
+      
+      setItems(prev => prev.map(i => i.id===editItem.id ? {...i, ...form, personName: pName} : i));
+      setEditModalOpen(false);
     } else {
       if (form.type==="give") {
         if (iqd>cashIQD||usd>cashUSD) { setAlert(t.noBalance); return; }
-        setCashIQD(p=>p-iqd); setCashUSD(p=>p-usd); addCashLog(`${t.loanGive}: ${pName}`, -iqd, -usd);
+        setCashIQD(p=>p-iqd); 
+        setCashUSD(p=>p-usd); 
+        addCashLog(`${t.loanGive}: ${pName}`, -iqd, -usd);
       } else {
-        setCashIQD(p=>p+iqd); setCashUSD(p=>p+usd); addCashLog(`${t.loanTake}: ${pName}`, iqd, usd);
+        setCashIQD(p=>p+iqd); 
+        setCashUSD(p=>p+usd); 
+        addCashLog(`${t.loanTake}: ${pName}`, iqd, usd);
       }
-      setItems(prev => [{...form, personName: pName, id: genId(), marked: false}, ...prev]);
+      setItems(prev => [{...form, personName: pName, id: genId(), marked: false, returned: false}, ...prev]);
+      setShowForm(false);
     }
-    resetForm(); setShowForm(false);
+    resetForm(); 
+  };
+
+  const handleReturn = (id) => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
+    const item = items.find(i => i.id === id);
+    if (!item || item.returned) return;
+
+    if (item.type === "take") {
+      if (Number(item.amountIQD||0) > cashIQD || Number(item.amountUSD||0) > cashUSD) {
+        setAlert(t.noBalance);
+        return;
+      }
+      setCashIQD(prev => prev - Number(item.amountIQD||0));
+      setCashUSD(prev => prev - Number(item.amountUSD||0));
+      addCashLog(`${t.returnMoney} ${t.loanTake}`, -Number(item.amountIQD||0), -Number(item.amountUSD||0));
+    } else {
+      setCashIQD(prev => prev + Number(item.amountIQD||0));
+      setCashUSD(prev => prev + Number(item.amountUSD||0));
+      addCashLog(`${t.returnMoney} ${t.loanGive}`, Number(item.amountIQD||0), Number(item.amountUSD||0));
+    }
+
+    setItems(prev => prev.map(i => i.id === id ? { ...i, returned: true, amountIQD: 0, amountUSD: 0 } : i));
+    setConfirmReturn(null);
   };
 
   const doDelete = id => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
     const item = items.find(i=>i.id===id);
-    if (item) {
-      if (item.type==="take") { setCashIQD(p=>p-Number(item.amountIQD||0)); setCashUSD(p=>p-Number(item.amountUSD||0)); addCashLog(`${t.delete} ${t.loanTake}`, -Number(item.amountIQD||0), -Number(item.amountUSD||0)); }
-      else { setCashIQD(p=>p+Number(item.amountIQD||0)); setCashUSD(p=>p+Number(item.amountUSD||0)); addCashLog(`${t.delete} ${t.loanGive}`, Number(item.amountIQD||0), Number(item.amountUSD||0)); }
+    if (item && !item.returned) {
+      if (item.type==="take") { 
+        setCashIQD(p=>p-Number(item.amountIQD||0)); 
+        setCashUSD(p=>p-Number(item.amountUSD||0)); 
+        addCashLog(`${t.delete} ${t.loanTake}`, -Number(item.amountIQD||0), -Number(item.amountUSD||0)); 
+      } else { 
+        setCashIQD(p=>p+Number(item.amountIQD||0)); 
+        setCashUSD(p=>p+Number(item.amountUSD||0)); 
+        addCashLog(`${t.delete} ${t.loanGive}`, Number(item.amountIQD||0), Number(item.amountUSD||0)); 
+      }
     }
     setItems(prev => prev.filter(i=>i.id!==id));
     setConfirmDel(null);
   };
 
-  const handleEdit = item => { setForm(item); setEditId(item.id); setShowForm(true); };
+  const handleEdit = item => { 
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    setForm({...item, personName: item.personName || ""}); 
+    setEditItem(item); 
+    setEditModalOpen(true); 
+  };
+  
   const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{...i,marked:!i.marked}:i));
 
   const doExport = (type, size) => {
-    const hdrs = [t.loanType, t.personName, t.amountIQD, t.amountUSD, t.note, t.date];
-    const rows = filtered.map(i => [i.type==="take"?t.loanTake:t.loanGive, i.personName, fmt(i.amountIQD||0), fmt(i.amountUSD||0), i.note||"", i.date||""]);
+    const hdrs = [t.loanType, t.personName, t.amountIQD, t.amountUSD, t.returned, t.note, t.date];
+    const rows = filtered.map(i => [
+      i.type==="take"?t.loanTake:t.loanGive, 
+      i.personName || "", 
+      fmt(i.amountIQD||0), 
+      fmt(i.amountUSD||0), 
+      i.returned ? t.returned : t.notReturned,
+      i.note||"", 
+      i.date||""
+    ]);
     if (type==="pdf") doPrint({ title: t.sidebar.loans, headers: hdrs, rows, size, isRtl });
     else doExcel({ title: "loans", headers: hdrs, rows });
     setSizeModal(null);
   };
 
-  const personBalance = selectedPerson ? (() => {
-    const pItems = items.filter(i => i.personName === selectedPerson);
-    const takeIQD = pItems.filter(i=>i.type==="take").reduce((a,b)=>a+Number(b.amountIQD||0),0);
-    const takeUSD = pItems.filter(i=>i.type==="take").reduce((a,b)=>a+Number(b.amountUSD||0),0);
-    const giveIQD = pItems.filter(i=>i.type==="give").reduce((a,b)=>a+Number(b.amountIQD||0),0);
-    const giveUSD = pItems.filter(i=>i.type==="give").reduce((a,b)=>a+Number(b.amountUSD||0),0);
-    return { takeIQD, takeUSD, giveIQD, giveUSD, balIQD: giveIQD - takeIQD, balUSD: giveUSD - takeUSD };
-  })() : null;
-
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>{t.sidebar.loans}</h1>
-        <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-          <button onClick={()=>setSizeModal({type:"pdf"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.File /> {t.savePDF}</button>
-          <button onClick={()=>setSizeModal({type:"excel"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.Download /> {t.saveExcel}</button>
-          <button onClick={()=>{setShowForm(!showForm);resetForm()}} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <StickyHeader s={s}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 15, flexWrap: "wrap", gap: 10 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: PRIMARY, textAlign: "center" }}>{t.sidebar.loans}</h1>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button onClick={()=>setSizeModal({type:"pdf"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.File /> {t.savePDF}</button>
+            <button onClick={()=>setSizeModal({type:"excel"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.Download /> {t.saveExcel}</button>
+            {!isFrozen && (
+              <button onClick={()=>{setShowForm(!showForm);resetForm()}} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, padding: 10, marginBottom: 10 }}>
-        <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
-          <input placeholder={t.addPerson} value={newPerson} onChange={e=>setNewPerson(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleAddPerson()} style={{ padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, width: 160 }} />
-          <button onClick={handleAddPerson} style={{ padding: "6px 12px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600 }}><I.Plus /> {t.addPerson}</button>
+        <div style={{ display: "flex", gap: 8, marginBottom: 15, justifyContent: "center" }}>
+          <button onClick={() => setViewTab("loans")} style={{ padding: "8px 20px", borderRadius: 6, border: viewTab==="loans" ? "none" : `1px solid ${s.border}`, background: viewTab==="loans" ? PRIMARY : s.bgCard2, color: viewTab==="loans" ? "#fff" : s.text, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            {t.sidebar.loans}
+          </button>
+          <button onClick={() => setViewTab("persons")} style={{ padding: "8px 20px", borderRadius: 6, border: viewTab==="persons" ? "none" : `1px solid ${s.border}`, background: viewTab==="persons" ? PRIMARY : s.bgCard2, color: viewTab==="persons" ? "#fff" : s.text, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            {t.persons}
+          </button>
         </div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <button onClick={()=>setSelectedPerson("")} style={{ padding: "5px 12px", borderRadius: 20, border: !selectedPerson?`2px solid ${PRIMARY}`:`1px solid ${s.border}`, background: !selectedPerson?`${PRIMARY}15`:"transparent", color: !selectedPerson?PRIMARY:s.text, cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{t.allPersons}</button>
-          {personsList.map(p => (
-            <button key={p} onClick={()=>setSelectedPerson(p)} style={{ padding: "5px 12px", borderRadius: 20, border: selectedPerson===p?`2px solid ${PRIMARY}`:`1px solid ${s.border}`, background: selectedPerson===p?`${PRIMARY}15`:"transparent", color: selectedPerson===p?PRIMARY:s.text, cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{p}</button>
-          ))}
-          {showMarkedOnly
-            ? <button onClick={()=>{setShowMarkedOnly(false);setItems(prev=>prev.map(i=>({...i,marked:false})))}} style={{ padding: "5px 12px", borderRadius: 20, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
-            : <button onClick={()=>setShowMarkedOnly(true)} style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11, cursor: "pointer" }}>{t.showMarked}</button>
-          }
-        </div>
-      </div>
 
-      {personBalance && (
-        <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
-          <div style={{ background: "#D1FAE5", borderRadius: 8, padding: "6px 14px", fontSize: 12 }}><span style={{ color: "#059669" }}>{t.loanTake}: {fmt(personBalance.takeIQD)} {t.iqd} / ${fmt(personBalance.takeUSD)}</span></div>
-          <div style={{ background: "#FEE2E2", borderRadius: 8, padding: "6px 14px", fontSize: 12 }}><span style={{ color: "#EF4444" }}>{t.loanGive}: {fmt(personBalance.giveIQD)} {t.iqd} / ${fmt(personBalance.giveUSD)}</span></div>
-        </div>
-      )}
-
-      {showForm && (
-        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8 }}>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.loanType}</label><select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }}><option value="take">{t.loanTake}</option><option value="give">{t.loanGive}</option></select></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.personName}</label>
-              <select value={form.personName} onChange={e=>setForm({...form,personName:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }}><option value="">— {t.personName} —</option>{personsList.map(p=><option key={p} value={p}>{p}</option>)}</select>
+        {viewTab === "loans" && (
+          <>
+            <div style={{ display: "flex", gap: 15, marginBottom: 15, flexWrap: "wrap", justifyContent: "center" }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <select value={selectedPerson} onChange={e=>setSelectedPerson(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                  <option value="">{t.allPersons}</option>
+                  {personsList.map(p=><option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.search} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+              </div>
+              <div>
+                <select value={filterMonth} onChange={e=>setFilterMonth(e.target.value)} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center", minWidth: 120 }}>
+                  <option value="">{t.allMonths}</option>
+                  {months.map(m=><option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              {showMarkedOnly
+                ? <button onClick={() => { setShowMarkedOnly(false); setItems(prev => prev.map(i => ({...i, marked: false}))); }} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
+                : <button onClick={() => setShowMarkedOnly(true)} style={{ padding: "8px 20px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.showMarked}</button>
+              }
             </div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.amountIQD}</label><input type="number" value={form.amountIQD} onChange={e=>setForm({...form,amountIQD:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.amountUSD}</label><input type="number" value={form.amountUSD} onChange={e=>setForm({...form,amountUSD:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.note}</label><input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.date}</label><input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
+          </>
+        )}
+      </StickyHeader>
+
+      {viewTab === "persons" && (
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, padding: 20, marginBottom: 15 }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 15, justifyContent: "center" }}>
+            <input placeholder={t.addPerson} value={newPerson} onChange={e=>setNewPerson(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleAddPerson()} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, width: 220, textAlign: "center" }} />
+            <button onClick={handleAddPerson} style={{ padding: "8px 16px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+              <I.Plus /> {t.addPerson}
+            </button>
           </div>
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-            <button onClick={handleSave} style={{ padding: "7px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{editId?t.edit:t.save}</button>
-            <button onClick={()=>{setShowForm(false);resetForm()}} style={{ padding: "7px 18px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.cancel}</button>
+          
+          <div style={{ marginBottom: 15 }}>
+            <select value={selectedPerson} onChange={e=>setSelectedPerson(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+              <option value="">{t.allPersons}</option>
+              {personsList.map(p=><option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+
+          <div style={{ maxHeight: 350, overflowY: "auto" }}>
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <TH isRtl={isRtl}>#</TH>
+                  <TH isRtl={isRtl}>{t.personName}</TH>
+                  <TH isRtl={isRtl}>ژمارەی قەرز</TH>
+                </tr>
+              </thead>
+              <tbody>
+                {personsList.map((person, index) => {
+                  const personLoans = items.filter(i => i.personName === person);
+                  return (
+                    <tr key={person}>
+                      <TD s={s}>{index + 1}</TD>
+                      <TD s={s} style={{ fontWeight: 600 }}>{person}</TD>
+                      <TD s={s}>{personLoans.length}</TD>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {personsList.length === 0 && <div style={{ padding: 30, textAlign: "center", color: s.textMuted }}>{t.noData}</div>}
           </div>
         </div>
       )}
 
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
-          <table style={tableStyle}>
-            <thead><tr>
-              <TH isRtl={isRtl}>{t.loanType}</TH><TH isRtl={isRtl}>{t.personName}</TH><TH isRtl={isRtl}>{t.amountIQD}</TH><TH isRtl={isRtl}>{t.amountUSD}</TH><TH isRtl={isRtl}>{t.note}</TH><TH isRtl={isRtl}>{t.date}</TH><TH isRtl={isRtl}>{t.mark}</TH><TH isRtl={isRtl}></TH>
-            </tr></thead>
-            <tbody>
-              {filtered.map(item => (
-                <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent" }}>
-                  <TD s={s} style={{ minWidth: 80 }}><span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600, background: item.type==="take"?"#D1FAE5":"#FEE2E2", color: item.type==="take"?"#059669":"#EF4444" }}>{item.type==="take"?t.loanTake:t.loanGive}</span></TD>
-                  <TD s={s} style={{ fontWeight: 600, minWidth: 90 }}>{item.personName}</TD>
-                  <TD s={s} style={{ direction: "ltr", minWidth: 90 }}>{Number(item.amountIQD)?fmt(item.amountIQD):"—"}</TD>
-                  <TD s={s} style={{ direction: "ltr", minWidth: 80 }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
-                  <TD s={s} style={{ minWidth: 100, maxWidth: 180 }} title={item.note}>{trunc(item.note, 25) || "—"}</TD>
-                  <TD s={s} style={{ direction: "ltr", textAlign: "center", minWidth: 95 }}>{item.date}</TD>
-                  <TD s={s} style={{ textAlign: "right", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
-                  <TD s={s} style={{ minWidth: 50 }}><div style={{ display: "flex", gap: 3 }}><button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button><button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button></div></TD>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+      {viewTab === "loans" && !isFrozen && showForm && (
+        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 20, marginBottom: 15 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 15, color: PRIMARY, textAlign: "center" }}>{t.add}</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.loanType}</label>
+              <select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="take">{t.loanTake}</option>
+                <option value="give">{t.loanGive}</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.personName}</label>
+              <input value={form.personName} onChange={e=>setForm({...form,personName:e.target.value})} list="loanPersons" placeholder="ناوی کەس" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+              <datalist id="loanPersons">{personsList.map(p=><option key={p} value={p}/>)}</datalist>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.amountIQD}</label>
+              <input type="number" value={form.amountIQD} onChange={e=>setForm({...form,amountIQD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.amountUSD}</label>
+              <input type="number" value={form.amountUSD} onChange={e=>setForm({...form,amountUSD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "center" }}>
+            <button onClick={handleSave} style={{ padding: "8px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t.save}</button>
+            <button onClick={()=>{setShowForm(false);resetForm()}} style={{ padding: "8px 24px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, cursor: "pointer" }}>{t.cancel}</button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {viewTab === "loans" && (
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+          <div style={{ overflowX: "auto", height: "100%" }}>
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <TH isRtl={isRtl}>{t.loanType}</TH>
+                  <TH isRtl={isRtl}>{t.personName}</TH>
+                  <TH isRtl={isRtl}>{t.amountIQD}</TH>
+                  <TH isRtl={isRtl}>{t.amountUSD}</TH>
+                  <TH isRtl={isRtl}>{t.returned}</TH>
+                  <TH isRtl={isRtl}>{t.note}</TH>
+                  <TH isRtl={isRtl}>{t.date}</TH>
+                  <TH isRtl={isRtl}>{t.mark}</TH>
+                  <TH isRtl={isRtl}></TH>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(item => (
+                  <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent", textAlign: "center" }}>
+                    <TD s={s} style={{ minWidth: 80 }}>
+                      <span style={{ padding: "3px 10px", borderRadius: 12, fontSize: 11, fontWeight: 600, background: item.type==="take"?"#D1FAE5":"#FEE2E2", color: item.type==="take"?"#059669":"#EF4444", display: "inline-block" }}>
+                        {item.type==="take"?t.loanTake:t.loanGive}
+                      </span>
+                    </TD>
+                    <TD s={s} style={{ fontWeight: 600, minWidth: 90 }}>{item.personName || ""}</TD>
+                    <TD s={s} style={{ direction: "ltr", minWidth: 90, color: item.returned ? s.textMuted : (item.type==="take"?s.success:s.danger), textDecoration: item.returned ? "line-through" : "none" }}>
+                      {Number(item.amountIQD)?fmt(item.amountIQD):"—"}
+                    </TD>
+                    <TD s={s} style={{ direction: "ltr", minWidth: 80, color: item.returned ? s.textMuted : (item.type==="take"?s.success:s.danger), textDecoration: item.returned ? "line-through" : "none" }}>
+                      {Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}
+                    </TD>
+                    <TD s={s} style={{ minWidth: 80 }}>
+                      {item.returned ? 
+                        <span style={{ color: s.success, fontSize: 12, fontWeight: 600 }}>✓ {t.returned}</span> : 
+                        <span style={{ color: s.warning, fontSize: 12 }}>{t.notReturned}</span>
+                      }
+                    </TD>
+                    <TD s={s} style={{ minWidth: 120, maxWidth: 200 }} title={item.note}>{trunc(item.note, 25) || "—"}</TD>
+                    <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
+                    <TD s={s} style={{ minWidth: 35 }}>
+                      <button onClick={()=>toggleMark(item.id)} style={{ width: 22, height: 22, borderRadius: 4, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", margin: "0 auto" }}>
+                        {item.marked&&<I.Check />}
+                      </button>
+                    </TD>
+                    <TD s={s} style={{ minWidth: 90 }}>
+                      <div style={{ display: "flex", gap: 5, justifyContent: "center" }}>
+                        {!item.returned && !isFrozen && (
+                          <button onClick={() => setConfirmReturn(item.id)} style={{ padding: "4px 8px", borderRadius: 4, border: "none", background: s.warning, color: "#fff", cursor: "pointer", fontSize: 10, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            <I.Return /> {t.returnMoney}
+                          </button>
+                        )}
+                        {!isFrozen && (
+                          <button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button>
+                        )}
+                        {!isFrozen && (
+                          <button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button>
+                        )}
+                      </div>
+                    </TD>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filtered.length===0 && <div style={{ padding: 40, textAlign: "center", color: s.textMuted, fontSize: 13 }}>{t.noData}</div>}
+          </div>
+        </div>
+      )}
+
+      {editModalOpen && (
+        <EditModal title={t.edit} onSave={handleSave} onCancel={() => { setEditModalOpen(false); resetForm(); }} s={s} t={t}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.loanType}</label>
+              <select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="take">{t.loanTake}</option>
+                <option value="give">{t.loanGive}</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.personName}</label>
+              <input value={form.personName} onChange={e=>setForm({...form,personName:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.amountIQD}</label>
+              <input type="number" value={form.amountIQD} onChange={e=>setForm({...form,amountIQD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.amountUSD}</label>
+              <input type="number" value={form.amountUSD} onChange={e=>setForm({...form,amountUSD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+          </div>
+        </EditModal>
+      )}
 
       {alert && <AlertModal message={alert} onOk={()=>{setAlert(null);resetForm();setShowForm(false)}} s={s} />}
       {confirmDel && <ConfirmModal message={t.confirmDelete} onYes={()=>doDelete(confirmDel)} onNo={()=>setConfirmDel(null)} s={s} t={t} />}
+      {confirmReturn && <ConfirmModal message={t.returnConfirm} onYes={()=>handleReturn(confirmReturn)} onNo={()=>setConfirmReturn(null)} s={s} t={t} />}
       {sizeModal && <SizeModal t={t} s={s} onSelect={sz=>doExport(sizeModal.type, sz)} onClose={()=>setSizeModal(null)} />}
     </div>
   );
 }
 
 // ==================== CONCRETE ====================
-function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
+function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog, isFrozen }) {
   const KEY = `karo_conc_${pKey}`;
   const [items, setItems] = useState(getLS(KEY, []));
   const [showForm, setShowForm] = useState(false);
+  const [editItem, setEditItem] = useState(null);
   const [form, setForm] = useState({ date: today(), meters: "", pricePerMeter: "", depositPercent: "", note: "", currency: "iqd" });
   const [alert, setAlert] = useState(null);
   const [sizeModal, setSizeModal] = useState(null);
   const [showMarkedOnly, setShowMarkedOnly] = useState(false);
   const [confirmDel, setConfirmDel] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => { setLS(KEY, items); }, [items, KEY]);
 
@@ -1098,18 +2529,95 @@ function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
   const depositAmt = Math.round(totalPrice * Number(form.depositPercent||0) / 100);
   const receivedAmt = totalPrice - depositAmt;
 
-  const filtered = items.filter(i => showMarkedOnly ? i.marked : true);
+  const months = [...new Set(items.map(i => i.date?.slice(0,7)))].sort().reverse();
+
+  const filtered = items.filter(i => {
+    if (search && !Object.values(i).some(v => String(v||"").toLowerCase().includes(search.toLowerCase()))) return false;
+    if (filterMonth && !i.date?.startsWith(filterMonth)) return false;
+    if (showMarkedOnly && !i.marked) return false;
+    return true;
+  });
+
+  const totalReceivedIQD = filtered.filter(i => i.currency === "iqd").reduce((a,b) => a + Number(b.received||0), 0);
+  const totalReceivedUSD = filtered.filter(i => i.currency === "usd").reduce((a,b) => a + Number(b.received||0), 0);
+  const totalDepositIQD = filtered.filter(i => i.currency === "iqd").reduce((a,b) => a + Number(b.deposit||0), 0);
+  const totalDepositUSD = filtered.filter(i => i.currency === "usd").reduce((a,b) => a + Number(b.deposit||0), 0);
+  const totalMeters = filtered.reduce((a,b) => a + Number(b.meters||0), 0);
+  const avgPricePerMeter = filtered.length > 0 
+    ? Math.round(filtered.reduce((a,b) => a + (Number(b.totalPrice||0) / (Number(b.meters||0) || 1)), 0) / filtered.length) 
+    : 0;
 
   const handleSave = () => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
     if (totalPrice <= 0) return;
     const cur = form.currency || "iqd";
     const item = { ...form, id: genId(), totalPrice, deposit: depositAmt, received: receivedAmt, depositClaimed: false, isReceived: false, marked: false, currency: cur };
     setItems(prev => [item, ...prev]);
-    setForm({ date: today(), meters: "", pricePerMeter: "", depositPercent: "", note: "", currency: "iqd" });
+    resetForm();
     setShowForm(false);
   };
 
+  const handleEdit = (item) => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    setForm({
+      date: item.date,
+      meters: item.meters,
+      pricePerMeter: item.pricePerMeter,
+      depositPercent: item.depositPercent,
+      note: item.note,
+      currency: item.currency
+    });
+    setEditItem(item);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSave = () => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    if (!editItem) return;
+    
+    const cur = form.currency || "iqd";
+    const newTotalPrice = Number(form.meters||0) * Number(form.pricePerMeter||0);
+    const newDeposit = Math.round(newTotalPrice * Number(form.depositPercent||0) / 100);
+    const newReceived = newTotalPrice - newDeposit;
+
+    if (editItem.isReceived) {
+      if (editItem.currency === "usd") setCashUSD(prev => prev - Number(editItem.received||0));
+      else setCashIQD(prev => prev - Number(editItem.received||0));
+    }
+    if (editItem.depositClaimed) {
+      if (editItem.currency === "usd") setCashUSD(prev => prev - Number(editItem.deposit||0));
+      else setCashIQD(prev => prev - Number(editItem.deposit||0));
+    }
+
+    setItems(prev => prev.map(i => i.id === editItem.id ? {
+      ...i,
+      ...form,
+      totalPrice: newTotalPrice,
+      deposit: newDeposit,
+      received: newReceived,
+      currency: cur,
+      isReceived: false,
+      depositClaimed: false
+    } : i));
+
+    setEditModalOpen(false);
+    resetForm();
+  };
+
   const markReceived = id => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
     const item = items.find(i => i.id === id);
     if (item && !item.isReceived) {
       const cur = item.currency || "iqd";
@@ -1121,6 +2629,10 @@ function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
   };
 
   const claimDeposit = id => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
     const item = items.find(i => i.id === id);
     if (item && !item.depositClaimed && item.deposit > 0) {
       const cur = item.currency || "iqd";
@@ -1132,6 +2644,10 @@ function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
   };
 
   const doDelete = id => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
     const item = items.find(i => i.id === id);
     if (item) {
       const cur = item.currency || "iqd";
@@ -1150,53 +2666,168 @@ function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
   };
 
   const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{...i,marked:!i.marked}:i));
+  const resetForm = () => setForm({ date: today(), meters: "", pricePerMeter: "", depositPercent: "", note: "", currency: "iqd" });
+
+  const doExport = (type, size) => {
+    const hdrs = [t.date, t.currency, t.meters, t.pricePerMeter, t.totalConcrete, t.deposit, t.received, t.receivedStatus, t.note];
+    const rows = filtered.map(i => [
+      i.date,
+      i.currency === "usd" ? t.usd : t.iqd,
+      fmt(i.meters),
+      fmt(i.pricePerMeter),
+      fmt(i.totalPrice),
+      fmt(i.deposit),
+      fmt(i.received),
+      i.isReceived ? t.receivedStatus : t.notReceived,
+      i.note || ""
+    ]);
+    if (type==="pdf") doPrint({ title: t.sidebar.concrete, headers: hdrs, rows, size, isRtl });
+    else doExcel({ title: "concrete", headers: hdrs, rows });
+    setSizeModal(null);
+  };
 
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>{t.sidebar.concrete}</h1>
-        <div style={{ display: "flex", gap: 5 }}>
-          {showMarkedOnly
-            ? <button onClick={()=>{setShowMarkedOnly(false);setItems(prev=>prev.map(i=>({...i,marked:false})))}} style={{ padding: "6px 12px", borderRadius: 6, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
-            : <button onClick={()=>setShowMarkedOnly(true)} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11, cursor: "pointer" }}>{t.showMarked}</button>
-          }
-          <button onClick={()=>setShowForm(!showForm)} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
-        </div>
-      </div>
-
-      {showForm && (
-        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8 }}>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.date}</label><input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.concCurrency}</label><select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }}><option value="iqd">{t.iqd}</option><option value="usd">{t.usd}</option></select></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.meters}</label><input type="number" value={form.meters} onChange={e=>setForm({...form,meters:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.pricePerMeter}</label><input type="number" value={form.pricePerMeter} onChange={e=>setForm({...form,pricePerMeter:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.totalConcrete}</label><div style={{ padding: "6px 10px", borderRadius: 6, background: `${PRIMARY}10`, fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{form.currency==="usd"?"$":""}{fmt(totalPrice)}</div></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.depositPercent}</label><input type="number" value={form.depositPercent} onChange={e=>setForm({...form,depositPercent:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} placeholder="%" /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.deposit}</label><div style={{ padding: "6px 10px", borderRadius: 6, background: "#FEF3C7", fontWeight: 700, color: "#D97706", fontSize: 12 }}>{form.currency==="usd"?"$":""}{fmt(depositAmt)}</div></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.received}</label><div style={{ padding: "6px 10px", borderRadius: 6, background: "#D1FAE5", fontWeight: 700, color: "#059669", fontSize: 12 }}>{form.currency==="usd"?"$":""}{fmt(receivedAmt)}</div></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.note}</label><input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }} /></div>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <StickyHeader s={s}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 15, flexWrap: "wrap", gap: 10 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: PRIMARY, textAlign: "center" }}>{t.sidebar.concrete}</h1>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button onClick={()=>setSizeModal({type:"pdf"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.File /> {t.savePDF}</button>
+            <button onClick={()=>setSizeModal({type:"excel"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.Download /> {t.saveExcel}</button>
+            {!isFrozen && (
+              <button onClick={()=>setShowForm(!showForm)} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
+            )}
           </div>
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-            <button onClick={handleSave} style={{ padding: "7px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{t.save}</button>
-            <button onClick={()=>setShowForm(false)} style={{ padding: "7px 18px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.cancel}</button>
+        </div>
+
+        <div style={{ display: "flex", gap: 15, marginBottom: 15, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.totalConcreteReceived} ({t.iqd}): </span>
+            <strong style={{ color: s.success, fontSize: 15 }}>{fmt(totalReceivedIQD)}</strong>
+          </div>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.totalConcreteReceived} ({t.usd}): </span>
+            <strong style={{ color: s.success, fontSize: 15 }}>${fmt(totalReceivedUSD)}</strong>
+          </div>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.totalDeposit} ({t.iqd}): </span>
+            <strong style={{ color: s.warning, fontSize: 15 }}>{fmt(totalDepositIQD)}</strong>
+          </div>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.totalDeposit} ({t.usd}): </span>
+            <strong style={{ color: s.warning, fontSize: 15 }}>${fmt(totalDepositUSD)}</strong>
+          </div>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.totalMeters}: </span>
+            <strong style={{ color: PRIMARY, fontSize: 15 }}>{fmt(totalMeters)}</strong>
+          </div>
+          <div style={{ background: `${PRIMARY}10`, borderRadius: 8, padding: "8px 16px", textAlign: "center" }}>
+            <span style={{ color: s.textMuted, fontSize: 11 }}>{t.avgPricePerMeter}: </span>
+            <strong style={{ color: PRIMARY, fontSize: 15 }}>{fmt(avgPricePerMeter)}</strong>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, marginBottom: 15, flexWrap: "wrap", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.search} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, outline: "none", textAlign: "center" }} />
+          </div>
+          <div>
+            <select value={filterMonth} onChange={e=>setFilterMonth(e.target.value)} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center", minWidth: 120 }}>
+              <option value="">{t.allMonths}</option>
+              {months.map(m=><option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+          {showMarkedOnly
+            ? <button onClick={()=>{setShowMarkedOnly(false);setItems(prev=>prev.map(i=>({...i,marked:false})))}} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
+            : <button onClick={()=>setShowMarkedOnly(true)} style={{ padding: "8px 20px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.showMarked}</button>
+          }
+        </div>
+      </StickyHeader>
+
+      {!isFrozen && showForm && (
+        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 20, marginBottom: 15 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 15, color: PRIMARY, textAlign: "center" }}>{t.add}</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.concCurrency}</label>
+              <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="iqd">{t.iqd}</option>
+                <option value="usd">{t.usd}</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.meters}</label>
+              <input type="number" value={form.meters} onChange={e=>setForm({...form,meters:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.pricePerMeter}</label>
+              <input type="number" value={form.pricePerMeter} onChange={e=>setForm({...form,pricePerMeter:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.depositPercent}</label>
+              <input type="number" value={form.depositPercent} onChange={e=>setForm({...form,depositPercent:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} placeholder="%" />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div style={{ gridColumn: "span 2", display: "flex", gap: 20, justifyContent: "center", alignItems: "center" }}>
+              <div style={{ textAlign: "center" }}>
+                <span style={{ fontSize: 11, color: s.textMuted }}>{t.totalConcrete}</span>
+                <div style={{ padding: "8px 16px", background: `${PRIMARY}10`, borderRadius: 6, fontWeight: 700, color: PRIMARY, fontSize: 15 }}>
+                  {form.currency==="usd"?"$":""}{fmt(totalPrice)}
+                </div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <span style={{ fontSize: 11, color: s.textMuted }}>{t.deposit}</span>
+                <div style={{ padding: "8px 16px", background: "#FEF3C7", borderRadius: 6, fontWeight: 700, color: "#D97706", fontSize: 15 }}>
+                  {form.currency==="usd"?"$":""}{fmt(depositAmt)}
+                </div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <span style={{ fontSize: 11, color: s.textMuted }}>{t.received}</span>
+                <div style={{ padding: "8px 16px", background: "#D1FAE5", borderRadius: 6, fontWeight: 700, color: "#059669", fontSize: 15 }}>
+                  {form.currency==="usd"?"$":""}{fmt(receivedAmt)}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "center" }}>
+            <button onClick={handleSave} style={{ padding: "8px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t.save}</button>
+            <button onClick={()=>setShowForm(false)} style={{ padding: "8px 24px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, cursor: "pointer" }}>{t.cancel}</button>
           </div>
         </div>
       )}
 
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <div style={{ overflowX: "auto", height: "100%" }}>
           <table style={tableStyle}>
-            <thead><tr>
-              <TH isRtl={isRtl}>{t.date}</TH><TH isRtl={isRtl}>{t.currency}</TH><TH isRtl={isRtl}>{t.meters}</TH><TH isRtl={isRtl}>{t.pricePerMeter}</TH><TH isRtl={isRtl}>{t.totalConcrete}</TH><TH isRtl={isRtl}>{t.deposit}</TH><TH isRtl={isRtl}>{t.received}</TH><TH isRtl={isRtl}>{t.receivedStatus}</TH><TH isRtl={isRtl}>{t.mark}</TH><TH isRtl={isRtl}></TH>
-            </tr></thead>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl}>{t.date}</TH>
+                <TH isRtl={isRtl}>{t.currency}</TH>
+                <TH isRtl={isRtl}>{t.meters}</TH>
+                <TH isRtl={isRtl}>{t.pricePerMeter}</TH>
+                <TH isRtl={isRtl}>{t.totalConcrete}</TH>
+                <TH isRtl={isRtl}>{t.deposit}</TH>
+                <TH isRtl={isRtl}>{t.received}</TH>
+                <TH isRtl={isRtl}>{t.receivedStatus}</TH>
+                <TH isRtl={isRtl}>{t.deposit}</TH>
+                <TH isRtl={isRtl}>{t.mark}</TH>
+                <TH isRtl={isRtl}></TH>
+              </tr>
+            </thead>
             <tbody>
               {filtered.map(item => {
                 const cur = item.currency || "iqd";
                 const sym = cur === "usd" ? "$" : "";
                 return (
-                  <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent" }}>
-                    <TD s={s} style={{ direction: "ltr", textAlign: "center", minWidth: 95 }}>{item.date}</TD>
+                  <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent", textAlign: "center" }}>
+                    <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
                     <TD s={s} style={{ minWidth: 50 }}>{cur === "usd" ? t.usd : t.iqd}</TD>
                     <TD s={s} style={{ direction: "ltr", minWidth: 60 }}>{fmt(item.meters)}</TD>
                     <TD s={s} style={{ direction: "ltr", minWidth: 70 }}>{sym}{fmt(item.pricePerMeter)}</TD>
@@ -1204,45 +2835,93 @@ function ConcretePage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCash
                     <TD s={s} style={{ direction: "ltr", color: "#D97706", minWidth: 70 }}>{sym}{fmt(item.deposit)}</TD>
                     <TD s={s} style={{ direction: "ltr", color: s.success, fontWeight: 700, minWidth: 80 }}>{sym}{fmt(item.received)}</TD>
                     <TD s={s} style={{ minWidth: 90 }}>
-                      {item.isReceived ? <span style={{ color: s.success, fontSize: 11, fontWeight: 600 }}>✓ {t.receivedStatus}</span>
-                        : <button onClick={()=>markReceived(item.id)} style={{ padding: "3px 8px", borderRadius: 4, border: `1px solid ${s.success}`, background: "#D1FAE5", color: "#059669", cursor: "pointer", fontSize: 10, fontWeight: 600 }}>{t.receivedStatus}</button>}
+                      {item.isReceived ? <span style={{ color: s.success, fontSize: 12, fontWeight: 600 }}>✓ {t.receivedStatus}</span>
+                        : !isFrozen && <button onClick={()=>markReceived(item.id)} style={{ padding: "4px 10px", borderRadius: 4, border: `1px solid ${s.success}`, background: "#D1FAE5", color: "#059669", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{t.receivedStatus}</button>}
                     </TD>
-                    <TD s={s} style={{ textAlign: "right", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
                     <TD s={s} style={{ minWidth: 70 }}>
-                      <div style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                        {!item.depositClaimed && item.deposit > 0 && <button onClick={()=>claimDeposit(item.id)} style={{ padding: "2px 6px", borderRadius: 4, border: `1px solid #D97706`, background: "#FEF3C7", color: "#D97706", cursor: "pointer", fontSize: 9, fontWeight: 600 }}>{t.claimDeposit}</button>}
-                        {item.depositClaimed && <span style={{ fontSize: 9, color: s.success }}>✓</span>}
-                        <button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button>
-                      </div>
+                      {item.depositClaimed ? <span style={{ color: s.success, fontSize: 12, fontWeight: 600 }}>✓ {t.claimDeposit}</span>
+                        : !isFrozen && item.deposit > 0 && <button onClick={()=>claimDeposit(item.id)} style={{ padding: "4px 10px", borderRadius: 4, border: `1px solid #D97706`, background: "#FEF3C7", color: "#D97706", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{t.claimDeposit}</button>}
+                    </TD>
+                    <TD s={s} style={{ minWidth: 35 }}>
+                      <button onClick={()=>toggleMark(item.id)} style={{ width: 22, height: 22, borderRadius: 4, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", margin: "0 auto" }}>
+                        {item.marked&&<I.Check />}
+                      </button>
+                    </TD>
+                    <TD s={s} style={{ minWidth: 60 }}>
+                      {!isFrozen && (
+                        <div style={{ display: "flex", gap: 5, justifyContent: "center" }}>
+                          <button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button>
+                          <button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button>
+                        </div>
+                      )}
                     </TD>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-          {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+          {filtered.length===0 && <div style={{ padding: 40, textAlign: "center", color: s.textMuted, fontSize: 13 }}>{t.noData}</div>}
         </div>
       </div>
+
+      {editModalOpen && (
+        <EditModal title={t.edit} onSave={handleEditSave} onCancel={() => { setEditModalOpen(false); resetForm(); }} s={s} t={t}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.concCurrency}</label>
+              <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="iqd">{t.iqd}</option>
+                <option value="usd">{t.usd}</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.meters}</label>
+              <input type="number" value={form.meters} onChange={e=>setForm({...form,meters:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.pricePerMeter}</label>
+              <input type="number" value={form.pricePerMeter} onChange={e=>setForm({...form,pricePerMeter:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.depositPercent}</label>
+              <input type="number" value={form.depositPercent} onChange={e=>setForm({...form,depositPercent:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+          </div>
+        </EditModal>
+      )}
+
       {alert && <AlertModal message={alert} onOk={()=>setAlert(null)} s={s} />}
       {confirmDel && <ConfirmModal message={t.confirmDelete} onYes={()=>doDelete(confirmDel)} onNo={()=>setConfirmDel(null)} s={s} t={t} />}
+      {sizeModal && <SizeModal t={t} s={s} onSelect={sz=>doExport(sizeModal.type, sz)} onClose={()=>setSizeModal(null)} />}
     </div>
   );
 }
 
 // ==================== CONTRACTOR ====================
-function ContractorPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
+function ContractorPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog, isFrozen }) {
   const KEY = `karo_contr_${pKey}`;
   const PKEY = `karo_contrPersons_${pKey}`;
   const [items, setItems] = useState(getLS(KEY, []));
   const [personsList, setPersonsList] = useState(getLS(PKEY, []));
   const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState(null);
+  const [editItem, setEditItem] = useState(null);
   const [form, setForm] = useState({ date: today(), type: "withdraw", personName: "", amountIQD: "", amountUSD: "", note: "" });
   const [alert, setAlert] = useState(null);
   const [selectedPerson, setSelectedPerson] = useState("");
   const [newPerson, setNewPerson] = useState("");
   const [showMarkedOnly, setShowMarkedOnly] = useState(false);
   const [confirmDel, setConfirmDel] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
 
   useEffect(() => { setLS(KEY, items); }, [items, KEY]);
   useEffect(() => { setLS(PKEY, personsList); }, [personsList, PKEY]);
@@ -1253,13 +2932,21 @@ function ContractorPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCa
     if (merged.length !== personsList.length) setPersonsList(merged);
   }, [items]);
 
+  const months = [...new Set(items.map(i => i.date?.slice(0,7)))].sort().reverse();
+
   const filtered = items.filter(i => {
     if (selectedPerson && i.personName !== selectedPerson) return false;
+    if (search && !Object.values(i).some(v => String(v||"").toLowerCase().includes(search.toLowerCase()))) return false;
+    if (filterMonth && !i.date?.startsWith(filterMonth)) return false;
     if (showMarkedOnly && !i.marked) return false;
     return true;
   });
 
-  const resetForm = () => { setForm({ date: today(), type: "withdraw", personName: "", amountIQD: "", amountUSD: "", note: "" }); setEditId(null); setNewPerson(""); };
+  const resetForm = () => { 
+    setForm({ date: today(), type: "withdraw", personName: "", amountIQD: "", amountUSD: "", note: "" }); 
+    setEditItem(null); 
+    setNewPerson(""); 
+  };
 
   const handleAddPerson = () => {
     if (newPerson.trim() && !personsList.includes(newPerson.trim())) {
@@ -1270,233 +2957,378 @@ function ContractorPage({ t, s, isRtl, pKey, cashIQD, setCashIQD, cashUSD, setCa
   };
 
   const handleSave = () => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
     const iqd = Number(form.amountIQD||0), usd = Number(form.amountUSD||0);
     if (iqd===0 && usd===0) return;
     const pName = form.personName || newPerson.trim();
     if (!pName) return;
     if (!personsList.includes(pName)) setPersonsList(prev => [...prev, pName]);
 
-    if (editId) {
-      const old = items.find(i => i.id === editId);
+    if (editItem) {
+      const old = items.find(i => i.id === editItem.id);
       if (old) {
-        if (old.type==="withdraw") { setCashIQD(p=>p+Number(old.amountIQD||0)); setCashUSD(p=>p+Number(old.amountUSD||0)); }
-        else { setCashIQD(p=>p-Number(old.amountIQD||0)); setCashUSD(p=>p-Number(old.amountUSD||0)); }
+        if (old.type==="withdraw") { 
+          setCashIQD(p=>p+Number(old.amountIQD||0)); 
+          setCashUSD(p=>p+Number(old.amountUSD||0)); 
+        } else { 
+          setCashIQD(p=>p-Number(old.amountIQD||0)); 
+          setCashUSD(p=>p-Number(old.amountUSD||0)); 
+        }
       }
       if (form.type==="withdraw") {
         if (iqd>cashIQD||usd>cashUSD) { setAlert(t.noBalance); return; }
-        setCashIQD(p=>p-iqd); setCashUSD(p=>p-usd); addCashLog(`${t.edit} ${t.withdraw}: ${pName}`, -iqd, -usd);
-      } else { setCashIQD(p=>p+iqd); setCashUSD(p=>p+usd); addCashLog(`${t.edit} ${t.addMoney}: ${pName}`, iqd, usd); }
-      setItems(prev => prev.map(i => i.id===editId ? {...i, ...form, personName: pName} : i));
+        setCashIQD(p=>p-iqd); 
+        setCashUSD(p=>p-usd); 
+        addCashLog(`${t.edit} ${t.withdraw}: ${pName}`, -iqd, -usd);
+      } else { 
+        setCashIQD(p=>p+iqd); 
+        setCashUSD(p=>p+usd); 
+        addCashLog(`${t.edit} ${t.addMoney}: ${pName}`, iqd, usd); 
+      }
+      setItems(prev => prev.map(i => i.id===editItem.id ? {...i, ...form, personName: pName} : i));
+      setEditModalOpen(false);
     } else {
       if (form.type==="withdraw") {
         if (iqd>cashIQD||usd>cashUSD) { setAlert(t.noBalance); return; }
-        setCashIQD(p=>p-iqd); setCashUSD(p=>p-usd); addCashLog(`${t.withdraw}: ${pName}`, -iqd, -usd);
-      } else { setCashIQD(p=>p+iqd); setCashUSD(p=>p+usd); addCashLog(`${t.addMoney}: ${pName}`, iqd, usd); }
+        setCashIQD(p=>p-iqd); 
+        setCashUSD(p=>p-usd); 
+        addCashLog(`${t.withdraw}: ${pName}`, -iqd, -usd);
+      } else { 
+        setCashIQD(p=>p+iqd); 
+        setCashUSD(p=>p+usd); 
+        addCashLog(`${t.addMoney}: ${pName}`, iqd, usd); 
+      }
       setItems(prev => [{...form, personName: pName, id: genId(), marked: false}, ...prev]);
+      setShowForm(false);
     }
-    resetForm(); setShowForm(false);
+    resetForm(); 
   };
 
   const doDelete = id => {
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
     const item = items.find(i=>i.id===id);
     if (item) {
-      if (item.type==="withdraw") { setCashIQD(p=>p+Number(item.amountIQD||0)); setCashUSD(p=>p+Number(item.amountUSD||0)); addCashLog(`${t.delete} ${t.withdraw}`, Number(item.amountIQD||0), Number(item.amountUSD||0)); }
-      else { setCashIQD(p=>p-Number(item.amountIQD||0)); setCashUSD(p=>p-Number(item.amountUSD||0)); addCashLog(`${t.delete} ${t.addMoney}`, -Number(item.amountIQD||0), -Number(item.amountUSD||0)); }
+      if (item.type==="withdraw") { 
+        setCashIQD(p=>p+Number(item.amountIQD||0)); 
+        setCashUSD(p=>p+Number(item.amountUSD||0)); 
+        addCashLog(`${t.delete} ${t.withdraw}`, Number(item.amountIQD||0), Number(item.amountUSD||0)); 
+      } else { 
+        setCashIQD(p=>p-Number(item.amountIQD||0)); 
+        setCashUSD(p=>p-Number(item.amountUSD||0)); 
+        addCashLog(`${t.delete} ${t.addMoney}`, -Number(item.amountIQD||0), -Number(item.amountUSD||0)); 
+      }
     }
     setItems(prev => prev.filter(i=>i.id!==id));
     setConfirmDel(null);
   };
 
-  const handleEdit = item => { setForm(item); setEditId(item.id); setShowForm(true); };
+  const handleEdit = item => { 
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    setForm(item); 
+    setEditItem(item); 
+    setEditModalOpen(true); 
+  };
+  
   const toggleMark = id => setItems(prev => prev.map(i => i.id===id?{...i,marked:!i.marked}:i));
 
-  const personBalance = selectedPerson ? (() => {
-    const pItems = items.filter(i => i.personName === selectedPerson);
-    const wIQD = pItems.filter(i=>i.type==="withdraw").reduce((a,b)=>a+Number(b.amountIQD||0),0);
-    const wUSD = pItems.filter(i=>i.type==="withdraw").reduce((a,b)=>a+Number(b.amountUSD||0),0);
-    const aIQD = pItems.filter(i=>i.type==="add").reduce((a,b)=>a+Number(b.amountIQD||0),0);
-    const aUSD = pItems.filter(i=>i.type==="add").reduce((a,b)=>a+Number(b.amountUSD||0),0);
-    return { wIQD, wUSD, aIQD, aUSD, balIQD: aIQD - wIQD, balUSD: aUSD - wUSD };
-  })() : null;
-
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>{t.sidebar.contractor}</h1>
-        <button onClick={()=>{setShowForm(!showForm);resetForm()}} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
-      </div>
-
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, padding: 10, marginBottom: 10 }}>
-        <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
-          <input placeholder={t.addPerson} value={newPerson} onChange={e=>setNewPerson(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleAddPerson()} style={{ padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, width: 160 }} />
-          <button onClick={handleAddPerson} style={{ padding: "6px 12px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600 }}><I.Plus /> {t.addPerson}</button>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <StickyHeader s={s}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 15, flexWrap: "wrap", gap: 10 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: PRIMARY, textAlign: "center" }}>{t.sidebar.contractor}</h1>
+          {!isFrozen && (
+            <button onClick={()=>{setShowForm(!showForm);resetForm()}} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
+          )}
         </div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <button onClick={()=>setSelectedPerson("")} style={{ padding: "5px 12px", borderRadius: 20, border: !selectedPerson?`2px solid ${PRIMARY}`:`1px solid ${s.border}`, background: !selectedPerson?`${PRIMARY}15`:"transparent", color: !selectedPerson?PRIMARY:s.text, cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{t.allPersons}</button>
-          {personsList.map(p => <button key={p} onClick={()=>setSelectedPerson(p)} style={{ padding: "5px 12px", borderRadius: 20, border: selectedPerson===p?`2px solid ${PRIMARY}`:`1px solid ${s.border}`, background: selectedPerson===p?`${PRIMARY}15`:"transparent", color: selectedPerson===p?PRIMARY:s.text, cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{p}</button>)}
+
+        <div style={{ display: "flex", gap: 15, marginBottom: 15, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <input placeholder={t.addPerson} value={newPerson} onChange={e=>setNewPerson(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleAddPerson()} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+          </div>
+          {!isFrozen && (
+            <button onClick={handleAddPerson} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600 }}><I.Plus /> {t.addPerson}</button>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: 15, flexWrap: "wrap", justifyContent: "center", marginBottom: 15 }}>
+          <div style={{ minWidth: 200 }}>
+            <select value={selectedPerson} onChange={e=>setSelectedPerson(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+              <option value="">{t.allPersons}</option>
+              {personsList.map(p=><option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div style={{ minWidth: 200 }}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.search} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+          </div>
+          <div>
+            <select value={filterMonth} onChange={e=>setFilterMonth(e.target.value)} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center", minWidth: 120 }}>
+              <option value="">{t.allMonths}</option>
+              {months.map(m=><option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
           {showMarkedOnly
-            ? <button onClick={()=>{setShowMarkedOnly(false);setItems(prev=>prev.map(i=>({...i,marked:false})))}} style={{ padding: "5px 12px", borderRadius: 20, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
-            : <button onClick={()=>setShowMarkedOnly(true)} style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11, cursor: "pointer" }}>{t.showMarked}</button>
+            ? <button onClick={()=>{setShowMarkedOnly(false);setItems(prev=>prev.map(i=>({...i,marked:false})))}} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "#D1FAE5", color: "#059669", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{t.showAll}</button>
+            : <button onClick={()=>setShowMarkedOnly(true)} style={{ padding: "8px 20px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.showMarked}</button>
           }
         </div>
-      </div>
+      </StickyHeader>
 
-      {personBalance && (
-        <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
-          <div style={{ background: "#FEE2E2", borderRadius: 8, padding: "6px 14px", fontSize: 12 }}><span style={{ color: "#EF4444" }}>{t.withdraw}: {fmt(personBalance.wIQD)} {t.iqd} / ${fmt(personBalance.wUSD)}</span></div>
-          <div style={{ background: "#D1FAE5", borderRadius: 8, padding: "6px 14px", fontSize: 12 }}><span style={{ color: "#059669" }}>{t.addMoney}: {fmt(personBalance.aIQD)} {t.iqd} / ${fmt(personBalance.aUSD)}</span></div>
-        </div>
-      )}
-
-      {showForm && (
-        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8 }}>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.date}</label><input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.contractorType}</label><select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }}><option value="withdraw">{t.withdraw}</option><option value="add">{t.addMoney}</option></select></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.personName}</label>
-              <select value={form.personName} onChange={e=>setForm({...form,personName:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }}><option value="">— {t.personName} —</option>{personsList.map(p=><option key={p} value={p}>{p}</option>)}</select>
+      {!isFrozen && showForm && (
+        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 20, marginBottom: 15 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 15, color: PRIMARY, textAlign: "center" }}>{t.add}</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
             </div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.amountIQD}</label><input type="number" value={form.amountIQD} onChange={e=>setForm({...form,amountIQD:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.amountUSD}</label><input type="number" value={form.amountUSD} onChange={e=>setForm({...form,amountUSD:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.note}</label><input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }} /></div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.contractorType}</label>
+              <select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="withdraw">{t.withdraw}</option>
+                <option value="add">{t.addMoney}</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.personName}</label>
+              <select value={form.personName} onChange={e=>setForm({...form,personName:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="">— {t.personName} —</option>
+                {personsList.map(p=><option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.amountIQD}</label>
+              <input type="number" value={form.amountIQD} onChange={e=>setForm({...form,amountIQD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.amountUSD}</label>
+              <input type="number" value={form.amountUSD} onChange={e=>setForm({...form,amountUSD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-            <button onClick={handleSave} style={{ padding: "7px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{editId?t.edit:t.save}</button>
-            <button onClick={()=>{setShowForm(false);resetForm()}} style={{ padding: "7px 18px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.cancel}</button>
+          <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "center" }}>
+            <button onClick={handleSave} style={{ padding: "8px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{editItem?t.edit:t.save}</button>
+            <button onClick={()=>{setShowForm(false);resetForm()}} style={{ padding: "8px 24px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, cursor: "pointer" }}>{t.cancel}</button>
           </div>
         </div>
       )}
 
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <div style={{ overflowX: "auto", height: "100%" }}>
           <table style={tableStyle}>
-            <thead><tr><TH isRtl={isRtl}>{t.date}</TH><TH isRtl={isRtl}>{t.contractorType}</TH><TH isRtl={isRtl}>{t.personName}</TH><TH isRtl={isRtl}>{t.amountIQD}</TH><TH isRtl={isRtl}>{t.amountUSD}</TH><TH isRtl={isRtl}>{t.note}</TH><TH isRtl={isRtl}>{t.mark}</TH><TH isRtl={isRtl}></TH></tr></thead>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl}>{t.date}</TH>
+                <TH isRtl={isRtl}>{t.contractorType}</TH>
+                <TH isRtl={isRtl}>{t.personName}</TH>
+                <TH isRtl={isRtl}>{t.amountIQD}</TH>
+                <TH isRtl={isRtl}>{t.amountUSD}</TH>
+                <TH isRtl={isRtl}>{t.note}</TH>
+                <TH isRtl={isRtl}>{t.mark}</TH>
+                <TH isRtl={isRtl}></TH>
+              </tr>
+            </thead>
             <tbody>
               {filtered.map(item => (
-                <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent" }}>
+                <tr key={item.id} style={{ background: item.marked?`${PRIMARY}06`:"transparent", textAlign: "center" }}>
                   <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
-                  <TD s={s} style={{ minWidth: 70 }}><span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600, background: item.type==="add"?"#D1FAE5":"#FEE2E2", color: item.type==="add"?"#059669":"#EF4444" }}>{item.type==="add"?t.addMoney:t.withdraw}</span></TD>
-                  <TD s={s} style={{ fontWeight: 600, minWidth: 90 }}>{item.personName}</TD>
+                  <TD s={s} style={{ minWidth: 80 }}>
+                    <span style={{ padding: "3px 10px", borderRadius: 12, fontSize: 11, fontWeight: 600, background: item.type==="add"?"#D1FAE5":"#FEE2E2", color: item.type==="add"?"#059669":"#EF4444", display: "inline-block" }}>
+                      {item.type==="add"?t.addMoney:t.withdraw}
+                    </span>
+                  </TD>
+                  <TD s={s} style={{ fontWeight: 600, minWidth: 100 }}>{item.personName}</TD>
                   <TD s={s} style={{ direction: "ltr", fontWeight: 600, minWidth: 90 }}>{Number(item.amountIQD)?fmt(item.amountIQD):"—"}</TD>
                   <TD s={s} style={{ direction: "ltr", fontWeight: 600, minWidth: 80 }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
-                  <TD s={s} style={{ minWidth: 100, maxWidth: 180 }} title={item.note}>{trunc(item.note, 25) || "—"}</TD>
-                  <TD s={s} style={{ textAlign: "right", minWidth: 35 }}><button onClick={()=>toggleMark(item.id)} style={{ width: 20, height: 20, borderRadius: 3, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{item.marked&&<I.Check />}</button></TD>
-                  <TD s={s} style={{ minWidth: 50 }}><div style={{ display: "flex", gap: 3 }}><button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button><button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button></div></TD>
+                  <TD s={s} style={{ minWidth: 120, maxWidth: 200 }} title={item.note}>{trunc(item.note, 25) || "—"}</TD>
+                  <TD s={s} style={{ minWidth: 35 }}>
+                    <button onClick={()=>toggleMark(item.id)} style={{ width: 22, height: 22, borderRadius: 4, border: `2px solid ${item.marked?PRIMARY:s.border}`, background: item.marked?PRIMARY:"transparent", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", margin: "0 auto" }}>
+                      {item.marked&&<I.Check />}
+                    </button>
+                  </TD>
+                  <TD s={s} style={{ minWidth: 60 }}>
+                    {!isFrozen && (
+                      <div style={{ display: "flex", gap: 5, justifyContent: "center" }}>
+                        <button onClick={()=>handleEdit(item)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Edit /></button>
+                        <button onClick={()=>setConfirmDel(item.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button>
+                      </div>
+                    )}
+                  </TD>
                 </tr>
               ))}
             </tbody>
           </table>
-          {filtered.length===0 && <div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+          {filtered.length===0 && <div style={{ padding: 40, textAlign: "center", color: s.textMuted, fontSize: 13 }}>{t.noData}</div>}
         </div>
       </div>
+
+      {editModalOpen && (
+        <EditModal title={t.edit} onSave={handleSave} onCancel={() => { setEditModalOpen(false); resetForm(); }} s={s} t={t}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.date}</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.contractorType}</label>
+              <select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="withdraw">{t.withdraw}</option>
+                <option value="add">{t.addMoney}</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.personName}</label>
+              <select value={form.personName} onChange={e=>setForm({...form,personName:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="">— {t.personName} —</option>
+                {personsList.map(p=><option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.amountIQD}</label>
+              <input type="number" value={form.amountIQD} onChange={e=>setForm({...form,amountIQD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.amountUSD}</label>
+              <input type="number" value={form.amountUSD} onChange={e=>setForm({...form,amountUSD:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.note}</label>
+              <input value={form.note} onChange={e=>setForm({...form,note:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+          </div>
+        </EditModal>
+      )}
+
       {alert && <AlertModal message={alert} onOk={()=>{setAlert(null);resetForm();setShowForm(false)}} s={s} />}
       {confirmDel && <ConfirmModal message={t.confirmDelete} onYes={()=>doDelete(confirmDel)} onNo={()=>setConfirmDel(null)} s={s} t={t} />}
     </div>
   );
 }
 
-// ==================== CASH ====================
-function CashPage({ t, s, isRtl, cashIQD, setCashIQD, cashUSD, setCashUSD, exchangeRate, cashLog }) {
-  const [editIQD, setEditIQD] = useState(false); const [editUSD, setEditUSD] = useState(false);
-  const [tmpIQD, setTmpIQD] = useState(cashIQD); const [tmpUSD, setTmpUSD] = useState(cashUSD);
-  return (
-    <div>
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: PRIMARY }}>{t.sidebar.cash}</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 16 }}>
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 16, textAlign: "right", cursor: "pointer", borderTop: `3px solid ${s.success}` }} onClick={()=>{if(!editIQD){setEditIQD(true);setTmpIQD(cashIQD)}}}>
-          <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, marginBottom: 5 }}>{t.cashIQD}</div>
-          {editIQD ? <div style={{ display: "flex", gap: 5, justifyContent: "center" }}><input type="number" value={tmpIQD} onChange={e=>setTmpIQD(Number(e.target.value))} style={{ width: 120, padding: "5px 8px", borderRadius: 5, border: `1px solid ${PRIMARY}`, background: s.bgCard2, color: s.text, fontSize: 15, textAlign: "right", direction: "ltr" }} autoFocus /><button onClick={e=>{e.stopPropagation();setCashIQD(tmpIQD);setEditIQD(false)}} style={{ padding: "4px 10px", borderRadius: 5, background: PRIMARY, color: "#fff", border: "none", fontSize: 11, cursor: "pointer" }}>{t.save}</button></div>
-            : <><div style={{ fontSize: 22, fontWeight: 800, color: cashIQD>=0?s.success:s.danger, direction: "ltr" }}>{fmt(cashIQD)}</div><div style={{ fontSize: 9, color: s.textMuted, marginTop: 2 }}>{t.clickToChange}</div></>}
-        </div>
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 16, textAlign: "right", cursor: "pointer", borderTop: `3px solid ${s.success}` }} onClick={()=>{if(!editUSD){setEditUSD(true);setTmpUSD(cashUSD)}}}>
-          <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, marginBottom: 5 }}>{t.cashUSD}</div>
-          {editUSD ? <div style={{ display: "flex", gap: 5, justifyContent: "center" }}><input type="number" value={tmpUSD} onChange={e=>setTmpUSD(Number(e.target.value))} style={{ width: 120, padding: "5px 8px", borderRadius: 5, border: `1px solid ${PRIMARY}`, background: s.bgCard2, color: s.text, fontSize: 15, textAlign: "right", direction: "ltr" }} autoFocus /><button onClick={e=>{e.stopPropagation();setCashUSD(tmpUSD);setEditUSD(false)}} style={{ padding: "4px 10px", borderRadius: 5, background: PRIMARY, color: "#fff", border: "none", fontSize: 11, cursor: "pointer" }}>{t.save}</button></div>
-            : <><div style={{ fontSize: 22, fontWeight: 800, color: cashUSD>=0?s.success:s.danger, direction: "ltr" }}>${fmt(cashUSD)}</div><div style={{ fontSize: 9, color: s.textMuted, marginTop: 2 }}>{t.clickToChange}</div></>}
-        </div>
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 16, textAlign: "right", borderTop: `3px solid ${PRIMARY}` }}>
-          <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, marginBottom: 5 }}>{t.totalInIQD}</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY, direction: "ltr" }}>{fmt(Math.round(cashIQD+cashUSD*exchangeRate))}</div>
-          <div style={{ fontSize: 9, color: s.textMuted, marginTop: 2 }}>1$ = {fmt(exchangeRate)} {t.iqd}</div>
-        </div>
-      </div>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-        <h3 style={{ padding: "10px 12px 0", fontSize: 13, fontWeight: 700 }}>{t.cashLog}</h3>
-        <div style={{ overflowX: "auto", maxHeight: 400, overflowY: "auto" }}>
-          <table style={tableStyle}>
-            <thead><tr>{[t.date,"",t.type,t.iqd,t.usd].map((h,i)=><TH key={i} isRtl={isRtl}>{h}</TH>)}</tr></thead>
-            <tbody>{[...cashLog].reverse().map(log=>(
-              <tr key={log.id}>
-                <TD s={s} style={{ direction: "ltr", fontSize: 10, minWidth: 85 }}>{log.date}</TD>
-                <TD s={s} style={{ fontSize: 9, color: s.textMuted, minWidth: 60 }}>{log.time}</TD>
-                <TD s={s} style={{ minWidth: 120 }}>{log.desc}</TD>
-                <TD s={s} style={{ direction: "ltr", color: log.iqd>=0?s.success:s.danger, fontWeight: 600, minWidth: 80 }}>{log.iqd>=0?"+":""}{fmt(log.iqd)}</TD>
-                <TD s={s} style={{ direction: "ltr", color: log.usd>=0?s.success:s.danger, fontWeight: 600, minWidth: 70 }}>{log.usd>=0?"+":""}${fmt(log.usd)}</TD>
-              </tr>
-            ))}</tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ==================== EXCHANGE ====================
-function ExchangePage({ t, s, isRtl, exchangeRate, setExchangeRate, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog }) {
+function ExchangePage({ t, s, isRtl, exchangeRate, setExchangeRate, cashIQD, setCashIQD, cashUSD, setCashUSD, addCashLog, isFrozen }) {
   const [tmpRate, setTmpRate] = useState(exchangeRate);
   const [dir, setDir] = useState("usd_to_iqd");
   const [amt, setAmt] = useState("");
   const [alert, setAlert] = useState(null);
-  const result = dir==="usd_to_iqd" ? Number(amt||0)*exchangeRate : Number(amt||0)/exchangeRate;
+  
+  const result = dir === "usd_to_iqd" ? Number(amt||0) * exchangeRate : Number(amt||0) / exchangeRate;
 
   const handleConvert = () => {
-    const a = Number(amt||0); if (a<=0) return;
-    if (dir==="usd_to_iqd") {
-      if (a>cashUSD) { setAlert(t.noBalance); return; }
-      setCashUSD(p=>p-a); setCashIQD(p=>p+Math.round(a*exchangeRate)); addCashLog(`${t.convert}: $${a} → ${fmt(Math.round(a*exchangeRate))}`, Math.round(a*exchangeRate), -a);
+    if (isFrozen) {
+      setAlert(t.frozen);
+      return;
+    }
+    
+    const a = Number(amt||0); 
+    if (a <= 0) return;
+    
+    if (dir === "usd_to_iqd") {
+      if (a > cashUSD) { 
+        setAlert(t.noBalance); 
+        return; 
+      }
+      const convertedIQD = Math.round(a * exchangeRate);
+      setCashUSD(prev => prev - a); 
+      setCashIQD(prev => prev + convertedIQD); 
+      addCashLog(`${t.convert}: $${a} → ${fmt(convertedIQD)} ${t.iqd}`, convertedIQD, -a);
     } else {
-      if (a>cashIQD) { setAlert(t.noBalance); return; }
-      setCashIQD(p=>p-a); setCashUSD(p=>p+Math.round(a/exchangeRate)); addCashLog(`${t.convert}: ${fmt(a)} → $${Math.round(a/exchangeRate)}`, -a, Math.round(a/exchangeRate));
+      if (a > cashIQD) { 
+        setAlert(t.noBalance); 
+        return; 
+      }
+      const convertedUSD = Math.round(a / exchangeRate);
+      setCashIQD(prev => prev - a); 
+      setCashUSD(prev => prev + convertedUSD); 
+      addCashLog(`${t.convert}: ${fmt(a)} ${t.iqd} → $${convertedUSD}`, -a, convertedUSD);
     }
     setAmt("");
   };
 
   return (
-    <div>
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: PRIMARY }}>{t.sidebar.exchange}</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 18 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>{t.exchangeRate}</h3>
-          <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-            <div style={{ flex: 1 }}><label style={{ fontSize: 10, color: s.textMuted }}>1 USD =</label><input type="number" value={tmpRate} onChange={e=>setTmpRate(Number(e.target.value))} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr" }} /></div>
-            <button onClick={()=>setExchangeRate(tmpRate)} style={{ padding: "7px 14px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>{t.saveRate}</button>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20, color: PRIMARY, textAlign: "center" }}>{t.sidebar.exchange}</h1>
+      
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 15, textAlign: "center" }}>{t.exchangeRate}</h3>
+          <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: 12, color: s.textMuted, textAlign: "center", display: "block", marginBottom: 3 }}>1 USD =</label>
+              <input type="number" value={tmpRate} onChange={e=>setTmpRate(Number(e.target.value))} style={{ width: "100%", padding: "10px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 15, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <button onClick={()=>setExchangeRate(tmpRate)} style={{ padding: "10px 20px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>{t.saveRate}</button>
           </div>
-          <div style={{ marginTop: 8, padding: "8px 12px", background: `${PRIMARY}10`, borderRadius: 6, textAlign: "right" }}><span style={{ fontSize: 16, fontWeight: 800, color: PRIMARY }}>1$ = {fmt(exchangeRate)} {t.iqd}</span></div>
+          <div style={{ marginTop: 15, padding: "12px 20px", background: `${PRIMARY}10`, borderRadius: 6, textAlign: "center" }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>1$ = {fmt(exchangeRate)} {t.iqd}</span>
+          </div>
         </div>
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 18 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>{t.convert}</h3>
-          <div><label style={{ fontSize: 10, color: s.textMuted }}>{t.convertTo}</label><select value={dir} onChange={e=>setDir(e.target.value)} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, marginBottom: 8, direction: "ltr" }}><option value="usd_to_iqd">{t.fromUSD}</option><option value="iqd_to_usd">{t.fromIQD}</option></select></div>
-          <div><label style={{ fontSize: 10, color: s.textMuted }}>{t.amount}</label><input type="number" value={amt} onChange={e=>setAmt(e.target.value)} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, marginBottom: 8, direction: "ltr" }} /></div>
-          <div style={{ padding: "10px", background: "#D1FAE5", borderRadius: 6, textAlign: "right", marginBottom: 8 }}>
-            <div style={{ fontSize: 10, color: s.textMuted }}>{t.result}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#059669", direction: "ltr" }}>{dir==="usd_to_iqd"?`${fmt(Math.round(result))} ${t.iqd}`:`$${fmt(Math.round(result*100)/100)}`}</div>
+        
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 15, textAlign: "center" }}>{t.convert}</h3>
+          
+          <div style={{ marginBottom: 15 }}>
+            <label style={{ fontSize: 12, color: s.textMuted, textAlign: "center", display: "block", marginBottom: 3 }}>{t.convertTo}</label>
+            <select value={dir} onChange={e=>setDir(e.target.value)} style={{ width: "100%", padding: "10px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 14, direction: "ltr", textAlign: "center" }}>
+              <option value="usd_to_iqd">{t.fromUSD}</option>
+              <option value="iqd_to_usd">{t.fromIQD}</option>
+            </select>
           </div>
-          <button onClick={handleConvert} style={{ width: "100%", padding: "8px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{t.convert}</button>
+          
+          <div style={{ marginBottom: 15 }}>
+            <label style={{ fontSize: 12, color: s.textMuted, textAlign: "center", display: "block", marginBottom: 3 }}>{t.amount}</label>
+            <input type="number" value={amt} onChange={e=>setAmt(e.target.value)} style={{ width: "100%", padding: "10px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 14, direction: "ltr", textAlign: "center" }} />
+          </div>
+          
+          <div style={{ padding: "15px", background: "#D1FAE5", borderRadius: 6, textAlign: "center", marginBottom: 15 }}>
+            <div style={{ fontSize: 12, color: s.textMuted, marginBottom: 5 }}>{t.result}</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: "#059669", direction: "ltr" }}>
+              {dir === "usd_to_iqd" 
+                ? `${fmt(Math.round(result))} ${t.iqd}`
+                : `$${fmt(Math.round(result))}`}
+            </div>
+          </div>
+          
+          <button onClick={handleConvert} style={{ width: "100%", padding: "12px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>{t.convert}</button>
         </div>
       </div>
+      
       {alert && <AlertModal message={alert} onOk={()=>setAlert(null)} s={s} />}
     </div>
   );
 }
 
 // ==================== INVOICE ====================
-function InvoicePage({ t, s, isRtl, pKey }) {
+function InvoicePage({ t, s, isRtl, pKey, isFrozen }) {
   const KEY = `karo_inv_${pKey}`;
   const [invoices, setInvoices] = useState(getLS(KEY, []));
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ date: today(), invoiceNo: "", currency: "iqd", billTo: "", billPhone: "", items: [{ name: "", qty: "", price: "", note: "" }] });
   const [preview, setPreview] = useState(null);
   const [confirmDel, setConfirmDel] = useState(null);
+  const [search, setSearch] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  
   useEffect(() => { setLS(KEY, invoices); }, [invoices, KEY]);
+
+  const filtered = invoices.filter(inv => 
+    inv.invoiceNo.toLowerCase().includes(search.toLowerCase()) ||
+    inv.billTo?.toLowerCase().includes(search.toLowerCase())
+  );
 
   const addItem = () => setForm({...form, items: [...form.items, { name: "", qty: "", price: "", note: "" }]});
   const removeItem = i => setForm({...form, items: form.items.filter((_,idx)=>idx!==i)});
@@ -1504,126 +3336,454 @@ function InvoicePage({ t, s, isRtl, pKey }) {
   const total = form.items.reduce((a,b)=>a+(Number(b.qty||0)*Number(b.price||0)),0);
 
   const handleSave = () => {
+    if (isFrozen) return;
     setInvoices(prev => [{...form, id: genId(), total, marked: false}, ...prev]);
     setForm({ date: today(), invoiceNo: "", currency: "iqd", billTo: "", billPhone: "", items: [{ name: "", qty: "", price: "", note: "" }] });
     setShowForm(false);
+  };
+
+  const handleEdit = (inv) => {
+    if (isFrozen) return;
+    setForm(inv);
+    setEditItem(inv);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSave = () => {
+    setInvoices(prev => prev.map(i => i.id === editItem.id ? { ...form, id: editItem.id, total: total } : i));
+    setEditModalOpen(false);
+    setForm({ date: today(), invoiceNo: "", currency: "iqd", billTo: "", billPhone: "", items: [{ name: "", qty: "", price: "", note: "" }] });
+  };
+
+  const doDelete = id => { 
+    if (isFrozen) return;
+    setInvoices(prev => prev.filter(i=>i.id!==id)); 
+    setConfirmDel(null); 
   };
 
   const printInv = inv => {
     const cur = inv.currency==="usd"?"$":"";
     const curLabel = inv.currency==="usd"?t.usd:t.iqd;
     const w = window.open("","_blank");
-    w.document.write(`<html dir="${isRtl?"rtl":"ltr"}"><head><title>Invoice</title><style> body{font-family:sans-serif;padding:30px;max-width:650px;margin:0 auto} .hdr{text-align:center;border-bottom:3px solid ${PRIMARY};padding-bottom:12px;margin-bottom:16px} .hdr h1{color:${PRIMARY};font-size:22px;margin:0} .hdr p{color:#666;font-size:11px;margin:2px 0} .info{display:flex;justify-content:space-between;margin-bottom:12px;font-size:12px} table{width:100%;border-collapse:collapse;margin-top:10px} th{background:${PRIMARY};color:#fff;padding:6px}td{border:1px solid #ddd;padding:6px;text-align:center;font-size:11px} .total{text-align:right;font-size:16px;font-weight:bold;margin-top:12px;color:${PRIMARY}} </style></head><body> <div class="hdr"><h1>KARO GROUP</h1><p>${PHONE} | ${EMAIL}</p></div> <div class="info"><div><strong>DATE:</strong> ${inv.date}</div><div><strong>INVOICE #:</strong> ${inv.invoiceNo}</div></div> ${inv.billTo?`<div class="info"><div><strong>BILL TO:</strong> ${inv.billTo}</div>${inv.billPhone?`<div><strong>Phone:</strong> ${inv.billPhone}</div>`:""}</div>`:""} <table><thead><tr><th>#</th><th>${t.itemName}</th><th>${t.qty}</th><th>${t.price}</th><th>${t.total}</th>${inv.items.some(i=>i.note)?`<th>${t.note}</th>`:""}</tr></thead><tbody> ${inv.items.map((it,i)=>`<tr><td>${i+1}</td><td>${it.name}</td><td>${it.qty}</td><td>${cur}${fmt(it.price)}</td><td>${cur}${fmt(Number(it.qty||0)*Number(it.price||0))}</td>${inv.items.some(x=>x.note)?`<td>${it.note||""}</td>`:""}</tr>`).join("")} </tbody></table><div class="total">${t.total}: ${cur}${fmt(inv.total)} ${curLabel}</div></body></html>`);
-    w.document.close(); w.print();
+    w.document.write(`<html dir="${isRtl?"rtl":"ltr"}">
+      <head>
+        <title>Invoice</title>
+        <style>
+          @page { size: A4; margin: 1.5cm; }
+          body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            padding: 0; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            position: relative;
+            min-height: 100vh;
+          }
+          .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: 900;
+            color: ${PRIMARY};
+            opacity: 0.1;
+            z-index: -1;
+            text-align: center;
+            letter-spacing: 5px;
+            white-space: nowrap;
+          }
+          .watermark span {
+            display: block;
+            font-size: 40px;
+          }
+          .hdr { 
+            text-align: center; 
+            border-bottom: 2px solid ${PRIMARY}; 
+            padding-bottom: 15px; 
+            margin-bottom: 20px; 
+          }
+          .hdr h1 { color: ${PRIMARY}; font-size: 28px; margin: 0; }
+          .hdr p { color: #666; font-size: 12px; margin: 5px 0; direction: ltr; }
+          .info { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 20px; 
+            font-size: 13px; 
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+          }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          th { background: ${PRIMARY}; color: white; padding: 10px; font-size: 13px; text-align: center; }
+          td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 12px; }
+          .total { 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: bold; 
+            margin-top: 20px; 
+            color: ${PRIMARY}; 
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 5px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="watermark">
+          KG<br />
+          <span>KARO GROUP</span>
+        </div>
+        <div class="hdr">
+          <h1>KARO GROUP</h1>
+          <p>${PHONE} | ${EMAIL}</p>
+        </div>
+        <div class="info">
+          <div><strong>DATE:</strong> ${inv.date}</div>
+          <div><strong>INVOICE #:</strong> ${inv.invoiceNo}</div>
+        </div>
+        ${inv.billTo ? `
+        <div class="info">
+          <div><strong>BILL TO:</strong> ${inv.billTo}</div>
+          ${inv.billPhone ? `<div><strong>Phone:</strong> ${inv.billPhone}</div>` : ""}
+        </div>
+        ` : ""}
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>${t.itemName}</th>
+              <th>${t.qty}</th>
+              <th>${t.price}</th>
+              <th>${t.total}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${inv.items.map((it,i)=>`
+            <tr>
+              <td>${i+1}</td>
+              <td>${it.name}</td>
+              <td>${it.qty}</td>
+              <td>${cur}${fmt(it.price)}</td>
+              <td>${cur}${fmt(Number(it.qty||0)*Number(it.price||0))}</td>
+            </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <div class="total">
+          ${t.total}: ${cur}${fmt(inv.total)} ${curLabel}
+        </div>
+      </body>
+    </html>`);
+    w.document.close(); 
+    w.print();
   };
 
-  const doDelete = id => { setInvoices(prev => prev.filter(i=>i.id!==id)); setConfirmDel(null); };
-
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>{t.sidebar.invoice}</h1>
-        <button onClick={()=>setShowForm(!showForm)} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
-      </div>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <StickyHeader s={s}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 15, flexWrap: "wrap", gap: 10 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: PRIMARY, textAlign: "center" }}>{t.sidebar.invoice}</h1>
+          {!isFrozen && (
+            <button onClick={()=>setShowForm(!showForm)} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}><I.Plus /> {t.add}</button>
+          )}
+        </div>
 
-      {showForm && (
-        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8, marginBottom: 10 }}>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>DATE</label><input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>INVOICE #</label><input value={form.invoiceNo} onChange={e=>setForm({...form,invoiceNo:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.currency}</label><select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }}><option value="iqd">{t.iqd}</option><option value="usd">{t.usd}</option></select></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>BILL TO</label><input value={form.billTo} onChange={e=>setForm({...form,billTo:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12 }} /></div>
-            <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>Phone</label><input value={form.billPhone} onChange={e=>setForm({...form,billPhone:e.target.value})} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, padding: 15, marginBottom: 15 }}>
+          <input 
+            value={search} 
+            onChange={e=>setSearch(e.target.value)} 
+            placeholder={t.searchInvoice}
+            style={{ width: "100%", padding: "10px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} 
+          />
+        </div>
+      </StickyHeader>
+
+      {!isFrozen && showForm && (
+        <div style={{ background: s.bgCard, border: `1px solid ${PRIMARY}40`, borderRadius: 10, padding: 20, marginBottom: 15 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 15, color: PRIMARY, textAlign: "center" }}>{t.add}</h3>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12, marginBottom: 15 }}>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>DATE</label>
+              <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>INVOICE #</label>
+              <input value={form.invoiceNo} onChange={e=>setForm({...form,invoiceNo:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>{t.currency}</label>
+              <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                <option value="iqd">{t.iqd}</option>
+                <option value="usd">{t.usd}</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>BILL TO</label>
+              <input value={form.billTo} onChange={e=>setForm({...form,billTo:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: s.textMuted, fontWeight: 600, textAlign: "center", display: "block", marginBottom: 3 }}>Phone</label>
+              <input value={form.billPhone} onChange={e=>setForm({...form,billPhone:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+            </div>
           </div>
+
           {form.items.map((item,i) => (
-            <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr auto", gap: 5, marginBottom: 5, alignItems: "flex-end" }}>
-              <div>{i===0&&<label style={{ fontSize: 10, color: s.textMuted }}>{t.itemName}</label>}<input value={item.name} onChange={e=>updateItem(i,"name",e.target.value)} style={{ width: "100%", padding: "6px 8px", borderRadius: 5, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11 }} /></div>
-              <div>{i===0&&<label style={{ fontSize: 10, color: s.textMuted }}>{t.qty}</label>}<input type="number" value={item.qty} onChange={e=>updateItem(i,"qty",e.target.value)} style={{ width: "100%", padding: "6px 8px", borderRadius: 5, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11, direction: "ltr" }} /></div>
-              <div>{i===0&&<label style={{ fontSize: 10, color: s.textMuted }}>{t.price}</label>}<input type="number" value={item.price} onChange={e=>updateItem(i,"price",e.target.value)} style={{ width: "100%", padding: "6px 8px", borderRadius: 5, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11, direction: "ltr" }} /></div>
-              <div>{i===0&&<label style={{ fontSize: 10, color: s.textMuted }}>{t.note}</label>}<input value={item.note} onChange={e=>updateItem(i,"note",e.target.value)} style={{ width: "100%", padding: "6px 8px", borderRadius: 5, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 11 }} /></div>
-              {form.items.length>1 && <button onClick={()=>removeItem(i)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 4 }}><I.Trash /></button>}
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr auto", gap: 8, marginBottom: 8, alignItems: "center" }}>
+              <div>
+                {i===0 && <label style={{ fontSize: 11, color: s.textMuted, textAlign: "center", display: "block", marginBottom: 3 }}>{t.itemName}</label>}
+                <input value={item.name} onChange={e=>updateItem(i,"name",e.target.value)} placeholder={t.itemName} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, textAlign: "center" }} />
+              </div>
+              <div>
+                {i===0 && <label style={{ fontSize: 11, color: s.textMuted, textAlign: "center", display: "block", marginBottom: 3 }}>{t.qty}</label>}
+                <input type="number" value={item.qty} onChange={e=>updateItem(i,"qty",e.target.value)} placeholder={t.qty} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr", textAlign: "center" }} />
+              </div>
+              <div>
+                {i===0 && <label style={{ fontSize: 11, color: s.textMuted, textAlign: "center", display: "block", marginBottom: 3 }}>{t.price}</label>}
+                <input type="number" value={item.price} onChange={e=>updateItem(i,"price",e.target.value)} placeholder={t.price} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr", textAlign: "center" }} />
+              </div>
+              <div>
+                {i===0 && <label style={{ fontSize: 11, color: s.textMuted, textAlign: "center", display: "block", marginBottom: 3 }}>{t.note}</label>}
+                <input value={item.note} onChange={e=>updateItem(i,"note",e.target.value)} placeholder={t.note} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, textAlign: "center" }} />
+              </div>
+              {form.items.length > 1 && (
+                <button onClick={()=>removeItem(i)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", marginTop: i===0?20:0 }}>
+                  <I.Trash />
+                </button>
+              )}
             </div>
           ))}
-          <button onClick={addItem} style={{ padding: "4px 10px", borderRadius: 5, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 10, cursor: "pointer", marginBottom: 8 }}><I.Plus /> {t.addItem}</button>
-          <div style={{ padding: "8px 12px", background: `${PRIMARY}10`, borderRadius: 6, textAlign: "right", marginBottom: 8 }}>
-            <span style={{ fontWeight: 800, color: PRIMARY, fontSize: 15 }}>{t.total}: {form.currency==="usd"?"$":""}{fmt(total)} {form.currency==="usd"?t.usd:t.iqd}</span>
+
+          <button onClick={addItem} style={{ padding: "6px 14px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer", marginBottom: 15, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <I.Plus /> {t.addItem}
+          </button>
+
+          <div style={{ padding: "12px", background: `${PRIMARY}10`, borderRadius: 6, textAlign: "center", marginBottom: 15 }}>
+            <span style={{ fontWeight: 800, color: PRIMARY, fontSize: 16 }}>{t.total}: {form.currency==="usd"?"$":""}{fmt(total)} {form.currency==="usd"?t.usd:t.iqd}</span>
           </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <button onClick={handleSave} style={{ padding: "7px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{t.save}</button>
-            <button onClick={()=>setShowForm(false)} style={{ padding: "7px 18px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer" }}>{t.cancel}</button>
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+            <button onClick={handleSave} style={{ padding: "8px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t.save}</button>
+            <button onClick={()=>setShowForm(false)} style={{ padding: "8px 24px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, cursor: "pointer" }}>{t.cancel}</button>
           </div>
         </div>
       )}
 
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <div style={{ overflowX: "auto", height: "100%" }}>
           <table style={tableStyle}>
-            <thead><tr>{["DATE","INVOICE #",t.billTo,t.total,""].map((h,i)=><TH key={i} isRtl={isRtl}>{h}</TH>)}</tr></thead>
-            <tbody>{invoices.map(inv=>(
-              <tr key={inv.id}>
-                <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{inv.date}</TD>
-                <TD s={s} style={{ fontWeight: 600, minWidth: 80 }}>{inv.invoiceNo}</TD>
-                <TD s={s} style={{ minWidth: 80 }}>{inv.billTo||"—"}</TD>
-                <TD s={s} style={{ direction: "ltr", fontWeight: 700, color: PRIMARY, minWidth: 100 }}>{inv.currency==="usd"?"$":""}{fmt(inv.total)} {inv.currency==="usd"?t.usd:t.iqd}</TD>
-                <TD s={s} style={{ minWidth: 60 }}>
-                  <div style={{ display: "flex", gap: 3 }}>
-                    <button onClick={()=>printInv(inv)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Printer /></button>
-                    <button onClick={()=>setPreview(inv)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer", padding: 2 }}><I.Eye /></button>
-                    <button onClick={()=>setConfirmDel(inv.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer", padding: 2 }}><I.Trash /></button>
-                  </div>
-                </TD>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl}>DATE</TH>
+                <TH isRtl={isRtl}>INVOICE #</TH>
+                <TH isRtl={isRtl}>{t.billTo}</TH>
+                <TH isRtl={isRtl}>{t.total}</TH>
+                <TH isRtl={isRtl}></TH>
               </tr>
-            ))}</tbody>
+            </thead>
+            <tbody>
+              {filtered.map(inv => (
+                <tr key={inv.id} style={{ textAlign: "center" }}>
+                  <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{inv.date}</TD>
+                  <TD s={s} style={{ fontWeight: 600, minWidth: 80 }}>{inv.invoiceNo}</TD>
+                  <TD s={s} style={{ minWidth: 100 }}>{inv.billTo || "—"}</TD>
+                  <TD s={s} style={{ direction: "ltr", fontWeight: 700, color: PRIMARY, minWidth: 100 }}>
+                    {inv.currency==="usd"?"$":""}{fmt(inv.total)} {inv.currency==="usd"?t.usd:t.iqd}
+                  </TD>
+                  <TD s={s} style={{ minWidth: 120 }}>
+                    <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                      <button onClick={()=>printInv(inv)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer" }} title={t.print}>
+                        <I.Printer />
+                      </button>
+                      <button onClick={()=>setPreview(inv)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer" }} title={t.viewInvoice}>
+                        <I.Eye />
+                      </button>
+                      {!isFrozen && (
+                        <>
+                          <button onClick={()=>handleEdit(inv)} style={{ background: "none", border: "none", color: PRIMARY, cursor: "pointer" }} title={t.edit}>
+                            <I.Edit />
+                          </button>
+                          <button onClick={()=>setConfirmDel(inv.id)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer" }} title={t.delete}>
+                            <I.Trash />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </TD>
+                </tr>
+              ))}
+            </tbody>
           </table>
+          {filtered.length === 0 && <div style={{ padding: 40, textAlign: "center", color: s.textMuted, fontSize: 13 }}>{t.noData}</div>}
         </div>
       </div>
 
       {preview && (
         <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: "#fff", color: "#000", borderRadius: 10, padding: 30, maxWidth: 600, width: "100%", maxHeight: "90vh", overflow: "auto" }}>
-            <div style={{ textAlign: "right", borderBottom: `3px solid ${PRIMARY}`, paddingBottom: 10, marginBottom: 12 }}><h2 style={{ color: PRIMARY, margin: 0, fontSize: 20 }}>KARO GROUP</h2><p style={{ color: "#666", fontSize: 10, margin: "2px 0" }}>{PHONE} | {EMAIL}</p></div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8 }}><div><strong>DATE:</strong> {preview.date}</div><div><strong>INVOICE #:</strong> {preview.invoiceNo}</div></div>
-            {preview.billTo && <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 10 }}><div><strong>BILL TO:</strong> {preview.billTo}</div>{preview.billPhone&&<div><strong>Phone:</strong> {preview.billPhone}</div>}</div>}
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, marginBottom: 10 }}>
-              <thead><tr style={{ background: PRIMARY, color: "#fff" }}><th style={{padding:5}}>#</th><th style={{padding:5}}>{t.itemName}</th><th style={{padding:5}}>{t.qty}</th><th style={{padding:5}}>{t.price}</th><th style={{padding:5}}>{t.total}</th></tr></thead>
-              <tbody>{preview.items.map((it,i)=><tr key={i} style={{ borderBottom: "1px solid #ddd", textAlign: "right" }}><td style={{padding:5}}>{i+1}</td><td style={{padding:5}}>{it.name}</td><td style={{padding:5}}>{it.qty}</td><td style={{padding:5}}>{preview.currency==="usd"?"$":""}{fmt(it.price)}</td><td style={{padding:5,fontWeight:600}}>{preview.currency==="usd"?"$":""}{fmt(Number(it.qty||0)*Number(it.price||0))}</td></tr>)}</tbody>
+          <div style={{ background: "#fff", color: "#000", borderRadius: 10, padding: 30, maxWidth: 700, width: "100%", maxHeight: "90vh", overflow: "auto" }}>
+            <div style={{ textAlign: "center", borderBottom: `3px solid ${PRIMARY}`, paddingBottom: 10, marginBottom: 12 }}>
+              <h2 style={{ color: PRIMARY, margin: 0, fontSize: 24 }}>KARO GROUP</h2>
+              <p style={{ color: "#666", fontSize: 12, margin: "5px 0", direction: "ltr" }}>{PHONE} | {EMAIL}</p>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 10 }}>
+              <div><strong>DATE:</strong> {preview.date}</div>
+              <div><strong>INVOICE #:</strong> {preview.invoiceNo}</div>
+            </div>
+            {preview.billTo && (
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 15 }}>
+                <div><strong>BILL TO:</strong> {preview.billTo}</div>
+                {preview.billPhone && <div><strong>Phone:</strong> {preview.billPhone}</div>}
+              </div>
+            )}
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginBottom: 15 }}>
+              <thead>
+                <tr style={{ background: PRIMARY, color: "#fff" }}>
+                  <th style={{ padding: "8px", textAlign: "center" }}>#</th>
+                  <th style={{ padding: "8px", textAlign: "center" }}>{t.itemName}</th>
+                  <th style={{ padding: "8px", textAlign: "center" }}>{t.qty}</th>
+                  <th style={{ padding: "8px", textAlign: "center" }}>{t.price}</th>
+                  <th style={{ padding: "8px", textAlign: "center" }}>{t.total}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {preview.items.map((it,i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
+                    <td style={{ padding: "8px", textAlign: "center" }}>{i+1}</td>
+                    <td style={{ padding: "8px", textAlign: "center" }}>{it.name}</td>
+                    <td style={{ padding: "8px", textAlign: "center" }}>{it.qty}</td>
+                    <td style={{ padding: "8px", textAlign: "center" }}>{preview.currency==="usd"?"$":""}{fmt(it.price)}</td>
+                    <td style={{ padding: "8px", fontWeight: 600, textAlign: "center" }}>
+                      {preview.currency==="usd"?"$":""}{fmt(Number(it.qty||0)*Number(it.price||0))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <div style={{ textAlign: "right", fontSize: 16, fontWeight: 800, color: PRIMARY }}>{t.total}: {preview.currency==="usd"?"$":""}{fmt(preview.total)} {preview.currency==="usd"?t.usd:t.iqd}</div>
-            <div style={{ textAlign: "right", marginTop: 16 }}><button onClick={()=>setPreview(null)} style={{ padding: "6px 20px", borderRadius: 6, border: "1px solid #ddd", background: "#f5f5f5", color: "#333", cursor: "pointer", fontSize: 12 }}>{t.cancel}</button></div>
+            <div style={{ textAlign: "center", fontSize: 18, fontWeight: 800, color: PRIMARY }}>
+              {t.total}: {preview.currency==="usd"?"$":""}{fmt(preview.total)} {preview.currency==="usd"?t.usd:t.iqd}
+            </div>
+            <div style={{ textAlign: "center", marginTop: 20 }}>
+              <button onClick={()=>setPreview(null)} style={{ padding: "8px 24px", borderRadius: 6, border: "1px solid #ddd", background: "#f5f5f5", color: "#333", cursor: "pointer", fontSize: 13 }}>{t.cancel}</button>
+            </div>
           </div>
         </div>
       )}
+
+      {editModalOpen && (
+        <EditModal title={t.edit} onSave={handleEditSave} onCancel={() => { setEditModalOpen(false); setForm({ date: today(), invoiceNo: "", currency: "iqd", billTo: "", billPhone: "", items: [{ name: "", qty: "", price: "", note: "" }] }); }} s={s} t={t}>
+          <div style={{ maxHeight: "60vh", overflowY: "auto", padding: "0 5px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 15 }}>
+              <div>
+                <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>DATE</label>
+                <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>INVOICE #</label>
+                <input value={form.invoiceNo} onChange={e=>setForm({...form,invoiceNo:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>{t.currency}</label>
+                <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }}>
+                  <option value="iqd">{t.iqd}</option>
+                  <option value="usd">{t.usd}</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>BILL TO</label>
+                <input value={form.billTo} onChange={e=>setForm({...form,billTo:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, textAlign: "center" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 5, textAlign: "center" }}>Phone</label>
+                <input value={form.billPhone} onChange={e=>setForm({...form,billPhone:e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+              </div>
+            </div>
+
+            {form.items.map((item,i) => (
+              <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr auto", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                <input value={item.name} onChange={e=>updateItem(i,"name",e.target.value)} placeholder={t.itemName} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, textAlign: "center" }} />
+                <input type="number" value={item.qty} onChange={e=>updateItem(i,"qty",e.target.value)} placeholder={t.qty} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr", textAlign: "center" }} />
+                <input type="number" value={item.price} onChange={e=>updateItem(i,"price",e.target.value)} placeholder={t.price} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr", textAlign: "center" }} />
+                <input value={item.note} onChange={e=>updateItem(i,"note",e.target.value)} placeholder={t.note} style={{ padding: "8px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, textAlign: "center" }} />
+                {form.items.length > 1 && (
+                  <button onClick={()=>removeItem(i)} style={{ background: "none", border: "none", color: s.danger, cursor: "pointer" }}>
+                    <I.Trash />
+                  </button>
+                )}
+              </div>
+            ))}
+
+            <button onClick={addItem} style={{ padding: "6px 14px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, cursor: "pointer", margin: "10px 0", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <I.Plus /> {t.addItem}
+            </button>
+
+            <div style={{ padding: "12px", background: `${PRIMARY}10`, borderRadius: 6, textAlign: "center", marginTop: 10 }}>
+              <span style={{ fontWeight: 800, color: PRIMARY, fontSize: 16 }}>{t.total}: {form.currency==="usd"?"$":""}{fmt(total)} {form.currency==="usd"?t.usd:t.iqd}</span>
+            </div>
+          </div>
+        </EditModal>
+      )}
+
       {confirmDel && <ConfirmModal message={t.confirmDelete} onYes={()=>doDelete(confirmDel)} onNo={()=>setConfirmDel(null)} s={s} t={t} />}
     </div>
   );
 }
 
 // ==================== BACKUP ====================
-function BackupPage({ t, s, pKey }) {
+function BackupPage({ t, s, pKey, isFrozen }) {
   const handleDownload = () => {
     const data = {};
-    for (let i=0;i<localStorage.length;i++) { const k=localStorage.key(i); if(k?.startsWith("karo_")) data[k]=localStorage.getItem(k); }
+    for (let i=0;i<localStorage.length;i++) { 
+      const k=localStorage.key(i); 
+      if(k?.startsWith("karo_") && (k.includes(pKey) || k === "karo_users" || k === "karo_messages")) 
+        data[k]=localStorage.getItem(k); 
+    }
     const b = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`karo_backup_${today()}.json`; a.click();
+    const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`karo_backup_${pKey}_${today()}.json`; a.click();
   };
+  
   const handleUpload = e => {
+    if (isFrozen) {
+      alert(t.frozen);
+      return;
+    }
+    
     const f=e.target.files[0]; if(!f)return;
     const r=new FileReader();
-    r.onload=ev=>{ try { const d=JSON.parse(ev.target.result); Object.entries(d).forEach(([k,v])=>localStorage.setItem(k,v)); alert(t.backupSuccess); window.location.reload(); } catch{alert("Error")} };
-    r.readAsText(f); e.target.value="";
+    r.onload=ev=>{ 
+      try { 
+        const d=JSON.parse(ev.target.result); 
+        Object.entries(d).forEach(([k,v])=>localStorage.setItem(k,v)); 
+        alert(t.backupSuccess); 
+        window.location.reload(); 
+      } catch {
+        alert("Error");
+      }
+    };
+    r.readAsText(f); 
+    e.target.value="";
   };
+  
   return (
-    <div>
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: PRIMARY }}>{t.sidebar.backup}</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 14 }}>
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 24, textAlign: "right" }}>
-          <I.Download /><h3 style={{ margin: "10px 0 6px", fontWeight: 700, fontSize: 14 }}>{t.downloadBackup}</h3>
-          <button onClick={handleDownload} style={{ padding: "8px 20px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer", marginTop: 6 }}><I.Download /> {t.downloadBackup}</button>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20, color: PRIMARY, textAlign: "center" }}>{t.sidebar.backup}</h1>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px,1fr))", gap: 20 }}>
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 30, textAlign: "center" }}>
+          <I.Download size={50} />
+          <h3 style={{ margin: "15px 0 8px", fontWeight: 700, fontSize: 16, textAlign: "center" }}>{t.downloadBackup}</h3>
+          <button onClick={handleDownload} style={{ padding: "10px 30px", borderRadius: 6, background: PRIMARY, color: "#fff", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", marginTop: 10 }}>
+            <I.Download /> {t.downloadBackup}
+          </button>
         </div>
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 24, textAlign: "right" }}>
-          <I.Upload /><h3 style={{ margin: "10px 0 6px", fontWeight: 700, fontSize: 14 }}>{t.uploadBackup}</h3>
-          <label style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 20px", borderRadius: 6, background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, marginTop: 6 }}><I.Upload /> {t.uploadBackup}<input type="file" accept=".json" onChange={handleUpload} style={{ display: "none" }} /></label>
-        </div>
+        {!isFrozen && (
+          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 30, textAlign: "center" }}>
+            <I.Upload size={50} />
+            <h3 style={{ margin: "15px 0 8px", fontWeight: 700, fontSize: 16, textAlign: "center" }}>{t.uploadBackup}</h3>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "10px 30px", borderRadius: 6, background: PRIMARY, color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 600, marginTop: 10 }}>
+              <I.Upload /> {t.uploadBackup}
+              <input type="file" accept=".json" onChange={handleUpload} style={{ display: "none" }} />
+            </label>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1631,52 +3791,95 @@ function BackupPage({ t, s, pKey }) {
 
 // ==================== HISTORY ====================
 function HistoryPage({ t, s, isRtl, cashLog }) {
-  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-30);
+  const cutoff = new Date(); 
+  cutoff.setDate(cutoff.getDate()-30);
   const cs = cutoff.toISOString().split("T")[0];
   const recent = cashLog.filter(l=>l.date>=cs);
+  
   return (
-    <div>
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4, color: PRIMARY }}>{t.sidebar.history}</h1>
-      <p style={{ color: s.textMuted, fontSize: 11, marginBottom: 12 }}>30 {t.date}</p>
-      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto", maxHeight: 450, overflowY: "auto" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 5, color: PRIMARY, textAlign: "center" }}>{t.sidebar.history}</h1>
+      <p style={{ color: s.textMuted, fontSize: 13, marginBottom: 15, textAlign: "center" }}>30 {t.date}</p>
+      
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+        <div style={{ overflowX: "auto", height: "100%" }}>
           <table style={tableStyle}>
-            <thead><tr>{[t.date,"",t.type,t.iqd,t.usd].map((h,i)=><TH key={i} isRtl={isRtl}>{h}</TH>)}</tr></thead>
-            <tbody>{[...recent].reverse().map(log=>(
-              <tr key={log.id}>
-                <TD s={s} style={{ direction: "ltr", fontSize: 10, minWidth: 85 }}>{log.date}</TD>
-                <TD s={s} style={{ fontSize: 9, color: s.textMuted, minWidth: 60 }}>{log.time}</TD>
-                <TD s={s} style={{ minWidth: 120 }}>{log.desc}</TD>
-                <TD s={s} style={{ direction: "ltr", color: log.iqd>=0?s.success:s.danger, fontWeight: 600, minWidth: 80 }}>{log.iqd>=0?"+":""}{fmt(log.iqd)}</TD>
-                <TD s={s} style={{ direction: "ltr", color: log.usd>=0?s.success:s.danger, fontWeight: 600, minWidth: 70 }}>{log.usd>=0?"+":""}${fmt(log.usd)}</TD>
+            <thead>
+              <tr>
+                <TH isRtl={isRtl}>{t.date}</TH>
+                <TH isRtl={isRtl}>{t.type}</TH>
+                <TH isRtl={isRtl}>{t.iqd}</TH>
+                <TH isRtl={isRtl}>{t.usd}</TH>
               </tr>
-            ))}</tbody>
+            </thead>
+            <tbody>
+              {[...recent].reverse().map(log => (
+                <tr key={log.id} style={{ textAlign: "center" }}>
+                  <TD s={s} style={{ direction: "ltr", fontSize: 12, minWidth: 85 }}>{log.date} {log.time}</TD>
+                  <TD s={s} style={{ minWidth: 200 }}>{log.desc}</TD>
+                  <TD s={s} style={{ direction: "ltr", color: log.iqd>=0?s.success:s.danger, fontWeight: 600, minWidth: 80 }}>
+                    {log.iqd>=0?"+":""}{fmt(log.iqd)}
+                  </TD>
+                  <TD s={s} style={{ direction: "ltr", color: log.usd>=0?s.success:s.danger, fontWeight: 600, minWidth: 70 }}>
+                    {log.usd>=0?"+":""}${fmt(log.usd)}
+                  </TD>
+                </tr>
+              ))}
+            </tbody>
           </table>
-          {recent.length===0&&<div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+          {recent.length===0 && <div style={{ padding: 50, textAlign: "center", color: s.textMuted, fontSize: 14 }}>{t.noData}</div>}
         </div>
       </div>
     </div>
   );
 }
 
-// ==================== MONTHLY REPORT ====================
+// ==================== MONTHLY ====================
 function MonthlyPage({ t, s, isRtl, pKey, cashIQD, cashUSD, exchangeRate }) {
   const [dateFrom, setDateFrom] = useState(today().slice(0,8)+"01");
   const [dateTo, setDateTo] = useState(today());
   const [activeTab, setActiveTab] = useState("summary");
   const [sizeModal, setSizeModal] = useState(null);
+  const [reportCurrency, setReportCurrency] = useState("iqd");
+  const [reportRate, setReportRate] = useState(exchangeRate);
 
   const exp = getLS(`karo_exp_${pKey}`,[]).filter(i=>i.date>=dateFrom&&i.date<=dateTo);
   const conc = getLS(`karo_conc_${pKey}`,[]).filter(i=>i.date>=dateFrom&&i.date<=dateTo);
 
-  const tExpIQD = exp.reduce((a,b)=>a+Number(b.amountIQD||0),0);
-  const tExpUSD = exp.reduce((a,b)=>a+Number(b.amountUSD||0),0);
-  const tConcRec = conc.reduce((a,b)=>a+Number(b.received||0),0);
-  const tConcDep = conc.reduce((a,b)=>a+Number(b.deposit||0),0);
+  const calculateInCurrency = (amountIQD, amountUSD, currency) => {
+    if (reportCurrency === "iqd") {
+      if (currency === "iqd") return amountIQD;
+      return Math.round(amountUSD * reportRate);
+    } else {
+      if (currency === "usd") return amountUSD;
+      return Math.round(amountIQD / reportRate);
+    }
+  };
 
-  const incomeIQD = tConcRec;
-  const expenseIQD = tExpIQD;
-  const profitIQD = incomeIQD - expenseIQD;
+  const tExp = exp.reduce((a,b) => a + calculateInCurrency(
+    Number(b.amountIQD||0), 
+    Number(b.amountUSD||0), 
+    b.currency || (Number(b.amountUSD) ? "usd" : "iqd")
+  ), 0);
+
+  const tConcRec = conc.reduce((a,b) => a + calculateInCurrency(
+    b.currency === "iqd" ? Number(b.received||0) : 0,
+    b.currency === "usd" ? Number(b.received||0) : 0,
+    b.currency
+  ), 0);
+
+  const tConcDep = conc.reduce((a,b) => a + calculateInCurrency(
+    b.currency === "iqd" ? Number(b.deposit||0) : 0,
+    b.currency === "usd" ? Number(b.deposit||0) : 0,
+    b.currency
+  ), 0);
+
+  const tMeters = conc.reduce((a,b) => a + Number(b.meters||0), 0);
+  const avgPrice = conc.length > 0 
+    ? Math.round(conc.reduce((a,b) => a + (Number(b.totalPrice||0) / (Number(b.meters||0) || 1)), 0) / conc.length) 
+    : 0;
+
+  const profit = tConcRec - tExp;
 
   const tabs = [
     { id: "summary", label: t.reportsTitle },
@@ -1685,81 +3888,171 @@ function MonthlyPage({ t, s, isRtl, pKey, cashIQD, cashUSD, exchangeRate }) {
   ];
 
   const doExport = (type, size) => {
-    const hdrs = [t.type, t.iqd, t.usd];
-    const rows = [[t.totalExpIQD, fmt(tExpIQD), "—"], [t.totalExpUSD, "—", "$"+fmt(tExpUSD)], [t.totalConcreteReceived, fmt(tConcRec), "—"], [t.totalDeposit, fmt(tConcDep), "—"], [t.profitLoss, fmt(profitIQD), "—"]];
-    if (type==="pdf") doPrint({ title: `${t.sidebar.monthlyReport} ${dateFrom} - ${dateTo}`, headers: hdrs, rows, size, isRtl });
-    else doExcel({ title: `monthly_${dateFrom}_${dateTo}`, headers: hdrs, rows });
+    const currencyLabel = reportCurrency === "iqd" ? t.iqd : t.usd;
+    const symbol = reportCurrency === "usd" ? "$" : "";
+    
+    const hdrs = [t.type, currencyLabel];
+    const rows = [
+      [t.totalExpIQD, symbol + fmt(tExp)],
+      [t.totalConcreteReceived, symbol + fmt(tConcRec)],
+      [t.totalDeposit, symbol + fmt(tConcDep)],
+      [t.totalMeters, fmt(tMeters)],
+      [t.avgPricePerMeter, symbol + fmt(avgPrice)],
+      [t.profitLoss, symbol + fmt(Math.abs(profit)) + (profit >= 0 ? ` ${t.profit}` : ` ${t.loss}`)]
+    ];
+    
+    if (type==="pdf") doPrint({ title: `${t.sidebar.monthlyReport} ${dateFrom} - ${dateTo} (${currencyLabel})`, headers: hdrs, rows, size, isRtl });
+    else doExcel({ title: `monthly_${dateFrom}_${dateTo}_${reportCurrency}`, headers: hdrs, rows });
     setSizeModal(null);
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: PRIMARY }}>{t.sidebar.monthlyReport}</h1>
-        <div style={{ display: "flex", gap: 5 }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 15, flexWrap: "wrap", gap: 10 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: PRIMARY, textAlign: "center" }}>{t.sidebar.monthlyReport}</h1>
+        <div style={{ display: "flex", gap: 8 }}>
           <button onClick={()=>setSizeModal({type:"pdf"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.File /> {t.savePDF}</button>
           <button onClick={()=>setSizeModal({type:"excel"})} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}><I.Download /> {t.saveExcel}</button>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 14, flexWrap: "wrap", alignItems: "flex-end" }}>
-        <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.from}</label><input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} style={{ padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
-        <div><label style={{ fontSize: 10, color: s.textMuted, fontWeight: 600 }}>{t.to}</label><input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)} style={{ padding: "6px 10px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 12, direction: "ltr" }} /></div>
+      <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, padding: 15, marginBottom: 15, display: "flex", gap: 15, flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center" }}>
+        <div>
+          <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 3, textAlign: "center" }}>{t.selectCurrency}</label>
+          <select value={reportCurrency} onChange={e=>setReportCurrency(e.target.value)} style={{ padding: "8px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, minWidth: 130, textAlign: "center" }}>
+            <option value="iqd">{t.iqd}</option>
+            <option value="usd">{t.usd}</option>
+          </select>
+        </div>
+        
+        <div>
+          <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 3, textAlign: "center" }}>{t.exchangeRateForReport}</label>
+          <input type="number" value={reportRate} onChange={e=>setReportRate(Number(e.target.value))} style={{ padding: "8px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, width: 130, direction: "ltr", textAlign: "center" }} />
+        </div>
+        
+        <div>
+          <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 3, textAlign: "center" }}>{t.from}</label>
+          <input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} style={{ padding: "8px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+        </div>
+        <div>
+          <label style={{ fontSize: 12, color: s.textMuted, fontWeight: 600, display: "block", marginBottom: 3, textAlign: "center" }}>{t.to}</label>
+          <input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)} style={{ padding: "8px 15px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bgCard2, color: s.text, fontSize: 13, direction: "ltr", textAlign: "center" }} />
+        </div>
       </div>
 
-      <div style={{ display: "flex", gap: 4, marginBottom: 14 }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 15, justifyContent: "center" }}>
         {tabs.map(tab => (
-          <button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{ padding: "7px 16px", borderRadius: 6, border: activeTab===tab.id?"none":`1px solid ${s.border}`, background: activeTab===tab.id?PRIMARY:s.bgCard2, color: activeTab===tab.id?"#fff":s.text, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{tab.label}</button>
+          <button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{ 
+            padding: "8px 20px", 
+            borderRadius: 6, 
+            border: activeTab===tab.id?"none":`1px solid ${s.border}`, 
+            background: activeTab===tab.id?PRIMARY:s.bgCard2, 
+            color: activeTab===tab.id?"#fff":s.text, 
+            fontSize: 13, 
+            fontWeight: 600, 
+            cursor: "pointer" 
+          }}>
+            {tab.label}
+          </button>
         ))}
       </div>
 
-      {activeTab==="summary" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
-          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalExpIQD}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.danger }}>{fmt(tExpIQD)}</div></div>
-          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalExpUSD}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.danger }}>${fmt(tExpUSD)}</div></div>
-          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${s.success}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalConcreteReceived}</div><div style={{ fontSize: 20, fontWeight: 800, color: s.success }}>{fmt(tConcRec)}</div></div>
-          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid #F59E0B` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.totalDeposit}</div><div style={{ fontSize: 20, fontWeight: 800, color: "#F59E0B" }}>{fmt(tConcDep)}</div></div>
-          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, textAlign: "right", borderTop: `3px solid ${profitIQD>=0?s.success:s.danger}` }}><div style={{ fontSize: 10, color: s.textMuted, marginBottom: 5 }}>{t.profitLoss} ({t.iqd})</div><div style={{ fontSize: 20, fontWeight: 800, color: profitIQD>=0?s.success:s.danger }}>{profitIQD>=0?t.profit:t.loss}: {fmt(Math.abs(profitIQD))}</div></div>
-        </div>
-      )}
-
-      {activeTab==="expenses" && (
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={tableStyle}>
-              <thead><tr>{[t.amountIQD,t.amountUSD,t.receiptNo,t.note,t.date].map((h,i)=><TH key={i} isRtl={isRtl}>{h}</TH>)}</tr></thead>
-              <tbody>{exp.map(item=>(
-                <tr key={item.id}>
-                  <TD s={s} style={{ direction: "ltr", fontWeight: 600, minWidth: 90 }}>{Number(item.amountIQD)?fmt(item.amountIQD):"—"}</TD>
-                  <TD s={s} style={{ direction: "ltr", minWidth: 80 }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
-                  <TD s={s} style={{ minWidth: 80 }}>{item.receiptNo || "—"}</TD>
-                  <TD s={s} style={{ minWidth: 100, color: s.textMuted }}>{item.note || "—"}</TD>
-                  <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
-                </tr>
-              ))}</tbody>
-            </table>
-            {exp.length===0&&<div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+      {activeTab === "summary" && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 15 }}>
+          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", borderTop: `4px solid ${s.danger}` }}>
+            <div style={{ fontSize: 12, color: s.textMuted, marginBottom: 8 }}>{t.totalExpIQD} ({reportCurrency === "iqd" ? t.iqd : t.usd})</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: s.danger }}>{reportCurrency === "usd" ? "$" : ""}{fmt(tExp)}</div>
+          </div>
+          
+          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", borderTop: `4px solid ${s.success}` }}>
+            <div style={{ fontSize: 12, color: s.textMuted, marginBottom: 8 }}>{t.totalConcreteReceived} ({reportCurrency === "iqd" ? t.iqd : t.usd})</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: s.success }}>{reportCurrency === "usd" ? "$" : ""}{fmt(tConcRec)}</div>
+          </div>
+          
+          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", borderTop: `4px solid ${s.warning}` }}>
+            <div style={{ fontSize: 12, color: s.textMuted, marginBottom: 8 }}>{t.totalDeposit} ({reportCurrency === "iqd" ? t.iqd : t.usd})</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: s.warning }}>{reportCurrency === "usd" ? "$" : ""}{fmt(tConcDep)}</div>
+          </div>
+          
+          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", borderTop: `4px solid ${PRIMARY}` }}>
+            <div style={{ fontSize: 12, color: s.textMuted, marginBottom: 8 }}>{t.totalMeters}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{fmt(tMeters)}</div>
+          </div>
+          
+          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", borderTop: `4px solid ${PRIMARY}` }}>
+            <div style={{ fontSize: 12, color: s.textMuted, marginBottom: 8 }}>{t.avgPricePerMeter} ({reportCurrency === "iqd" ? t.iqd : t.usd})</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{reportCurrency === "usd" ? "$" : ""}{fmt(avgPrice)}</div>
+          </div>
+          
+          <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, textAlign: "center", borderTop: `4px solid ${profit>=0?s.success:s.danger}` }}>
+            <div style={{ fontSize: 12, color: s.textMuted, marginBottom: 8 }}>{t.profitLoss} ({reportCurrency === "iqd" ? t.iqd : t.usd})</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: profit>=0?s.success:s.danger }}>
+              {reportCurrency === "usd" ? "$" : ""}{fmt(Math.abs(profit))} {profit>=0 ? t.profit : t.loss}
+            </div>
           </div>
         </div>
       )}
 
-      {activeTab==="concrete" && (
-        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
+      {activeTab === "expenses" && (
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+          <div style={{ overflowX: "auto", height: "100%" }}>
             <table style={tableStyle}>
-              <thead><tr>{[t.date,t.meters,t.pricePerMeter,t.totalConcrete,t.deposit,t.received].map((h,i)=><TH key={i} isRtl={isRtl}>{h}</TH>)}</tr></thead>
-              <tbody>{conc.map(item=>(
-                <tr key={item.id}>
-                  <TD s={s} style={{ direction: "ltr", minWidth: 95 }}>{item.date}</TD>
-                  <TD s={s} style={{ direction: "ltr", minWidth: 60 }}>{fmt(item.meters)}</TD>
-                  <TD s={s} style={{ direction: "ltr", minWidth: 70 }}>{fmt(item.pricePerMeter)}</TD>
-                  <TD s={s} style={{ direction: "ltr", fontWeight: 700, color: PRIMARY, minWidth: 90 }}>{fmt(item.totalPrice)}</TD>
-                  <TD s={s} style={{ direction: "ltr", color: "#D97706", minWidth: 70 }}>{fmt(item.deposit)}</TD>
-                  <TD s={s} style={{ direction: "ltr", color: s.success, fontWeight: 700, minWidth: 80 }}>{fmt(item.received)}</TD>
+              <thead>
+                <tr>
+                  <TH isRtl={isRtl}>{t.amountIQD}</TH>
+                  <TH isRtl={isRtl}>{t.amountUSD}</TH>
+                  <TH isRtl={isRtl}>{t.receiptNo}</TH>
+                  <TH isRtl={isRtl}>{t.note}</TH>
+                  <TH isRtl={isRtl}>{t.date}</TH>
                 </tr>
-              ))}</tbody>
+              </thead>
+              <tbody>
+                {exp.map(item => (
+                  <tr key={item.id}>
+                    <TD s={s} style={{ direction: "ltr" }}>{Number(item.amountIQD)?fmt(item.amountIQD):"—"}</TD>
+                    <TD s={s} style={{ direction: "ltr" }}>{Number(item.amountUSD)?"$"+fmt(item.amountUSD):"—"}</TD>
+                    <TD s={s}>{item.receiptNo || "—"}</TD>
+                    <TD s={s}>{item.note || "—"}</TD>
+                    <TD s={s} style={{ direction: "ltr" }}>{item.date}</TD>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            {conc.length===0&&<div style={{ padding: 30, textAlign: "right", color: s.textMuted, fontSize: 12 }}>{t.noData}</div>}
+            {exp.length===0 && <div style={{ padding: 50, textAlign: "center", color: s.textMuted }}>{t.noData}</div>}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "concrete" && (
+        <div style={{ background: s.bgCard, border: `1px solid ${s.border}`, borderRadius: 10, overflow: "hidden", flex: 1 }}>
+          <div style={{ overflowX: "auto", height: "100%" }}>
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <TH isRtl={isRtl}>{t.date}</TH>
+                  <TH isRtl={isRtl}>{t.currency}</TH>
+                  <TH isRtl={isRtl}>{t.meters}</TH>
+                  <TH isRtl={isRtl}>{t.pricePerMeter}</TH>
+                  <TH isRtl={isRtl}>{t.totalConcrete}</TH>
+                  <TH isRtl={isRtl}>{t.deposit}</TH>
+                  <TH isRtl={isRtl}>{t.received}</TH>
+                </tr>
+              </thead>
+              <tbody>
+                {conc.map(item => (
+                  <tr key={item.id}>
+                    <TD s={s} style={{ direction: "ltr" }}>{item.date}</TD>
+                    <TD s={s}>{item.currency === "usd" ? t.usd : t.iqd}</TD>
+                    <TD s={s} style={{ direction: "ltr" }}>{fmt(item.meters)}</TD>
+                    <TD s={s} style={{ direction: "ltr" }}>{fmt(item.pricePerMeter)}</TD>
+                    <TD s={s} style={{ direction: "ltr", fontWeight: 700, color: PRIMARY }}>{fmt(item.totalPrice)}</TD>
+                    <TD s={s} style={{ direction: "ltr", color: s.warning }}>{fmt(item.deposit)}</TD>
+                    <TD s={s} style={{ direction: "ltr", color: s.success }}>{fmt(item.received)}</TD>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {conc.length===0 && <div style={{ padding: 50, textAlign: "center", color: s.textMuted }}>{t.noData}</div>}
           </div>
         </div>
       )}
